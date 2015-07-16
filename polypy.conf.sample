@@ -1,0 +1,4 @@
+[polycom]
+root=/home/voip/www/p/
+server=voip.l-3.com
+sippath=/home/asterisk/asterisk-bin/asterisk/sip.conf
