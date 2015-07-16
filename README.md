@@ -18,3 +18,7 @@ This script generates local phone directories as well as the general directory f
 3. [user]-personal.csv - a comma separated list of numbers and people that should appear as part of the "personal directory" for that phone's user. This can be completely omitted if you use user-sd.csv for all that data.
 
 Using the -g swich will read a file called "mcdb.csv" and populate its contents into the 0000000000-directory.xml as the base directory for all phones at all sites.
+
+#restart-polycom.sh
+tldr; = "Restarts all Polycoms in the system"
+A bash script, which gathers all the registered phones from a "sip show peers" command, parses them, and then uses asterisk -rx to send "sip notify polycom-chk-config" packets to each peer, causing them to check the provisioning server for config changes and reboot if there are any so they can be adopted.
