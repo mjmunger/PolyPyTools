@@ -14,7 +14,11 @@ This script reads the sip.conf file, and generates the appropriate configuration
 
 This script generates local phone directories as well as the general directory for Polycom phones (in XML format). It creates the MAC-directory.xml files from the following files (if they exist):
 1. users.csv - a CSV file of the extensions of users that you want to appear first in the directory. Gendir.py assumes that users here should have buddy watch enabled.
-1. [user]-sd.csv - a comma separated list of numbers and people that should appear next as "speed dials"
-1. [user]-personal.csv - a comma separated list of numbers and people that should appear as part of the "personal directory" for that phone's user. This can be completely omitted if you use user-sd.csv for all that data.
+2. [user]-sd.csv - a comma separated list of numbers and people that should appear next as "speed dials"
+3. [user]-personal.csv - a comma separated list of numbers and people that should appear as part of the "personal directory" for that phone's user. This can be completely omitted if you use user-sd.csv for all that data.
 
 Using the -g swich will read a file called "mcdb.csv" and populate its contents into the 0000000000-directory.xml as the base directory for all phones at all sites.
+
+#restart-polycom.sh
+tldr; = "Restarts all Polycoms in the system"
+A bash script, which gathers all the registered phones from a "sip show peers" command, parses them, and then uses asterisk -rx to send "sip notify polycom-chk-config" packets to each peer, causing them to check the provisioning server for config changes and reboot if there are any so they can be adopted.
