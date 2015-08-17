@@ -93,7 +93,7 @@ def make_item(first,last,contact,counter,watch):
 	sd.text = "%s" % counter
 
 	rt=etree.Element('rt')
-	rt.text = "3"
+	rt.text = "12"
 
 	dc=etree.Element('dc')
 
@@ -285,23 +285,17 @@ if check_file(speedial):
 
 			item_list.append(item)
 
-personaldirectory = '%s-personal.csv' % theuser
-if check_file(personaldirectory):
-	print "INCLUDING: Personal Direcotry (%s)" % personaldirectory
-	with open(personaldirectory,'rb') as csvfile:
+companyDirectory = 'mcdb.csv'
+
+if check_file(companyDirectory):
+	print "INCLUDING: Company Direcotry (%s)" % companyDirectory
+	with open(companyDirectory,'rb') as csvfile:
 		myreader = csv.reader(csvfile,delimiter=',',quotechar='"')
 		for row in myreader:
+			print row
 			first = ""
-			last = ""
+			last = row[1]
 			number = sanitize_number(row[0])
-			col2 = row[1]
-			if " " in col2:
-				buffer = col2.split(" ")
-				first = buffer[0]
-				last = buffer[1]
-			else:
-				first = col2
-				last = ""
 
 			contact = number
 			watch = "0"

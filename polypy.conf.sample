@@ -1,4 +1,22 @@
 [polycom]
+
+# The absolute path to the document root for your provisioning server. 
+# This assumes that you are using Apache (http) for provisioning, and 
+# that Apache is running as user "voip" with a document root of
+# /home/voip/www/p/, and each site is expected to be a subdirectory
+# of that directory. So, the "office" site (local phones) would 
+# be in /home/voip/www/p/office, but your remote phones for site #2
+# would be in /home/voip/www/p/remote. The PolyPyTools toolset assumes
+# that each TEMPLATE you create in sip.conf corresponds to a site.
+# You should change this to match your config setup.
+
 root=/home/voip/www/p/
+
+# This can be either the FQDN of your asterisk server or an IP address.
 server=voip.l-3.com
+
+# This is the absolute path to sip.conf. Here, you can see asterisk was 
+# installed as a non-root user at compile time. Make sure that sip.conf 
+# has at least "read" permissions by the same user that you will be 
+# generating configs from.
 sippath=/home/asterisk/asterisk-bin/asterisk/sip.conf

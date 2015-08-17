@@ -49,11 +49,11 @@ def usage():
 	print ""
 	print "OPTION LIST"
 	print ""
-	print "-a 		--all     			Process all extensions."
-	print "-e[NNN]  --extension NNN		Process extension NNN only."
-	print "-s[foo]	--server foo		Set the server where this phone will register to foo"
-	print "-t[bar]	--site bar			Set the site name to bar. (This is the directory where the phone will look for configs under document root"
-	print "-l 		--license			Display the license for this software"
+	print "-a       --all             Process all extensions."
+	print "-c       --show-configs    Show the configs for this app"
+	print "-e[NNN]  --extension NNN   Process extension NNN only."
+	print "-s[foo]  --server foo      Set the site name to bar. (This is the directory where the phone will look for configs under document root"
+	print "-l       --license         Display the license for this software"
 	print ""
 
 def showLicense():
