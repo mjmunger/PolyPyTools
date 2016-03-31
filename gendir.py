@@ -3,8 +3,8 @@ from lxml import etree
 import csv
 import getopt, sys, os, ConfigParser
 
-options = "b:cdghlm:u:"
-longopts = ['blacklist=','help','license','mac=','user=','discover=','show-configs','--generate-basedirectory']
+options = "b:cdghlm:u:o:"
+longopts = ['blacklist=','help','license','mac=','user=','discover=','show-configs','--generate-basedirectory','model']
 optlist, args = getopt.getopt(sys.argv[1:],options,longopts)
 themac = None
 blacklist = None
@@ -23,6 +23,7 @@ def usage():
 	print "-d       --discover                Display all the extensions that are found in sip.conf along with their mac addresses"
 	print "-g       --generate-basedirectory  Generate the 000000000000-directory.xml from the mcdb.csv file"
 	print "-m[...]  --mac[...]                Identify the mac address of the phone that will be using this directory."
+	print "-o[...]  --model[...]              Identify the model of the phone so the appropriate direcotry can be assigned to it. If unused, no directory will be appeneded to the speed dials."
 	print "-l       --license                 Display the license for this software"
 	print "-h       --help                    Show this help."
 	print "-u       --user                    The user that uses this phone. This is used to find the CSV files for that user."
@@ -56,7 +57,13 @@ def discover(conf):
 				#Find the closing ]
 				pos = line.upper().find("]")
 				extension = line[1:pos]
-				mac = f.next()[1:].strip()
+				meta = f.next()[1:].strip()
+				try:
+					buf = meta.split('|')
+					mac = buf[0];
+					model = buf[1]
+				except Exception, e:
+					print e
 				CID=None
 				buffer=None
 				try:
@@ -68,7 +75,7 @@ def discover(conf):
 							CID = data[1]
 				except StopIteration, e:
 					do="nothing"
-				print "Found extension: %s for MAC %s with CID of %s" % (extension,mac,CID)
+				print "Found a %s with extension: %s for MAC %s with CID of %s" % (model,extension,mac,CID)
 
 
 def sanitize_number(number):
@@ -192,6 +199,9 @@ for o,a in optlist:
 	if o in ['-b','--blacklist']:
 		print "Blacklisting %s" % a
 		blacklist = a
+	if o in ['-o','--model']:
+		print "Phone model set to: %s" % a
+		model = a
 	if o in ['-m','--mac']:
 		print "Setting mac to: %s" % a
 		themac = a
@@ -230,6 +240,8 @@ root = etree.Element('directory')
 item_list = etree.Element('item_list')
 counter = 0
 directory = {}
+numbers = []
+duplicates = []
 
 # Load up the office contacts
 root.append(item_list)
@@ -256,7 +268,7 @@ with open('users.csv','rb') as csvfile:
 		directory[counter] = first + " " + last
 		item_list.append(item)
 
-speedial = '%s-sd.csv' % theuser
+speedial = '%s-sd-%s.csv' % (theuser, model)
 
 if check_file(speedial):
 
@@ -264,51 +276,60 @@ if check_file(speedial):
 	with open(speedial,'rb') as csvfile:
 		myreader = csv.reader(csvfile,delimiter=',',quotechar='"')
 		for row in myreader:
-			first = ""
-			last = ""
 			number = sanitize_number(row[0])
-			col2 = row[1]
-			if " " in col2:
-				buffer = col2.split(" ")
-				first = buffer[0]
-				last = buffer[1]
-			else:
-				first = col2
-				last = ""
-
+			first = row[1].strip()
+			last = row[2].strip()
 			contact = number
 			watch = "0"
 			counter += 1
 			
 			directory[counter] = first + " " + last
-			item = make_item(first,last,contact,counter,watch)
 
-			item_list.append(item)
+			if number not in numbers:
+				numbers.append(number)
+				item = make_item(first,last,contact,counter,watch)
+				item_list.append(item)
+			else:
+				t = [first,last,number]
+				duplicates.append(t)
 
-companyDirectory = 'mcdb.csv'
+
+if model == '670':
+	companyDirectory = 'master-670.csv'
+
+elif model == '330':
+	companyDirectory = 'master-330.csv'
 
 if check_file(companyDirectory):
 	print "INCLUDING: Company Direcotry (%s)" % companyDirectory
 	with open(companyDirectory,'rb') as csvfile:
 		myreader = csv.reader(csvfile,delimiter=',',quotechar='"')
 		for row in myreader:
-			print row
-			first = ""
-			last = row[1]
 			number = sanitize_number(row[0])
+			first = row[1].strip()
+			last = row[2].strip()
 
 			contact = number
 			watch = "0"
 			counter += 1
 			
 			directory[counter] = first + " " + last
-			item = make_item(first,last,contact,counter,watch)
-
-			item_list.append(item)
+			if number not in numbers:
+				numbers.append(number)
+				item = make_item(first,last,contact,counter,watch)
+				item_list.append(item)
+			else:
+				t = [first,last,number]
+				duplicates.append(t)
 
 s = etree.tostring(root,pretty_print=True)
 outputfile = '%s-directory.xml' % themac
 outputfile = os.path.join(rootPath,outputfile)
+#If the output file already exists, delete it first.
+if os.path.exists(outputfile):
+	print "Directory already exists. Removing it!"
+	os.remove(outputfile)
+
 print "Writing %s ..." % outputfile,
 sm = open(outputfile,'w')
 sm.write(header + "\n")
@@ -322,6 +343,15 @@ for d in directory:
 	line = str(d).ljust(5) + directory[d]
 	tl.write(line + "\n")
 	print line
+
+if len(duplicates) > 0:
+	for dupe in duplicates:
+		print "Did not include this duplicate: %s" % dupe
+		tl.write("Did not include this duplicate: %s\n" % dupe)
+else:
+	tl.write("There were no duplicate numbers")
+	print "There were no duplicate numbers"
+	
 tl.close
 print "List saved in: %s" % outputfile
 print "Done."

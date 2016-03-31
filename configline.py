@@ -82,7 +82,16 @@ class Config:
 	mac			 = ""
 	registration = "1"
 
-	def __init__(self,server,site,extension,secret,mac,root):
+	def __init__(self,server,site,extension,secret,meta,root):
+
+		try:
+			buf = meta.split('|')
+			mac = buf[0]
+			model = buf[1]
+		except Exception, e:
+			print e
+			sys.exit()
+
 		self.server = server
 		self.site = site
 		self.extension = extension
@@ -112,8 +121,8 @@ class Config:
 				s.attributes['reg.2.label'] = "PPC"
 				# s.attributes['reg.1.outboundProxy.address']
 		output = xmldoc.toxml()
-		print "Writing MAC file: %s" % mac
-		xp = open(mac,'w')
+		print "Writing MAC file: %s" % self.mac
+		xp = open(self.mac,'w')
 		xp.write(output)
 		xp.close()
 
@@ -129,20 +138,20 @@ class Config:
 			paths.append(path)
 
 		# Add the last one.
-		config = "%s/%s" % (site,mac)
+		config = "%s/%s" % (site,self.mac)
 		paths.append(config)
 
 		setting = ", ".join(paths)
-		
+
 		for a in app:
 			a.attributes['CONFIG_FILES'] = setting
 
 		output =  xmldoc.toxml()
-		configfile = mac+".cfg"
+		configfile = self.mac+".cfg"
 		print "Writing: %s" % configfile
 		cp = open(configfile,"w")
 		cp.write(output)
-		cp.close()		
+		cp.close()
 
 site = None
 
@@ -158,7 +167,7 @@ for o,a in optlist:
 		print "Root: %s" % root
 		print "Server: %s" % server
 		print "Sippath: %s" % sippath
-		sys.exit()		
+		sys.exit()
 
 if site == None:
 	print ""
@@ -175,7 +184,7 @@ reg2 = {}
 for line in fp:
 	buff = line.strip()
 	if buff.startswith("["):
-			if not "general" in line and not "authentication" in line and not "!" in line:	
+			if not "general" in line and not "authentication" in line and not "!" in line:
 				if not site in buff:
 					print "%s is not part of site %s. Skipping" % (buff,site)
 					continue
@@ -184,10 +193,10 @@ for line in fp:
 				mac = buff[1:].strip()
 				buff = fp.next().split("=")
 				secret = buff[1].strip()
-		
+
 				thisConfig = Config(server,site,extension,secret,mac,root)
 				# print thisConfig.extension
-		
+
 				for o,a in optlist:
 					if o in ["-h",'--help']:
 						usage()
