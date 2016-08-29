@@ -1,6 +1,6 @@
 #!/usr/bin/python
 from xml.dom import minidom
-import sys, getopt, ConfigParser
+import os,sys, getopt, ConfigParser
 
 config = ConfigParser.RawConfigParser()
 config.read('/etc/polypy.conf')
@@ -52,7 +52,7 @@ def usage():
 	print "-a       --all             Process all extensions."
 	print "-c       --show-configs    Show the configs for this app"
 	print "-e[NNN]  --extension NNN   Process extension NNN only."
-	print "-s[foo]  --server foo      Set the site name to bar. (This is the directory where the phone will look for configs under document root"
+	print "-s[foo]  --site foo        Set the site name to bar. (This is the directory where the phone will look for configs under document root)"
 	print "-l       --license         Display the license for this software"
 	print ""
 
@@ -102,7 +102,7 @@ class Config:
 	def writeConfig(self):
 		print "Writing Registration %s for %s" % (self.registration,self.mac)
 		if self.registration == "1":
-			xmldoc = minidom.parse('reg-basic.cfg')
+			xmldoc = minidom.parse('Config/reg-basic.cfg')
 			itemlist = xmldoc.getElementsByTagName('reg')
 			for s in itemlist:
 				s.attributes['reg.1.address'] = '%s@%s' % (extension,server)
@@ -121,12 +121,15 @@ class Config:
 				s.attributes['reg.2.label'] = "PPC"
 				# s.attributes['reg.1.outboundProxy.address']
 		output = xmldoc.toxml()
-		print "Writing MAC file: %s" % self.mac
-		xp = open(self.mac,'w')
+		print self.site
+		print self.mac
+		macfilePath = os.path.join(os.path.join(self.root,self.site),self.mac)
+		print "Writing MAC file: %s" % macfilePath
+		xp = open(macfilePath,'w')
 		xp.write(output)
 		xp.close()
 
-		xmldoc = minidom.parse('000000000000.cfg')
+		xmldoc = minidom.parse('Config/000000000000.cfg')
 		app = xmldoc.getElementsByTagName('APPLICATION')
 
 		# Assemble config file list
@@ -147,7 +150,7 @@ class Config:
 			a.attributes['CONFIG_FILES'] = setting
 
 		output =  xmldoc.toxml()
-		configfile = self.mac+".cfg"
+		configfile = os.path.join(self.root,self.mac+".cfg")
 		print "Writing: %s" % configfile
 		cp = open(configfile,"w")
 		cp.write(output)
@@ -169,61 +172,92 @@ for o,a in optlist:
 		print "Sippath: %s" % sippath
 		sys.exit()
 
-if site == None:
-	print ""
-	print "You must specify a site with -s"
-	print ""
-	usage()
-	sys.exit()
+# if site == None:
+# 	print ""
+# 	print "You must specify a site with -s"
+# 	print ""
+# 	usage()
+# 	sys.exit()
 
 fp = open('/home/asterisk/asterisk-bin/asterisk/sip.conf')
 
 maclist = []
+serverlist = {}
+skiplist = ['[general]', '[authentication]']
+
 reg1 = {}
 reg2 = {}
+
 for line in fp:
 	buff = line.strip()
 	if buff.startswith("["):
-			if not "general" in line and not "authentication" in line and not "!" in line:
-				if not site in buff:
-					print "%s is not part of site %s. Skipping" % (buff,site)
-					continue
-				extension = line[1:4]
-				buff = fp.next()
-				mac = buff[1:].strip()
-				buff = fp.next().split("=")
-				secret = buff[1].strip()
 
-				thisConfig = Config(server,site,extension,secret,mac,root)
-				# print thisConfig.extension
+			#Don't process lines with bad keywords in them.
+			if buff in skiplist:
+				continue
 
-				for o,a in optlist:
-					if o in ["-h",'--help']:
-						usage()
-						sys.exit()
-					elif o in ["-l",'--license']:
-						showLicense()
-						sys.exit()
-					elif o in ['-a','--all']:
-						print "Writing Config (all)"
+			print "Processing: %s" % buff
+
+			# OK, now we can process because this line should be "good"
+
+			#Let's see if it's a template. If it is, we need to grab the server IP for this template.
+			if "!" in buff:
+				#It's a template! Parse the name, and find the server IP for this template
+				#Get the location of "]"
+				pos = buff.find("]")
+				template = buff[1:pos]
+				buff = fp.next().strip().split("=")
+				server_uri = buff[1]
+				serverlist[template] = server_uri
+				#We're done here. Keep moving.
+				continue
+
+			# if not site in buff:
+			# 	print "%s is not part of site %s. Skipping" % (buff,site)
+			# 	continue
+			extension = line[1:4]
+			#Discover the template for this phone.
+			pos1   = line.find("(") +1
+			pos2   = line.find(")")
+			site   = line[pos1:pos2]
+			server = serverlist[site]
+
+
+			buff = fp.next()
+			mac = buff[1:].strip()
+			buff = fp.next().split("=")
+			secret = buff[1].strip()
+
+			thisConfig = Config(server,site,extension,secret,mac,root)
+			# print thisConfig.extension
+
+			for o,a in optlist:
+				if o in ["-h",'--help']:
+					usage()
+					sys.exit()
+				elif o in ["-l",'--license']:
+					showLicense()
+					sys.exit()
+				elif o in ['-a','--all']:
+					print "Writing Config (all)"
+					if not mac in maclist:
+						maclist.append(mac)
+						thisConfig.registration = "1"
+						reg1[mac] = thisConfig.extension
+					else:
+						thisConfig.registration = "2"
+						reg2[mac] = thisConfig.extension
+					thisConfig.writeConfig()
+				elif o in ['-e','--extension']:
+					# print "does %s = %s?" % (a,thisConfig.extension)
+					if a == thisConfig.extension:
 						if not mac in maclist:
 							maclist.append(mac)
 							thisConfig.registration = "1"
-							reg1[mac] = thisConfig.extension
 						else:
 							thisConfig.registration = "2"
-							reg2[mac] = thisConfig.extension
+						print "Writing Specific Extension: %s" % thisConfig.extension
 						thisConfig.writeConfig()
-					elif o in ['-e','--extension']:
-						# print "does %s = %s?" % (a,thisConfig.extension)
-						if a == thisConfig.extension:
-							if not mac in maclist:
-								maclist.append(mac)
-								thisConfig.registration = "1"
-							else:
-								thisConfig.registration = "2"
-							print "Writing Specific Extension: %s" % thisConfig.extension
-							thisConfig.writeConfig()
 print ""
 print "REGISTRATION SUMMARY"
 for mac in reg1:
