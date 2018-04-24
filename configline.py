@@ -180,7 +180,7 @@ for o,a in optlist:
 # 	sys.exit()
 
 #fp = open('/home/asterisk/asterisk-bin/asterisk/sip.conf')
-fp = open(root)
+fp = open(sippath)
 
 maclist = []
 serverlist = {}
