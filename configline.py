@@ -129,7 +129,7 @@ class Config:
 		xp.write(output)
 		xp.close()
 
-		xmldoc = minidom.parse('Config/000000000000.cfg')
+		xmldoc = minidom.parse('000000000000.cfg')
 		app = xmldoc.getElementsByTagName('APPLICATION')
 
 		# Assemble config file list
