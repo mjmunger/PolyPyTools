@@ -123,7 +123,11 @@ class Config:
 		output = xmldoc.toxml()
 		print self.site
 		print self.mac
-		macfilePath = os.path.join(os.path.join(self.root,self.site),self.mac)
+		targetDir = os.path.join(self.root,self.site)
+		if os.path.exists(targetDir) == False:
+			os.mkdir(targetDir)
+
+		macfilePath = os.path.join(targetDir,self.mac)
 		print "Writing MAC file: %s" % macfilePath
 		xp = open(macfilePath,'w')
 		xp.write(output)
