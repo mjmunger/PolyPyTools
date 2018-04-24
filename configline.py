@@ -179,7 +179,8 @@ for o,a in optlist:
 # 	usage()
 # 	sys.exit()
 
-fp = open('/home/asterisk/asterisk-bin/asterisk/sip.conf')
+#fp = open('/home/asterisk/asterisk-bin/asterisk/sip.conf')
+fp = open(root)
 
 maclist = []
 serverlist = {}
