@@ -9,8 +9,8 @@ files = ['site.cfg', 'sip-interop.cfg', 'features.cfg', 'sip-basic.cfg', 'reg-ad
 paths = []
 
 for f in files:
-	path = "%s/%s" % (site,files)
-	paths.append(path)
+    path = "%s/%s" % (site,files)
+    paths.append(path)
 
 # Add the last one.
 config = "%s/%s" % (site,mac)

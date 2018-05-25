@@ -1,13 +1,15 @@
 #!/usr/bin/env python
-import os,random,sys,tempfile
+import os, random, sys, tempfile
+
 
 def makePassword():
     buff = ''
     chars = list('abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ0123456789')
     for x in range(16):
-        buff = buff + chars[random.randint(0,61)]
+        buff = buff + chars[random.randint(0, 61)]
 
     return buff
+
 
 def help():
     print "    "
@@ -19,6 +21,7 @@ def help():
     print "    randomizepw.py /path/to/foo.conf"
     print "    "
 
+
 def errorOut(message):
     print "================================================================================"
     print "ERROR: %s" % message
@@ -26,22 +29,24 @@ def errorOut(message):
     help()
     exit(1)
 
+
 def checkTarget(target):
     if os.path.exists(target) == False:
         errorOut("Specified target %s does not exist!" % target)
     return True
 
+
 def process(line):
     line = line.strip()
-    line = line.replace("#RND#",makePassword())
+    line = line.replace("#RND#", makePassword())
     return line
 
-def setPasswords(target):
 
+def setPasswords(target):
     outfd, outpath = tempfile.mkstemp()
-    infile = open(target,'rb')
-    outfile = open(outpath,'w')
-    backupfile = open(target + ".backup",'w')
+    infile = open(target, 'rb')
+    outfile = open(outpath, 'w')
+    backupfile = open(target + ".backup", 'w')
 
     for line in infile:
         backupfile.write(line)
@@ -50,12 +55,12 @@ def setPasswords(target):
 
     outfile.flush()
 
-    fd = open(outpath,'r')
-    
+    fd = open(outpath, 'r')
+
     infile.close()
     backupfile.close()
 
-    infile = open(target,'w')
+    infile = open(target, 'w')
     for line in fd:
         infile.write(line)
 
@@ -70,6 +75,6 @@ def setPasswords(target):
 if len(sys.argv) == 1:
     errorOut("You must specify a target file to process!")
 
-target=sys.argv[1]
+target = sys.argv[1]
 checkTarget(target)
 setPasswords(target)
