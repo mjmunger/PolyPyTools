@@ -56,7 +56,7 @@ def show_license():
 
 
 def discover(conf):
-    
+
     blacklisted = [ "general", "authentication", "!", "bandwidth" ]
 
     print "Discovering %s" % conf
@@ -73,7 +73,6 @@ def discover(conf):
             if skip:
                 continue
 
-            print "Parsing: %s" % line
             # Find the closing ]
             pos = line.upper().find("]")
             extension = line[1:pos]
