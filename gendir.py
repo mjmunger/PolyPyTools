@@ -62,6 +62,7 @@ def discover(conf):
         line = line.strip()
         if line.startswith("["):
             if not "general" in line and not "authentication" in line and not "!" in line:
+                print "Parsing: %s" % line
                 # Find the closing ]
                 pos = line.upper().find("]")
                 extension = line[1:pos]
