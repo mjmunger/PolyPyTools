@@ -56,35 +56,46 @@ def show_license():
 
 
 def discover(conf):
+    
+    blacklisted = [ "general", "authentication", "!", "bandwidth" ]
+
     print "Discovering %s" % conf
+
     f = open(conf, 'rb')
     for line in f:
         line = line.strip()
         if line.startswith("["):
-            if not "general" in line and not "authentication" in line and not "!" in line:
-                print "Parsing: %s" % line
-                # Find the closing ]
-                pos = line.upper().find("]")
-                extension = line[1:pos]
-                meta = f.next()[1:].strip()
-                try:
-                    buf = meta.split('|')
-                    mac = buf[0]
-                    model = buf[1]
-                except Exception, e:
-                    print e
-                cid = None
-                buffer = None
-                try:
+            skip = False
+            for banned in blacklisted:
+                if banned in line:
+                    skip = True
+
+            if skip:
+                continue
+
+            print "Parsing: %s" % line
+            # Find the closing ]
+            pos = line.upper().find("]")
+            extension = line[1:pos]
+            meta = f.next()[1:].strip()
+            try:
+                buf = meta.split('|')
+                mac = buf[0]
+                model = buf[1]
+            except Exception, e:
+                print e
+            cid = None
+            buffer = None
+            try:
+                buffer = f.next().strip()
+                while not len(buffer.strip()) == 0:
                     buffer = f.next().strip()
-                    while not len(buffer.strip()) == 0:
-                        buffer = f.next().strip()
-                        if buffer.startswith('callerid'):
-                            data = buffer.split("=")
-                            cid = data[1]
-                except StopIteration, e:
-                    do = "nothing"
-                print "Found a %s with extension: %s for MAC %s with cid of %s" % (model, extension, mac, cid)
+                    if buffer.startswith('callerid'):
+                        data = buffer.split("=")
+                        cid = data[1]
+            except StopIteration, e:
+                do = "nothing"
+            print "Found a %s with extension: %s for MAC %s with cid of %s" % (model, extension, mac, cid)
 
 
 def sanitize_number(number):
