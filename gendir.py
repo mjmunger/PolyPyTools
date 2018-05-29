@@ -68,11 +68,11 @@ def discover(conf):
                 meta = f.next()[1:].strip()
                 try:
                     buf = meta.split('|')
-                    mac = buf[0];
+                    mac = buf[0]
                     model = buf[1]
                 except Exception, e:
                     print e
-                CID = None
+                cid = None
                 buffer = None
                 try:
                     buffer = f.next().strip()
@@ -80,10 +80,10 @@ def discover(conf):
                         buffer = f.next().strip()
                         if buffer.startswith('callerid'):
                             data = buffer.split("=")
-                            CID = data[1]
+                            cid = data[1]
                 except StopIteration, e:
                     do = "nothing"
-                print "Found a %s with extension: %s for MAC %s with CID of %s" % (model, extension, mac, CID)
+                print "Found a %s with extension: %s for MAC %s with cid of %s" % (model, extension, mac, cid)
 
 
 def sanitize_number(number):
