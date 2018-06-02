@@ -1,16 +1,7 @@
-#!/usr/bin/python
+#!/usr/bin/python3
 from xml.dom import minidom
-import os, sys, getopt, ConfigParser
+import os, sys, getopt, configparser
 
-config = ConfigParser.RawConfigParser()
-config.read('/etc/polypy.conf')
-
-options = "ace:hls:t:"
-longopts = ['all', 'extension=', 'help', 'server=', 'site=', 'license', 'show-configs']
-optlist, args = getopt.getopt(sys.argv[1:], options, longopts)
-
-
-###
 # Parses sip.conf entries to generate the sip-basic.cfg registrations.
 # It's expecting an entry like the one below where:
 # * The extension is in the brackets
@@ -25,56 +16,61 @@ optlist, args = getopt.getopt(sys.argv[1:], options, longopts)
 # secret=shoonfa9s3k
 # callerid="Conference Phone" <111>
 ###
+
 def usage():
-    print ""
-    print "Usage: configline.py [options]"
-    print ""
-    print "FUNCTION SUMMARY"
-    print "Parses sip.conf entries to generate the sip-basic.cfg registrations."
-    print "It's expecting an entry like the one below where:"
-    print "* The extension is in the brackets"
-    print "* The first line after the extension is a COMMENTED mac address for the phone / user."
-    print "* The next line is the secret"
-    print "* The last line is the CID."
-    print ""
-    print "EXAMPLE"
-    print ""
-    print "[111](l3office)"
-    print ";0004f2f957f9"
-    print "secret=shoonfa9s3k"
-    print 'callerid="Conference Phone" <111>'
-    print ""
-    print "NOTE: It's probably best to copy the extensions from sip.conf into a separate file before running this script. This way,"
-    print "         you can ensure the formatting is correct, and there will not be any erroneous files created from ther configs that"
-    print "      which may match the patterns this script looks for."
-    print ""
-    print "OPTION LIST"
-    print ""
-    print "-a       --all             Process all extensions."
-    print "-c       --show-configs    Show the configs for this app"
-    print "-e[NNN]  --extension NNN   Process extension NNN only."
-    print "-s[foo]  --site foo        Set the site name to bar. (This is the directory where the phone will look for configs under document root)"
-    print "-l       --license         Display the license for this software"
-    print ""
+
+    print("""
+Usage: configline.py [options]
+
+FUNCTION SUMMARY
+Parses sip.conf entries to generate the sip-basic.cfg registrations.
+It's expecting an entry like the one below where:
+* The extension is in the brackets
+* The first line after the extension is a COMMENTED mac address for the phone / user.
+* The next line is the secret
+* The last line is the CID.
+
+EXAMPLE
+
+[111](l3office)
+;0004f2f957f9
+secret=shoonfa9s3k
+callerid="Conference Phone" <111>
+
+NOTE: It's probably best to copy the extensions from sip.conf into a separate file before running thisscript. This way,
+         you can ensure the formatting is correct, and there will not be any erroneous files created from ther configs that
+      which may match the patterns this script looks for.
+
+OPTION LIST
+
+-a       --all             Process all extensions.
+-c       --show-configs    Show the configs for this app
+-e[NNN]  --extension NNN   Process extension NNN only.
+-s[foo]  --site foo        Set the site name to bar. (This is the directory where the phone will look for configs under document root)
+-l       --license         Display the license for this software
+    """)
 
 
 def showLicense():
-    print "Process sip.conf into Polycom configs."
-    print "Copyright (C) 2015 High Powered Help, Inc. All Rights Reserved."
-    print ""
-    print "This program is free software: you can redistribute it and/or modify"
-    print "it under the terms of the GNU General Public License as published by"
-    print "the Free Software Foundation, either version 3 of the License, or"
-    print "(at your option) any later version."
-    print ""
-    print "This program is distributed in the hope that it will be useful,"
-    print "but WITHOUT ANY WARRANTY; without even the implied warranty of"
-    print "MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the"
-    print "GNU General Public License for more details."
-    print ""
-    print "You should have received a copy of the GNU General Public License"
-    print "along with this program.  If not, see <http://www.gnu.org/licenses/>."
-    print ""
+    print("""
+Process sip.conf into Polycom configs.
+
+Copyright (C) 2015-2018 High Powered Help, Inc. All Rights Reserved.
+
+This program is free software: you can redistribute it and/or modify
+it under the terms of the GNU General Public License as published by
+the Free Software Foundation, either version 3 of the License, or
+(at your option) any later version.
+
+This program is distributed in the hope that it will be useful,
+but WITHOUT ANY WARRANTY; without even the implied warranty of
+MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+GNU General Public License for more details.
+
+You should have received a copy of the GNU General Public License
+along with this program.  If not, see <http://www.gnu.org/licenses/>.
+    """)
+
 
 
 class Config:
@@ -91,8 +87,8 @@ class Config:
             buf = meta.split('|')
             mac = buf[0]
             model = buf[1]
-        except Exception, e:
-            print e
+        except Exception(e):
+            print(e)
             sys.exit()
 
         self.server = server
@@ -103,7 +99,8 @@ class Config:
         self.root = root
 
     def writeConfig(self):
-        print "Writing Registration %s for %s" % (self.registration, self.mac)
+
+        print("Writing Registration %s for %s" % (self.registration, self.mac))
         if self.registration == "1":
             xmldoc = minidom.parse('Config/reg-basic.cfg')
             itemlist = xmldoc.getElementsByTagName('reg')
@@ -124,15 +121,15 @@ class Config:
                 s.attributes['reg.2.label'] = "PPC"
                 # s.attributes['reg.1.outboundProxy.address']
         output = xmldoc.toxml()
-        print self.site
-        print self.mac
-        targetDir = os.path.join(self.root, self.site)
-        if os.path.exists(targetDir) == False:
-            os.mkdir(targetDir)
+        print(self.site)
+        print(self.mac)
+        target_dir = os.path.join(self.root, self.site)
+        if os.path.exists(target_dir) == False:
+            os.mkdir(target_dir)
 
-        macfilePath = os.path.join(targetDir, self.mac)
-        print "Writing MAC file: %s" % macfilePath
-        xp = open(macfilePath, 'w')
+        macfile_path = os.path.join(target_dir, self.mac)
+        print("Writing MAC file: %s" % macfile_path)
+        xp = open(macfile_path, 'w')
         xp.write(output)
         xp.close()
 
@@ -158,11 +155,23 @@ class Config:
 
         output = xmldoc.toxml()
         configfile = os.path.join(self.root, self.mac + ".cfg")
-        print "Writing: %s" % configfile
+        print("Writing: %s" % configfile)
         cp = open(configfile, "w")
         cp.write(output)
         cp.close()
 
+
+config_path = '/etc/polypy.conf'
+if not os.path.exists(config_path):
+    print("Config not found. Please create {}".format(config_path))
+    exit(1)
+
+config = ConfigParser.RawConfigParser()
+config.read(config_path)
+
+options = "ace:hls:t:"
+longopts = ['all', 'extension=', 'help', 'server=', 'site=', 'license', 'show-configs']
+optlist, args = getopt.getopt(sys.argv[1:], options, longopts)
 
 site = None
 
@@ -174,16 +183,16 @@ for o, a in optlist:
     if o in ["-s", '--site']:
         site = a
     elif o in ['-c', '--show-configs']:
-        print "Current Config Settings:"
-        print "Root: %s" % root
-        print "Server: %s" % server
-        print "Sippath: %s" % sippath
+        print("Current Config Settings:")
+        print("Root: %s" % root)
+        print("Server: %s" % server)
+        print("Sippath: %s" % sippath)
         sys.exit()
 
 # if site == None:
-#     print ""
-#     print "You must specify a site with -s"
-#     print ""
+#     print("")
+#     print("You must specify a site with -s")
+#     print("")
 #     usage()
 #     sys.exit()
 
@@ -205,7 +214,7 @@ for line in fp:
         if buff in skiplist:
             continue
 
-        print "Processing: %s" % buff
+        print("Processing: %s" % buff)
 
         # OK, now we can process because this line should be "good"
 
@@ -222,7 +231,7 @@ for line in fp:
             continue
 
         # if not site in buff:
-        #     print "%s is not part of site %s. Skipping" % (buff,site)
+        #     print("%s is not part of site %s. Skipping" % (buff,site))
         #     continue
         extension = line[1:4]
         # Discover the template for this phone.
@@ -237,7 +246,7 @@ for line in fp:
         secret = buff[1].strip()
 
         thisConfig = Config(server, site, extension, secret, mac, root)
-        # print thisConfig.extension
+        # print(thisConfig.extension)
 
         for o, a in optlist:
             if o in ["-h", '--help']:
@@ -247,7 +256,7 @@ for line in fp:
                 showLicense()
                 sys.exit()
             elif o in ['-a', '--all']:
-                print "Writing Config (all)"
+                print("Writing Config (all)")
                 if not mac in maclist:
                     maclist.append(mac)
                     thisConfig.registration = "1"
@@ -257,19 +266,19 @@ for line in fp:
                     reg2[mac] = thisConfig.extension
                 thisConfig.writeConfig()
             elif o in ['-e', '--extension']:
-                # print "does %s = %s?" % (a,thisConfig.extension)
+                # print("does %s = %s?" % (a,thisConfig.extension))
                 if a == thisConfig.extension:
                     if not mac in maclist:
                         maclist.append(mac)
                         thisConfig.registration = "1"
                     else:
                         thisConfig.registration = "2"
-                    print "Writing Specific Extension: %s" % thisConfig.extension
+                    print("Writing Specific Extension: %s" % thisConfig.extension)
                     thisConfig.writeConfig()
-print ""
-print "REGISTRATION SUMMARY"
+print("")
+print("REGISTRATION SUMMARY")
 for mac in reg1:
     r1 = reg1[mac]
     r2 = reg2[mac]
-    print  "%s has %s and %s" % (mac, r1, r2)
+    print("%s has %s and %s" % (mac, r1, r2))
 fp.close()
