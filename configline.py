@@ -166,7 +166,7 @@ if not os.path.exists(config_path):
     print("Config not found. Please create {}".format(config_path))
     exit(1)
 
-config = ConfigParser.RawConfigParser()
+config = configparser.RawConfigParser()
 config.read(config_path)
 
 options = "ace:hls:t:"
