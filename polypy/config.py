@@ -23,7 +23,6 @@ class Config:
     def provision(self, extension):
         print("Provisioning: {}".format(extension))
         for reg in self.registration:
-            print("Extension: {}".format(reg.extension))
             if extension == reg.extension:
                 print("Provisioning extension: {}".format(reg.extension))
                 self.write_config(reg)
