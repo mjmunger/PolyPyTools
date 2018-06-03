@@ -31,10 +31,8 @@ class Config:
 
     def check_target_dir(self, path):
 
-        target_path = os.path.dirname(path)
-
-        if not os.path.exists(target_path):
-            os.mkdir(target_path)
+        if not os.path.exists(path):
+            os.mkdir(path)
 
     def create_config(self, reg):
         xmldoc = minidom.parse('Config/reg-basic.cfg')
@@ -55,7 +53,7 @@ class Config:
 
     def write_config(self, reg):
 
-        self.check_target_dir(reg.get_mac_file)
+        self.check_target_dir(reg.get_target_dir())
 
         config = self.create_config(reg)
 
