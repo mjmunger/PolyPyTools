@@ -205,7 +205,7 @@ if not os.path.exists(confFile):
     print "[polycom]"
     print "root=/path/to/provisioning/root"
     print "server=your.provisioning.server"
-    print "sippath=/path/to/your/sip.conf"
+    print "sip_path=/path/to/your/sip.conf"
     print ""
     sys.exit()
 
@@ -215,7 +215,7 @@ config.read(confFile)
 
 rootPath = config.get('polycom', 'root')
 server = config.get('polycom', 'server')
-sippath = config.get('polycom', 'sippath')
+sippath = config.get('polycom', 'sip_path')
 # End Settings Get
 
 for o, a in optlist:
