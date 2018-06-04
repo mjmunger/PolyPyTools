@@ -1,4 +1,4 @@
-#!/usr/bin/python
+#!/usr/bin/python3
 from lxml import etree
 import csv
 import getopt, sys, os, ConfigParser
@@ -12,54 +12,57 @@ blacklist = None
 
 
 def usage():
-    print ""
-    print "Usage: gendir.py [options]"
-    print ""
-    print "FUNCTION SUMMARY"
-    print "Parses several CSV files to build the contact directory, speed dials, and general directory for Polycom phones."
-    print ""
-    print "OPTION LIST"
-    print ""
-    print "-b[...]  --blacklist[...]          Comma separated list of extensions NOT to include on this phone. Used to"
-    print "                                     prevent your own number from being a speed dial / presence"
-    print "-c       --show-configs            Show the current settings, which are kept in /etc/polypy.conf"
-    print "-d       --discover                Display all the extensions that are found in sip.conf along with their"
-    print "                                   mac addresses"
-    print "-g       --generate-basedirectory  Generate the 000000000000-directory.xml from the directory.csv file"
-    print "-m[...]  --mac[...]                Identify the mac address of the phone that will be using this directory."
-    print "-o[...]  --model[...]              Identify the model of the phone so the appropriate direcotry can be"
-    print "                                     assigned to it. If unused, no directory will be appeneded to the speed"
-    print "                                     dials."
-    print "-l       --license                 Display the license for this software"
-    print "-h       --help                    Show this help."
-    print "-u       --user                    Phone's user. This is used to find the CSV files for that user."
-    print ""
+    print("""    
+Usage: gendir.py [options]
+
+FUNCTION SUMMARY
+Parses several CSV files to build the contact directory, speed dials, and general directory for Polycom phones.
+
+OPTION LIST
+
+-b[...]  --blacklist[...]          Comma separated list of extensions NOT to include on this phone. Used to
+                                     prevent your own number from being a speed dial / presence
+-c       --show-configs            Show the current settings, which are kept in /etc/polypy.conf
+-d       --discover                Display all the extensions that are found in sip.conf along with their
+                                   mac addresses
+-g       --generate-basedirectory  Generate the 000000000000-directory.xml from the directory.csv file
+-m[...]  --mac[...]                Identify the mac address of the phone that will be using this directory.
+-o[...]  --model[...]              Identify the model of the phone so the appropriate direcotry can be
+                                     assigned to it. If unused, no directory will be appeneded to the speed
+                                     dials.
+-l       --license                 Display the license for this software
+-h       --help                    Show this help.
+-u       --user                    Phone's user. This is used to find the CSV files for that user.
+    """)
+
 
 
 def show_license():
-    print "Process multiple CSV files into Polycom directory configs."
-    print "Copyright (C) 2015 High Powered Help, Inc. All Rights Reserved."
-    print ""
-    print "This program is free software: you can redistribute it and/or modify"
-    print "it under the terms of the GNU General Public License as published by"
-    print "the Free Software Foundation, either version 3 of the License, or"
-    print "(at your option) any later version."
-    print ""
-    print "This program is distributed in the hope that it will be useful,"
-    print "but WITHOUT ANY WARRANTY; without even the implied warranty of"
-    print "MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the"
-    print "GNU General Public License for more details."
-    print ""
-    print "You should have received a copy of the GNU General Public License"
-    print "along with this program.  If not, see <http://www.gnu.org/licenses/>."
-    print ""
+    print("""
+    Process multiple CSV files into Polycom directory configs.
+    Copyright (C) 2015 High Powered Help, Inc. All Rights Reserved.
+    
+    This program is free software: you can redistribute it and/or modify
+    it under the terms of the GNU General Public License as published by
+    the Free Software Foundation, either version 3 of the License, or
+    (at your option) any later version.
+    
+    This program is distributed in the hope that it will be useful,
+    but WITHOUT ANY WARRANTY; without even the implied warranty of
+    MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+    GNU General Public License for more details.
+    
+    You should have received a copy of the GNU General Public License
+    along with this program.  If not, see <http://www.gnu.org/licenses/>.
+    """)
+
 
 
 def discover(conf):
 
     blacklisted = [ "general", "authentication", "!", "bandwidth" ]
 
-    print "Discovering %s" % conf
+    print("Discovering %s" % conf)
 
     f = open(conf, 'rb')
     for line in f:
@@ -81,8 +84,8 @@ def discover(conf):
                 buf = meta.split('|')
                 mac = buf[0]
                 model = buf[1]
-            except Exception, e:
-                print e
+            except Exception(e):
+                print(e.message)
             cid = None
             buffer = None
             try:
@@ -92,9 +95,9 @@ def discover(conf):
                     if buffer.startswith('callerid'):
                         data = buffer.split("=")
                         cid = data[1]
-            except StopIteration, e:
+            except StopIteration(e):
                 do = "nothing"
-            print "Found a %s with extension: %s for MAC %s with cid of %s" % (model, extension, mac, cid)
+            print("Found a %s with extension: %s for MAC %s with cid of {}".format(model, extension, mac, cid))
 
 
 def sanitize_number(number):
@@ -152,8 +155,8 @@ def make_item(first, last, contact, counter, watch):
 
 def check_file(target_file):
     if not os.path.exists(target_file):
-        print "WARNING! Could not find this directory file for this user (%s)" % target_file
-        print "    I assume that's because they don't use this feature??"
+        print("WARNING! Could not find this directory file for this user (%s)" % target_file)
+        print("    I assume that's because they don't use this feature??")
         return False
     else:
         return True
@@ -188,7 +191,7 @@ def gen_general_directory():
     s = etree.tostring(root, pretty_print=True)
     outputfile = '000000000000-directory.xml'
     outputfile = os.path.join(rootPath, outputfile)
-    print "Writing %s ..." % outputfile,
+    print("Writing %s ..." % outputfile,)
     sm = open(outputfile, 'w')
     sm.write(header + "\n")
     sm.write(s)
@@ -199,14 +202,16 @@ def gen_general_directory():
 
 confFile = '/etc/polypy.conf'
 if not os.path.exists(confFile):
-    print "You must setup /etc/polypy.conf!"
-    print ""
-    print "Example Contents:"
-    print "[polycom]"
-    print "root=/path/to/provisioning/root"
-    print "server=your.provisioning.server"
-    print "sip_path=/path/to/your/sip.conf"
-    print ""
+    print("""
+    You must setup /etc/polypy.conf!
+    
+    Example Contents:
+    [polycom]
+    root=/path/to/provisioning/root
+    server=your.provisioning.server
+    sip_path=/path/to/your/sip.conf
+    """)
+
     sys.exit()
 
 # Get settings
@@ -220,19 +225,19 @@ sippath = config.get('polycom', 'sip_path')
 
 for o, a in optlist:
     if o in ['-b', '--blacklist']:
-        print "Blacklisting %s" % a
+        print("Blacklisting %s" % a)
         blacklist = a
     if o in ['-o', '--model']:
-        print "Phone model set to: %s" % a
+        print("Phone model set to: %s" % a)
         model = a
     if o in ['-m', '--mac']:
-        print "Setting mac to: %s" % a
+        print("Setting mac to: %s" % a)
         themac = a
     elif o in ['-g', '--generate-basedirectory']:
         gen_general_directory()
         sys.exit()
     elif o in ['-u', '--user']:
-        print "Setting user to: %s" % a
+        print("Setting user to: %s" % a)
         theuser = a
     elif o in ['-h', '--help']:
         usage()
@@ -244,14 +249,14 @@ for o, a in optlist:
         discover(sippath)
         sys.exit()
     elif o in ['-c', 'show-configs']:
-        print "Current Config Settings:"
-        print "Root: %s" % rootPath
-        print "Server: %s" % server
-        print "Sippath: %s" % sippath
+        print("Current Config Settings:")
+        print("Root: %s" % rootPath)
+        print("Server: %s" % server)
+        print("Sippath: %s" % sippath)
         sys.exit()
 
 if themac == None or theuser == None:
-    print "ERROR! You must specify the mac address of the phone that will use these configs as well as the user!"
+    print("ERROR! You must specify the mac address of the phone that will use these configs as well as the user!")
     usage()
     sys.exit()
 
@@ -294,7 +299,7 @@ speedial = '%s-sd-%s.csv' % (theuser, model)
 
 if check_file(speedial):
 
-    print "INCLUDING: Speed Dial Direcotry (%s)" % speedial
+    print("INCLUDING: Speed Dial Direcotry (%s)" % speedial)
     with open(speedial, 'rb') as csvfile:
         myreader = csv.reader(csvfile, delimiter=',', quotechar='"')
         for row in myreader:
@@ -322,7 +327,7 @@ elif model == '330':
     companyDirectory = 'master-330.csv'
 
 if check_file(companyDirectory):
-    print "INCLUDING: Company Direcotry (%s)" % companyDirectory
+    print("INCLUDING: Company Direcotry (%s)" % companyDirectory)
     with open(companyDirectory, 'rb') as csvfile:
         myreader = csv.reader(csvfile, delimiter=',', quotechar='"')
         for row in myreader:
@@ -348,10 +353,10 @@ outputfile = '%s-directory.xml' % themac
 outputfile = os.path.join(rootPath, outputfile)
 # If the output file already exists, delete it first.
 if os.path.exists(outputfile):
-    print "Directory already exists. Removing it!"
+    print("Directory already exists. Removing it!")
     os.remove(outputfile)
 
-print "Writing %s ..." % outputfile,
+print("Writing %s ..." % outputfile,)
 sm = open(outputfile, 'w')
 sm.write(header + "\n")
 sm.write(s)
@@ -363,16 +368,16 @@ tl = open(outputfile, 'w')
 for d in directory:
     line = str(d).ljust(5) + directory[d]
     tl.write(line + "\n")
-    print line
+    print(line)
 
 if len(duplicates) > 0:
     for dupe in duplicates:
-        print "Did not include this duplicate: %s" % dupe
+        print("Did not include this duplicate: %s" % dupe)
         tl.write("Did not include this duplicate: %s\n" % dupe)
 else:
     tl.write("There were no duplicate numbers")
-    print "There were no duplicate numbers"
+    print("There were no duplicate numbers")
 
 tl.close
-print "List saved in: %s" % outputfile
-print "Done."
+print("List saved in: %s" % outputfile)
+print("Done.")
