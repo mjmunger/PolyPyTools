@@ -86,7 +86,7 @@ class Sipconf:
         if self.debug:
             print("  Template found: {}".format(template))
 
-        while line != "\n":
+        while line[0] != "\n":
             if "host" in line.strip():
                 buff = line.strip().split("=")
                 server_uri = buff[1]
