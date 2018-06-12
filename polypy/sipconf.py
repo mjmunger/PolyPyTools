@@ -95,6 +95,8 @@ class Sipconf:
                 server_uri = buff[1]
                 self.list_servers[template] = server_uri
 
+            line = next(fp)
+
     def is_phone(self, line):
         """
         This should return True ONLY if the line starts with a ;, which indicates that this is a line with a mac
