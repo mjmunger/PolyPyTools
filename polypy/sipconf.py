@@ -88,7 +88,7 @@ class Sipconf:
 
         while line[0] != "\n":
             if self.debug:
-                print "First character in this line: %s" % ord(line[0])
+                print("First character in this line: %s" % ord(line[0]))
 
             if "host" in line.strip():
                 buff = line.strip().split("=")
