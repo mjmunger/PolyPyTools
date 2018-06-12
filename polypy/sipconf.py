@@ -86,9 +86,11 @@ class Sipconf:
         if self.debug:
             print("  Template found: {}".format(template))
 
-        line = next(fp).strip().split("=")
-        server_uri = line[1]
-        self.list_servers[template] = server_uri
+        while line != "\n":
+            if "host" in line.strip():
+                buff = line.strip().split("=")
+                server_uri = buff[1]
+                self.list_servers[template] = server_uri
 
     def is_phone(self, line):
         """
