@@ -104,7 +104,7 @@ config.read(config_path)
 
 root = config.get('polycom', 'root')
 server = config.get('polycom', 'server')
-sip_path = config.get('polycom', 'sippath')
+sip_path = config.get('polycom', 'sip_path')
 sip = Sipconf(server, sip_path, root)
 
 for o, a in optlist:
@@ -114,7 +114,7 @@ for o, a in optlist:
         print("Current Config Settings:")
         print("Root: {}".format(root))
         print("Server: {}".format(server))
-        print("Sippath: {}".format(sip_path))
+        print("Sip path: {}".format(sip_path))
         sys.exit()
     elif o in ['-d', '--debug']:
         sip.set_debug()
