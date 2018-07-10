@@ -67,10 +67,10 @@ def discover(conf):
 
     print("Discovering %s" % conf)
 
-    f = open(conf, 'rb')
+    f = open(conf, 'r')
     for line in f:
         line = line.strip()
-        if line.startswith(b"["):
+        if line.startswith("["):
             skip = False
             for banned in blacklisted:
                 if banned in line:
@@ -82,25 +82,28 @@ def discover(conf):
             # Find the closing ]
             pos = line.upper().find("]")
             extension = line[1:pos]
-            meta = f.next()[1:].strip()
-            try:
-                buf = meta.split('|')
-                mac = buf[0]
-                model = buf[1]
-            except Exception(e):
-                print(e.message)
+            meta = next(f)[1:].strip()
+
+            if not "|" in meta:
+                raise ValueError("The first line after a device declaration should be ;NNNNNNNNNNNN|XXX where N is a mac and X is the model model. Got: " + meta )
+
+            buf = meta.split('|')
+            mac = buf[0]
+            model = buf[1]
+
             cid = None
             buffer = None
+
             try:
-                buffer = f.next().strip()
+                buffer = next(f).strip()
                 while not len(buffer.strip()) == 0:
-                    buffer = f.next().strip()
+                    buffer = next(f).strip()
                     if buffer.startswith('callerid'):
                         data = buffer.split("=")
                         cid = data[1]
-            except StopIteration(e):
+            except StopIteration as e:
                 do = "nothing"
-            print("Found a %s with extension: %s for MAC %s with cid of {}".format(model, extension, mac, cid))
+            print("Found a {} with extension: {} for MAC {} with cid of {}".format(model, extension, mac, cid))
 
 
 def sanitize_number(number):
