@@ -243,7 +243,7 @@ for o, a in optlist:
         print("Setting mac to: %s" % a)
         themac = a
     elif o in ['-g', '--generate-basedirectory']:
-        gen_general_directory()
+        gen_directory()
         sys.exit()
     elif o in ['-u', '--user']:
         print("Setting user to: %s" % a)
