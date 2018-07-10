@@ -165,7 +165,7 @@ def check_file(target_file):
         return True
 
 
-def gen_general_directory():
+def gen_directory(theMac = '000000000000'):
     # Create XML
     header = '<?xml version="1.0" encoding="UTF-8" standalone="yes"?>'
 
@@ -175,7 +175,7 @@ def gen_general_directory():
     counter = 0
     directory = {}
 
-    outputfile = '000000000000-directory.xml'
+    outputfile = theMac + '-directory.xml'
     outputfile = os.path.join(rootPath, outputfile)
 
     with open('directory.csv', 'r') as csvfile:
