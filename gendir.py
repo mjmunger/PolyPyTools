@@ -70,7 +70,7 @@ def discover(conf):
     f = open(conf, 'rb')
     for line in f:
         line = line.strip()
-        if line.startswith("["):
+        if line.startswith(b"["):
             skip = False
             for banned in blacklisted:
                 if banned in line:
