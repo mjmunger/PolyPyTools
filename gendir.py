@@ -1,7 +1,13 @@
 #!/usr/bin/python3
-from lxml import etree
+
+import xml.etree.ElementTree as ET
+from xml.dom import minidom
 import csv
-import getopt, sys, os, ConfigParser
+import getopt
+import sys
+import os
+import configparser
+from pprint import pprint
 
 options = "b:cdghlm:u:o:"
 longopts = ['blacklist=', 'help', 'license', 'mac=', 'user=', 'discover=', 'show-configs', '--generate-basedirectory',
@@ -36,7 +42,6 @@ OPTION LIST
     """)
 
 
-
 def show_license():
     print("""
     Process multiple CSV files into Polycom directory configs.
@@ -57,10 +62,8 @@ def show_license():
     """)
 
 
-
 def discover(conf):
-
-    blacklisted = [ "general", "authentication", "!", "bandwidth" ]
+    blacklisted = ["general", "authentication", "!", "bandwidth"]
 
     print("Discovering %s" % conf)
 
@@ -108,35 +111,35 @@ def sanitize_number(number):
 
 
 def make_item(first, last, contact, counter, watch):
-    item = etree.Element('item')
+    item = ET.Element('item')
 
-    ln = etree.Element('ln')
+    ln = ET.Element('ln')
     ln.text = last
 
-    fn = etree.Element('fn')
+    fn = ET.Element('fn')
     fn.text = first
 
-    ct = etree.Element('ct')
+    ct = ET.Element('ct')
     ct.text = contact
 
-    sd = etree.Element('sd')
+    sd = ET.Element('sd')
     sd.text = "%s" % counter
 
-    rt = etree.Element('rt')
+    rt = ET.Element('rt')
     rt.text = "12"
 
-    dc = etree.Element('dc')
+    dc = ET.Element('dc')
 
-    ad = etree.Element('ad')
+    ad = ET.Element('ad')
     ad.text = "0"
 
-    ar = etree.Element('ar')
+    ar = ET.Element('ar')
     ar.text = "0"
 
-    bw = etree.Element('bw')
-    bw.text = watch
+    bw = ET.Element('bw')
+    bw.text = "1" if watch == "Y" else "0"
 
-    bb = etree.Element('bb')
+    bb = ET.Element('bb')
     bb.text = "0"
 
     item.append(ln)
@@ -166,36 +169,39 @@ def gen_general_directory():
     # Create XML
     header = '<?xml version="1.0" encoding="UTF-8" standalone="yes"?>'
 
-    root = etree.Element('directory')
-    item_list = etree.Element('item_list')
+    root = ET.Element("directory")
+    item_list = ET.SubElement(root, 'item_list')
+
     counter = 0
     directory = {}
 
-    with open('directory.csv', 'rb') as csvfile:
+    outputfile = '000000000000-directory.xml'
+    outputfile = os.path.join(rootPath, outputfile)
+
+    with open('directory.csv', 'r') as csvfile:
         myreader = csv.reader(csvfile, delimiter=',', quotechar='"')
         for row in myreader:
-            first = ""
-            last = ""
-            number = sanitize_number(row[0])
+            first = row[0]
+            number = sanitize_number(row[2])
             last = row[1]
-            if len(number) > 0 and len(last) > 0:
+            # Skip the header
+            if row[0] == "First":
+                continue
+
+            if len(number) > 0 and (len(last) > 0 or len(first) > 0):
                 contact = number
-                watch = "0"
+                watch = row[3]
+                pprint(watch)
                 counter += 1
 
                 directory[counter] = first + " " + last
-                item = make_item(first, last, contact, counter, watch)
-                item_list.append(item)
+                this_item = make_item(first, last, contact, counter, watch)
+                item_list.append(this_item)
 
-    root.append(item_list)
-    s = etree.tostring(root, pretty_print=True)
-    outputfile = '000000000000-directory.xml'
-    outputfile = os.path.join(rootPath, outputfile)
-    print("Writing %s ..." % outputfile,)
-    sm = open(outputfile, 'w')
-    sm.write(header + "\n")
-    sm.write(s)
-    sm.close
+    print("Writing %s ..." % outputfile, )
+    xmlstr = minidom.parseString(ET.tostring(root)).toprettyxml(indent="    ")
+    with open("/tmp/asdf.xml",'w') as f:
+        f.write(xmlstr)
 
 
 # Start script
@@ -215,12 +221,12 @@ if not os.path.exists(confFile):
     sys.exit()
 
 # Get settings
-config = ConfigParser.RawConfigParser()
+config = configparser.RawConfigParser()
 config.read(confFile)
 
 rootPath = config.get('polycom', 'root')
 server = config.get('polycom', 'server')
-sippath = config.get('polycom', 'sip_path')
+sippath = config.get('polycom', 'sippath')
 # End Settings Get
 
 for o, a in optlist:
@@ -307,7 +313,7 @@ if check_file(speedial):
             first = row[1].strip()
             last = row[2].strip()
             contact = number
-            watch = "0"
+            watch = row[3].strip()
             counter += 1
 
             directory[counter] = first + " " + last
@@ -349,6 +355,7 @@ if check_file(companyDirectory):
                 duplicates.append(t)
 
 s = etree.tostring(root, pretty_print=True)
+pprint(s)
 outputfile = '%s-directory.xml' % themac
 outputfile = os.path.join(rootPath, outputfile)
 # If the output file already exists, delete it first.
@@ -356,7 +363,7 @@ if os.path.exists(outputfile):
     print("Directory already exists. Removing it!")
     os.remove(outputfile)
 
-print("Writing %s ..." % outputfile,)
+print("Writing %s ..." % outputfile, )
 sm = open(outputfile, 'w')
 sm.write(header + "\n")
 sm.write(s)
