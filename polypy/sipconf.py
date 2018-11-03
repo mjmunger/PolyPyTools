@@ -132,6 +132,7 @@ class Sipconf:
         line = next(fp)
 
         if not reg.parse_secret(line):
+            print("No secret. Aborting")
             return False
 
         self.registrations.append(reg)
@@ -139,6 +140,8 @@ class Sipconf:
         if self.debug:
             print("  Registration added to registrations list: {}".format(reg.extension))
             print("\n--------------------------------------------------\n")
+
+        return reg
 
     def parse(self):
         fp = open(self.sip_path)
