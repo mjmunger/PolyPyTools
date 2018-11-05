@@ -1,9 +1,42 @@
-#!/usr/bin/python3
+#!/usr/bin/env python3
+"""Parses sip.conf entries to generate the sip-basic.cfg registrations.
+It's expecting an entry like the one below where:
+* The extension is in the brackets
+* The first line after the extension is a COMMENTED mac address for the phone / user.
+* The next line is the secret
+* The last line is the CID.
+
+EXAMPLE
+
+[111](l3office)
+;0004f2f957f9
+secret=shoonfa9s3k
+callerid="Conference Phone" <111>
+
+NOTE: It's probably best to copy the extensions from sip.conf into a separate file before running thisscript. This way,
+      you can ensure the formatting is correct, and there will not be any erroneous files created from ther configs that
+      which may match the patterns this script looks for.
+
+Usage: configline.py [options]
+
+OPTION LIST
+-a       --all             Process all extensions.
+-c       --show-configs    Show the configs for this app
+-e EXT   --extension EXT   Process extension NNN only.
+-l       --license         Display the license for this software
+-d       --debug           Debug mode
+-m       --dump            Dump current config
+-n       --clean           Clean the config
+
+"""
+
 import os
 import sys
 import getopt
 import configparser
+
 from pprint import pprint
+from docopt import docopt
 from polypy.config import Config
 from polypy.sipconf import Sipconf
 
@@ -22,38 +55,7 @@ from polypy.sipconf import Sipconf
 # callerid="Conference Phone" <111>
 ###
 
-def usage():
 
-    print("""
-Usage: configline.py [options]
-
-FUNCTION SUMMARY
-Parses sip.conf entries to generate the sip-basic.cfg registrations.
-It's expecting an entry like the one below where:
-* The extension is in the brackets
-* The first line after the extension is a COMMENTED mac address for the phone / user.
-* The next line is the secret
-* The last line is the CID.
-
-EXAMPLE
-
-[111](l3office)
-;0004f2f957f9
-secret=shoonfa9s3k
-callerid="Conference Phone" <111>
-
-NOTE: It's probably best to copy the extensions from sip.conf into a separate file before running thisscript. This way,
-         you can ensure the formatting is correct, and there will not be any erroneous files created from ther configs that
-      which may match the patterns this script looks for.
-
-OPTION LIST
-
--a       --all             Process all extensions.
--c       --show-configs    Show the configs for this app
--e[NNN]  --extension NNN   Process extension NNN only.
--s[foo]  --site foo        Set the site name to bar. (This is the directory where the phone will look for configs under document root)
--l       --license         Display the license for this software
-    """)
 
 
 def showLicense():
@@ -91,10 +93,7 @@ def check_locations():
 
     # print("Pre-reqs satisfied. Continuing.")
 
-
-options = "mdacse:hls:t:"
-long_opts = ['all', 'extension=', 'help', 'server=', 'site=', 'license', 'show-configs', 'debug', 'dump', 'clean']
-optlist, args = getopt.getopt(sys.argv[1:], options, long_opts)
+args = docopt(__doc__)
 
 check_locations()
 
@@ -106,54 +105,28 @@ root = config.get('polycom', 'root')
 server = config.get('polycom', 'server')
 sip_path = config.get('polycom', 'sip_path')
 sip = Sipconf(server, sip_path, root)
-
-for o, a in optlist:
-    if o in ["-s", '--site']:
-        site = a
-    elif o in ['-c', '--show-configs']:
-        print("Current Config Settings:")
-        print("Root: {}".format(root))
-        print("Server: {}".format(server))
-        print("Sip path: {}".format(sip_path))
-        sys.exit()
-    elif o in ['-d', '--debug']:
-        sip.set_debug()
-
 sip.parse()
+if args["-d"]:
+    sip.set_debug()
+
 thisConfig = Config(sip, root)
 
-for o, a in optlist:
-    print(o)
-    if o in ["-h", '--help']:
-        usage()
-        sys.exit()
-    elif o in ["-l", '--license']:
-        showLicense()
-        sys.exit()
-    elif o in ['-a', '--all']:
-        thisConfig.clean()
-        thisConfig.provision_all()
-    elif o in ['-e', '--extension']:
-        print("Provisioning extension {} only".format(a))
-        thisConfig.provision(a)
 
-    elif o in ['-m', '--dump']:
-        # Show all discovered sip registrations
-        thisConfig.dump()
+if args["-l"]:
+    showLicense()
+    sys.exit()
 
-    elif o == '--clean':
-        thisConfig.clean()
+if args["-a"]:
+    thisConfig.clean()
+    thisConfig.provision_all()
 
-    else:
-        usage()
+if args["-e"] is not None:
+    print("Provisioning extension {} only".format(args["-e"]))
+    thisConfig.provision(args["-e"])
 
-# for line in fp:
-# print("")
-# print("REGISTRATION SUMMARY")
-# for mac in reg1:
-#     r1 = reg1[mac]
-#     #r2 = reg2[mac]
-#     #print("%s has %s and %s" % (mac, r1, r2))
-#     print("%s has %s" % (mac, r1))
-# fp.close()
-#
+if args["-m"]:
+    # Show all discovered sip registrations
+    thisConfig.dump()
+
+if args["-n"]:
+    thisConfig.clean()
