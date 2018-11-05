@@ -85,7 +85,8 @@ def discover(conf):
             meta = next(f)[1:].strip()
 
             if not "|" in meta:
-                raise ValueError("The first line after a device declaration should be ;NNNNNNNNNNNN|XXX where N is a mac and X is the model model. Got: " + meta )
+                continue
+                #raise ValueError("The first line after a device declaration should be ;NNNNNNNNNNNN|XXX where N is a mac and X is the model model. Got: " + meta )
 
             buf = meta.split('|')
             mac = buf[0]
