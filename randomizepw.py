@@ -125,6 +125,9 @@ def reset_single_password(target_file, extension, debug):
                     buffer.append(line)
                 line = next(fp)
 
+            if line.startswith("["):
+                buffer.append(line)
+
     fp.close()
 
     fp = open(target_file, 'w')
