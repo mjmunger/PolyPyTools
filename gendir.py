@@ -230,7 +230,7 @@ config.read(confFile)
 
 rootPath = config.get('polycom', 'root')
 server = config.get('polycom', 'server')
-sippath = config.get('polycom', 'sippath')
+sippath = config.get('polycom', 'sip_path')
 # End Settings Get
 
 for o, a in optlist:
