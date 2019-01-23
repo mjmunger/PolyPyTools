@@ -2,6 +2,7 @@
 """
 usage: polypy [options] configure set-path asterisk <path>
        polypy [options] configure set-path tftproot <path>
+       polypy [options] configure set-server <server_addr>
        polypy [options] configure show
        polypy [options] configure set-defaults
        polypy [options] configure validate
@@ -31,6 +32,7 @@ def write_config(configs):
     f.close()
 
     print("Configs saved.")
+
 
 if os.getegid() != 0:
     print("You must run this as root. Cannot continue")
@@ -62,6 +64,7 @@ if args['show']:
     print("Current configuration:")
     print("Asterisk path: %s" % paths['asterisk'])
     print("Tftp root path: %s" % paths['tftproot'])
+    print("SIP Server set to: %s" % ("<unset>" if configs['server_addr'] is None else configs['server_addr']))
     sys.exit(1)
 
 if args['set-defaults']:
@@ -69,6 +72,7 @@ if args['set-defaults']:
     paths["asterisk"] = "/etc/asterisk/"
     paths["tftproot"] = "/srv/tftp/"
     configs['paths'] = paths
+    configs['server_addr'] = "127.0.0.1"
     write_config(configs)
     sys.exit(1)
 
@@ -92,6 +96,10 @@ if args['set-path']:
 
     write_config(configs)
     sys.exit(1)
+
+if args['set-server']:
+    configs['server_addr'] = args['<server_addr>']
+    write_config(configs)
 
 if args['validate']:
 
@@ -120,4 +128,7 @@ if args['validate']:
         print("The following Polycom config files are missing, and must be fixed:")
     for file in missing_files:
         print("  %s" % file)
+
+    if len(missing_files) == 0:
+        print("Configuration looks good.")
     sys.exit(1)

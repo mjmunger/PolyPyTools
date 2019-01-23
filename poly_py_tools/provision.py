@@ -1,11 +1,14 @@
 #!/usr/bin/env python3
 #!/usr/bin/env python3
 """
-usage: polypy [options] provision extension <extension>
-       polypy [options] provision extension all
+usage: polypy [ -v ... ] [options] provision extension <extension>
+       polypy [ -v ... ] [options] provision extension all
+       polypy [ -v ... ] [options] provision list [ templates | devices | all ]
+       polypy [ -v ... ] [options] provision show <extension>
+       polypy [ -v ... ] [options] provision clean <extension>
 
 options:
-  -v, --verbose  Be verbose
+  -v             Be verbose
   -f, --force    Force the setting.
 
 """
@@ -16,6 +19,7 @@ import sys
 import os
 import json
 from poly_py_tools.sip_parser import SipConfParser
+from poly_py_tools.polycom_config_writer import PolycomConfigWriter
 
 args = docopt(__doc__)
 
@@ -33,5 +37,60 @@ configs = json.load(f)
 f.close()
 paths = configs['paths']
 
-parser = SipConfParser(os.path.join(paths['asterisk'],'sip.conf'))
+parser = SipConfParser(os.path.join(paths['asterisk'], 'sip.conf'))
+if args['-v'] > 0:
+    parser.set_verbosity(args['-v'])
 parser.parse()
+
+if args['list']:
+
+    if args['all']:
+        args['templates'] = True
+        args['devices'] = True
+
+    if args['templates']:
+        for template in parser.templates:
+            print(template)
+
+    if args['devices']:
+        for device in parser.devices:
+            print(device)
+
+    sys.exit(0)
+
+if args['extension']:
+    for device in parser.devices:
+
+        if args['<extension>'] != "all" and device.name != args['<extension>']:
+            continue
+
+        device.valid_registration()
+
+        parser.log("Provisioning %s " % device.name, 1)
+
+        config_writer = PolycomConfigWriter()
+        config_writer.use(device)
+        config_writer.use_configs(configs)
+        config_writer.set_path()
+        config_writer.write_config()
+
+    sys.exit(0)
+
+if args['show']:
+    for device in parser.devices:
+        if device.name == args['<extension>']:
+            print(device)
+            break
+    sys.exit(0)
+
+if args['clean']:
+    for device in parser.devices:
+
+        if args['<extension>'] != "all" and device.name != args['<extension>']:
+            continue
+
+        config_writer = PolycomConfigWriter()
+        config_writer.use(device)
+        config_writer.use_configs(configs)
+        config_writer.set_path()
+        config_writer.remove()

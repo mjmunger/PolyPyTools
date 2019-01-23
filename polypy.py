@@ -1,14 +1,14 @@
 #!/usr/bin/env python3
 """
 
-usage: polypy.py [options] [--help]
+usage: polypy.py [ -v ... ] [options] [--help]
                  <command> [<args>...]
 
 options:
---version      Show the version of this package
---help         Show this help screen
--v, --verbose  Be verbose
--f, --force    Do it anyway.
+--version    Show the version of this package
+--help       Show this help screen
+-v           Be verbose. Levels 1-10 (or more).
+-f, --force  Do it anyway.
 
 Commands:
 
@@ -20,8 +20,7 @@ Commands:
 See polypy help <command> for more information with a specific command.
 
 """
-from sys import argv
-
+import sys
 from docopt import docopt
 from pprint import pprint
 
