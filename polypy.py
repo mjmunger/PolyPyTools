@@ -1,13 +1,14 @@
 #!/usr/bin/env python3
 """
 
-usage: polypy.py [-v | --verbose ] [--version] [--help]
+usage: polypy.py [options] [--help]
                  <command> [<args>...]
 
 options:
 --version      Show the version of this package
 --help         Show this help screen
 -v, --verbose  Be verbose
+-f, --force    Do it anyway.
 
 Commands:
 
@@ -33,7 +34,4 @@ if __name__ == '__main__':
 
     if args['<command>'] == 'provision':
         from poly_py_tools import provision
-
-    if args['<command>'] == "validate":
-        from poly_py_tools import validate
-        docopt(validate.__doc__, argv=argv)
+        docopt(provision.__doc__)
