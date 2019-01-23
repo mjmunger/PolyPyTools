@@ -113,8 +113,8 @@ class SipConfParser:
         for line in buffer:
             line = line.replace(mac1, uuid2)
             line = line.replace(mac2, uuid1)
-            line = line.replace(uuid1,mac1)
-            line = line.replace(uuid2,mac2)
+            line = line.replace(uuid1, mac1)
+            line = line.replace(uuid2, mac2)
             output.append(line)
 
         f = open(self.sip_conf_path, 'w')

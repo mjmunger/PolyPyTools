@@ -7,6 +7,7 @@ usage: polypy [ -v ... ] [options] provision extension <extension>
        polypy [ -v ... ] [options] provision show <extension>
        polypy [ -v ... ] [options] provision clean <extension>
        polypy [ -v ... ] [options] provision swap <extension1> <extension2>
+       polypy [ -v ... ] [options] provision password <extension>
 
 options:
   -v             Be verbose
@@ -127,6 +128,6 @@ if args['swap']:
     config_writer.set_path()
     config_writer.write_config()
 
-    parser.swap_mac(mac1,mac2)
+    parser.swap_mac(mac1, mac2)
 
 
