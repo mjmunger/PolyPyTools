@@ -4,6 +4,7 @@ import re
 from poly_py_tools.template import Template
 from poly_py_tools.registration import Registration
 from pprint import pprint
+import uuid
 
 
 class SipConfParser:
@@ -98,3 +99,28 @@ class SipConfParser:
             if not flag_extension:
                 buffer = []
         f.close()
+
+    def swap_mac(self, mac1, mac2):
+        uuid1 = str(uuid.uuid4())
+        uuid2 = str(uuid.uuid4())
+
+        f = open(self.sip_conf_path, 'r')
+        buffer = f.readlines()
+        f.close()
+
+        output = []
+
+        for line in buffer:
+            line = line.replace(mac1, uuid2)
+            line = line.replace(mac2, uuid1)
+            line = line.replace(uuid1,mac1)
+            line = line.replace(uuid2,mac2)
+            output.append(line)
+
+        f = open(self.sip_conf_path, 'w')
+        f.writelines(output)
+        f.close()
+
+
+
+

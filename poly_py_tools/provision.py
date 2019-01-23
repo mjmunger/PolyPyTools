@@ -6,6 +6,7 @@ usage: polypy [ -v ... ] [options] provision extension <extension>
        polypy [ -v ... ] [options] provision list [ templates | devices | all ]
        polypy [ -v ... ] [options] provision show <extension>
        polypy [ -v ... ] [options] provision clean <extension>
+       polypy [ -v ... ] [options] provision swap <extension1> <extension2>
 
 options:
   -v             Be verbose
@@ -94,3 +95,38 @@ if args['clean']:
         config_writer.use_configs(configs)
         config_writer.set_path()
         config_writer.remove()
+
+    sys.exit(0)
+
+if args['swap']:
+    device1 = None
+    device2 = None
+
+    for device in parser.devices:
+        if device.name == args['<extension1>']:
+            device1 = device
+
+        if device.name == args['<extension2>']:
+            device2 = device
+
+    mac1 = device1.mac
+    mac2 = device2.mac
+
+    device1.mac = mac2
+    device2.mac = mac1
+
+    config_writer = PolycomConfigWriter()
+    config_writer.use(device1)
+    config_writer.use_configs(configs)
+    config_writer.set_path()
+    config_writer.write_config()
+
+    config_writer = PolycomConfigWriter()
+    config_writer.use(device2)
+    config_writer.use_configs(configs)
+    config_writer.set_path()
+    config_writer.write_config()
+
+    parser.swap_mac(mac1,mac2)
+
+
