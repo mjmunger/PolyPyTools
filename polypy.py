@@ -13,8 +13,7 @@ options:
 Commands:
 
   configure  Configure PolyPyTools.
-  provision  Creates provisioning files for asterisk.
-  secure     Secure sip.conf with strong passwords.
+  provision  Creates provisioning files for Polycom phones from asterisk's sip.conf.
   validate   Validates asterisk and Polycom installation and files.
 
 See polypy help <command> for more information with a specific command.

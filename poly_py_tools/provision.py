@@ -7,7 +7,8 @@ usage: polypy [ -v ... ] [options] provision extension <extension>
        polypy [ -v ... ] [options] provision show <extension>
        polypy [ -v ... ] [options] provision clean <extension>
        polypy [ -v ... ] [options] provision swap <extension1> <extension2>
-       polypy [ -v ... ] [options] provision password <extension>
+       polypy [ -v ... ] [options] provision passwords audit [ failures-only | passing-only ]
+       polypy [ -v ... ] [options] provision passwords reset <extension>
 
 options:
   -v             Be verbose
@@ -22,6 +23,7 @@ import os
 import json
 from poly_py_tools.sip_parser import SipConfParser
 from poly_py_tools.polycom_config_writer import PolycomConfigWriter
+from poly_py_tools.pw_strength_calculator import PasswordStrengthCalculator
 
 args = docopt(__doc__)
 
@@ -129,5 +131,50 @@ if args['swap']:
     config_writer.write_config()
 
     parser.swap_mac(mac1, mac2)
+
+    sys.exit(0)
+
+if args['audit']:
+    f = open("lib/10k-most-common.txt")
+    passwords = f.read().splitlines()
+    f.close()
+
+    results = {}
+
+    for device in parser.devices:
+        pass_fail = False
+        for password in passwords:
+            if device.secret == password:
+                results[device.name] = "Secret is in top 10k. Must be changed!"
+                pass_fail = True
+                break;
+        if pass_fail:
+            continue
+
+        Calc = PasswordStrengthCalculator(device.secret)
+        Calc.verbosity = parser.verbosity
+        results[device.name] = "Passed" if Calc.evaluate() else "FAILED"
+
+    failed = 0
+    passed = 0
+
+    for name, result in results.items():
+        if result == "FAILED":
+            failed = failed + 1
+
+        if result == "Passed":
+            passed = passed + 1
+
+        if args['failures-only'] and result is not "FAILED":
+            continue
+
+        if args['passing-only'] and result is not "Passed":
+            continue
+
+        print("Device: %s => %s" % (name, result))
+
+    print("%s total devices found, %s passed and %s failed." % (len(results), passed, failed))
+
+
 
 
