@@ -13,7 +13,6 @@ class Peer:
 
     def __init__(self, line):
         buffer = line.split(" ")
-        print buffer
 
 
 # checkcmd = 'sip notify polycom-check-cfg 192.168.10.%s' % x
