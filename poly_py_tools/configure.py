@@ -27,7 +27,7 @@ configs = None
 
 
 def write_config(configs):
-    f = open(config_path, 'w')
+    f = open(configs['config_path'], 'w')
     f.write(json.JSONEncoder().encode(configs))
     f.close()
 
@@ -69,8 +69,24 @@ if args['show']:
 
 if args['set-defaults']:
     # Setup default values:
+    lib_path = '/var/lib/polypy'
+    config_path = '/etc/polypy/'
+    share_path = '/usr/share/polypy/'
+    local_bin = '/usr/local/bin/'
+    package_path = None
+
+    paths = {}
+
+    for path in sys.path:
+        if '/usr/local/lib' in path:
+            package_path = os.path.join(path, "poly_py_tools")
+
     paths["asterisk"] = "/etc/asterisk/"
     paths["tftproot"] = "/srv/tftp/"
+    configs['lib_path'] = lib_path
+    configs['share_path'] = share_path
+    configs['config_path'] = os.path.join(config_path, 'polypy.conf')
+    configs['package_path'] = package_path
     configs['paths'] = paths
     configs['server_addr'] = "127.0.0.1"
     write_config(configs)

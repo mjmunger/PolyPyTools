@@ -135,7 +135,7 @@ if args['swap']:
     sys.exit(0)
 
 if args['audit']:
-    f = open("lib/10k-most-common.txt")
+    f = open(os.path.join(configs['lib_path'], "10k-most-common.txt"))
     passwords = f.read().splitlines()
     f.close()
 
