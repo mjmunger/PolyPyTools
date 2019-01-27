@@ -14,7 +14,7 @@ Commands:
 
   configure  Configure PolyPyTools.
   provision  Creates provisioning files for Polycom phones from asterisk's sip.conf.
-  validate   Validates asterisk and Polycom installation and files.
+  sip        Manage sip.conf
 
 See polypy help <command> for more information with a specific command.
 
@@ -32,4 +32,8 @@ if __name__ == '__main__':
 
     if args['<command>'] == 'provision':
         from poly_py_tools import provision
+        docopt(provision.__doc__)
+
+    if args['<command>'] == 'sip':
+        from poly_py_tools import sip_manager
         docopt(provision.__doc__)

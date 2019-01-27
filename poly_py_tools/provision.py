@@ -1,5 +1,4 @@
 #!/usr/bin/env python3
-#!/usr/bin/env python3
 """
 usage: polypy [ -v ... ] [options] provision extension <extension>
        polypy [ -v ... ] [options] provision extension all
