@@ -36,4 +36,4 @@ if __name__ == '__main__':
 
     if args['<command>'] == 'sip':
         from poly_py_tools import sip_manager
-        docopt(provision.__doc__)
+        docopt(sip_manager.__doc__)

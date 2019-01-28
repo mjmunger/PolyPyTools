@@ -1,16 +1,20 @@
 #!/usr/bin/env python3
 """
 usage: polypy [ -v ... ] [options] sip config [<column_definitions>...]
-       polypy [ -v ... ] [options] sip generate <extension> from <file> [<args>...]
 
-sip commands:
+Column Definitions:
 
-  config         Create a configuration file that is used to read your CSV data source.
-  generate       Generate one or more sip.conf device definitions from your CSV data source.
+  firstname=<col_first>
 
 options:
   -v             Be verbose
   -f, --force    Force the setting.
+
+configure
+
+  This is a shorthand command that saves options for a given CSV format to help save time when you're doing testing
+  and imports.
+
 
 """
 
@@ -24,9 +28,6 @@ from poly_py_tools.pw_strength_calculator import PasswordStrengthCalculator
 
 args = docopt(__doc__)
 
-pprint(args)
 config_dir = "/etc/polypy/"
 config_path = os.path.join(config_dir, "polypy.conf")
 configs = None
-
-if args['config']:
