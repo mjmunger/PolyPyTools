@@ -85,6 +85,9 @@ class Registration:
     model = None
     site = None
     template = None
+    email = None
+    first_name = None
+    last_name = None
 
     def __init__(self):
         pass
@@ -431,3 +434,74 @@ class Registration:
         self.encryption = template.encryption
         self.allow = template.allow
         self.disallow = template.disallow
+
+    def import_csv_row(self, row, csv_config):
+
+        try:
+            self.name = row[csv_config.extension_column]
+        except IndexError:
+            print("The target csv file (%s) does not appear to have %s columns. Re-run polypy sip configure and check your file.")
+            sys.exit(1)
+
+        try:
+            self.mac = row[csv_config.mac_column]
+        except IndexError:
+            print("The target csv file (%s) does not appear to have %s columns. Re-run polypy sip configure and check your file.")
+            sys.exit(1)
+
+        try:
+            self.first_name = row[csv_config.first_name_column]
+        except IndexError:
+            print("The target csv file (%s) does not appear to have %s columns. Re-run polypy sip configure and check your file.")
+
+        try:
+            self.last_name = row[csv_config.last_name_column]
+        except IndexError:
+            print("The target csv file (%s) does not appear to have %s columns. Re-run polypy sip configure and check your file.")
+
+        try:
+            self.callerid = '"%s %s" <%s>' % (row[csv_config.first_name_column],
+                                              row[csv_config.last_name_column],
+                                              row[csv_config.cid_number])
+        except IndexError:
+            print("The target csv file (%s) does not appear to have %s columns. Re-run polypy sip configure and check your file.")
+            sys.exit(1)
+
+        if csv_config.voicemail_column is not None:
+            self.mailbox = row[csv_config.voicemail_column]
+
+        if csv_config.device_column is not None:
+            self.model = row[csv_config.device_column]
+
+        if csv_config.email_column is not None:
+            self.email = row[csv_config.email_column]
+
+    def get_device_definition(self):
+        lines = []
+        lines.append("\n")
+        lines.append("[%s]" % self.name)
+        lines.append(";mac=%s" % str(self.mac).lower())
+        lines.append(";model=%s" % self.model)
+        lines.append("secret=%s" % self.secret)
+        lines.append("callerid=%s" % self.callerid)
+        lines.append("mailbox=%s" % self.mailbox)
+        buffer = "\n".join(lines)
+        return buffer
+
+    def get_voicemail_definition(self):
+
+        components = []
+        components.append("%s => 1234" % self.name)
+        if len(self.first_name.strip()) > 0 and len(self.last_name.strip()) > 0:
+            components.append("%s %s" % (self.first_name, self.last_name))
+
+        if len(self.email.strip()) > 0:
+            components.append(self.email)
+
+        line = ",".join(components)
+
+        lines = []
+        lines.append("\n")
+        lines.append(line)
+        buffer = "\n".join(lines)
+        return buffer
