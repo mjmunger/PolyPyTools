@@ -54,6 +54,10 @@ if args['configure']:
 
 if args['generate']:
 
+    if os.getegid() != 0:
+        print("You must run this as root. Cannot continue")
+        sys.exit(1)
+
     parser_config = CSVParserConfig()
 
     if os.path.exists('csv_columns.map'):
