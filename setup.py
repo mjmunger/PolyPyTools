@@ -5,7 +5,7 @@ with open("README.md", "r") as fh:
 
 setuptools.setup(
     name="poly_py_tools",
-    version="2.0.2",
+    version="2.0.3",
     author="Michael Munger",
     author_email="mj@hp.io",
     description="A package for working with Asterisk and Polycom config files.",

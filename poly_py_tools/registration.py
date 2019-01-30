@@ -90,7 +90,7 @@ class Registration:
     last_name = None
 
     def __init__(self):
-        pass
+        self.type = "friend"
 
     def set_verbosity(self, level):
         self.verbosity = level
@@ -482,6 +482,7 @@ class Registration:
         lines.append("[%s]" % self.name)
         lines.append(";mac=%s" % str(self.mac).lower())
         lines.append(";model=%s" % self.model)
+        lines.append("type=%s" % self.type)
         lines.append("secret=%s" % self.secret)
         lines.append("callerid=%s" % self.callerid)
         lines.append("mailbox=%s" % self.mailbox)
