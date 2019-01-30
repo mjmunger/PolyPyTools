@@ -4,3 +4,6 @@ csv_columns.map
 directory.csv
 tempfile
 .~*
+build/
+dist/
+poly_py_tools.egg-info/

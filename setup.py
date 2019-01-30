@@ -1,51 +1,25 @@
-#!/usr/bin/env python3
-import os
-import sys
-import json
-from shutil import copyfile
+import setuptools
 
-if os.getegid() != 0:
-    print("You must run this as root. Cannot continue")
-    sys.exit(1)
+with open("README.md", "r") as fh:
+    long_description = fh.read()
 
-package_path = None
-lib_path = '/var/lib/polypy'
-config_path = '/etc/polypy/'
-share_path = '/usr/share/polypy/'
-local_bin = '/usr/local/bin/'
-
-paths = [lib_path, config_path, share_path]
-
-for path in sys.path:
-    if '/usr/local/lib' in path:
-        package_path = os.path.join(path, "poly_py_tools")
-
-if not os.path.exists(package_path):
-    os.mkdir(package_path)
-
-for path in paths:
-    if not os.path.exists(path):
-        os.mkdir(path)
-
-for root, dirs, files in os.walk(os.path.join(os.getcwd(),"poly_py_tools")):
-    for file in files:
-        src = os.path.join(root, file)
-        copyfile(src, os.path.join(package_path, file))
-
-copyfile("lib/10k-most-common.txt", os.path.join(lib_path, "10k-most-common.txt"))
-copyfile("polypy.py", os.path.join('/usr/local/bin/', 'polypy'))
-os.chmod(os.path.join('/usr/local/bin/', 'polypy'), 0o777)
-
-configs = {}
-configs['lib_path'] = lib_path
-configs['share_path'] = share_path
-configs['config_path'] = config_path
-configs['package_path'] = package_path
-configs['server_addr'] = None
-configs['paths'] = None
-
-f = open(os.path.join(config_path, 'polypy.conf'), 'w')
-f.write(json.JSONEncoder().encode(configs))
-f.close()
-
-print("Setup complete.")
+setuptools.setup(
+    name="poly_py_tools",
+    version="0.0.1",
+    author="Michael Munger",
+    author_email="mj@hp.io",
+    description="A package for working with Asterisk and Polycom config files.",
+    long_description=long_description,
+    long_description_content_type="text/markdown",
+    url="https://github.com/mjmunger/PolyPyTools",
+    packages=setuptools.find_packages(),
+    classifiers=[
+        "Programming Language :: Python :: 3",
+        "License :: OSI Approved :: MIT License",
+        "Operating System :: OS Independent",
+        "Topic :: System :: Systems Administration",
+        "Topic :: Utilities",
+        "Development Status :: 4 - Beta",
+        "Environment :: Console"
+    ],
+)

@@ -93,6 +93,11 @@ if args['set-defaults']:
     sys.exit(1)
 
 if args['set-path']:
+
+    if paths is None:
+        print("No settings to configure. Run `sudo polypy -v configure set-defaults` first.")
+        sys.exit(1)
+
     if not args['--force'] and not os.path.exists(args['<path>']):
         print("%s does not exist. Not saving this setting." % args['<path>'])
         sys.exit(1)
