@@ -7,3 +7,4 @@ tempfile
 build/
 dist/
 poly_py_tools.egg-info/
+pip-update/

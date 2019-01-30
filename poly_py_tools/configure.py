@@ -103,8 +103,8 @@ if args['set-path']:
         sys.exit(1)
 
     # Setup default values:
-    paths["asterisk"] = "/etc/asterisk/"
-    paths["tftproot"] = "/srv/tftp/"
+    # paths["asterisk"] = "/etc/asterisk/"
+    # paths["tftproot"] = "/srv/tftp/"
 
     # Overwrite with command values
     if args['asterisk']:
