@@ -29,6 +29,7 @@ class SipConfParser:
         self.log("Verbosity set to: %s" % level)
 
     def parse(self):
+
         self.parse_raw()
         self.parse_templates()
         self.parse_extensions()
@@ -45,7 +46,10 @@ class SipConfParser:
 
             registration = Registration()
             registration.set_verbosity(self.verbosity)
-            template = registration.implements_template(device)[1:-1]
+            template = False
+
+            if registration.implements_template(device):
+                template = registration.implements_template(device)[1:-1]
 
             if template is not False:
                 self.log("%s template in use" % template, 3)
@@ -71,34 +75,68 @@ class SipConfParser:
             template.parse_template(t)
             self.templates.append(template)
 
-    def parse_raw(self):
-        f = open(self.sip_conf_path)
+    def is_device_definition(self, line):
+        message = "Checking %s to see if it's a device entry" % line
+
         extension_pattern = r"^(\[[a-zA-Z0-9]+?\])(\([a-zA-Z0-9-]+?\)){0,}"
-        flag_extension = False
-        buffer = []
+
+        match = re.search(extension_pattern, line)
+
+        if not match:
+            self.log("%s...FALSE" % message, 10)
+            return False
+
+        self.log("%s...TRUE" % message, 10)
+        self.log("Returing: %s" % match.group(1), 3)
+        return match.group(1)
+
+    def is_unwanted(self, raw_registration):
 
         unwanted_sections = ['general', 'authentication']
 
+        for section in unwanted_sections:
+            self.log("Checking to see if %s is in %s" % (section, raw_registration[0]), 3)
+
+            if section in raw_registration[0]:
+                return True
+
+        return False
+
+    def remove_unwanted_sections(self):
+        #Remove banned extensions.
+        buffer = []
+        for section in self.raw_extensions:
+            if not self.is_unwanted(section):
+                buffer.append(section)
+
+        self.raw_extensions = buffer
+
+    def parse_raw(self):
+        self.log("Parsing: %s" % self.sip_conf_path, 3)
+
+        f = open(self.sip_conf_path, 'r')
+        in_extension = False
+        buffer = []
+
         for line in f:
             line = line.strip()
-            match = re.search(extension_pattern,line)
-            if match:
-                flag_extension = not flag_extension
-                for section in unwanted_sections:
-                    self.log("Checking to see if %s is in %s" % (section, match.group(1)), 3)
+            self.log("Parsing raw line: " + line, 3)
 
-                    if section in match.group(1):
-                        flag_extension = not flag_extension
-
+            definition = self.is_device_definition(line)
+            if definition is not False:
+                in_extension = True
+                #Flush to the raw extensions and start over.
                 if len(buffer) > 0:
+                    self.log("Flushing definition for %s to the the raw_extensions list" % buffer[0], 3)
                     self.raw_extensions.append(buffer)
+                    buffer = []
 
-            if flag_extension:
+            if in_extension:
                 buffer.append(line)
 
-            if not flag_extension:
-                buffer = []
         f.close()
+
+        self.remove_unwanted_sections()
 
     def swap_mac(self, mac1, mac2):
         uuid1 = str(uuid.uuid4())

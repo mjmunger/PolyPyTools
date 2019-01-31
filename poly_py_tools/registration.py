@@ -104,8 +104,7 @@ class Registration:
     def __str__(self):
         buffer = []
         buffer.append("============================================================")
-        buffer.append(self.device_type.center(60," "))
-        buffer.append("============================================================")
+        buffer.append("Type: %s" %self.device_type)
         buffer.append("Template: %s" % ("<unset>" if self.template is None else self.template))
         buffer.append("name: %s" % self.name)
         buffer.append("allow: %s" % (", ".join(self.allow)))
@@ -479,7 +478,12 @@ class Registration:
     def get_device_definition(self):
         lines = []
         lines.append("\n")
-        lines.append("[%s]" % self.name)
+
+        if self.template is None:
+            lines.append("[%s]" % self.name)
+        else:
+            lines.append("[%s](%s)" % (self.name, self.template))
+
         lines.append(";mac=%s" % str(self.mac).lower())
         lines.append(";model=%s" % self.model)
         lines.append("type=%s" % self.type)

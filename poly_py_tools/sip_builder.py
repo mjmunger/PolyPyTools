@@ -12,12 +12,19 @@ class SipBuilder:
     csv_config = {}
     devices = []
     verbosity = 0
+    template = None
 
     def __str__(self):
         pass
 
     def set_verbosity(self, verbosity):
         self.verbosity = verbosity
+
+    def set_template(self, assign, template):
+        if assign is None or template is None:
+            return False
+
+        self.template = template
 
     def with_config(self, csv_config):
         self.csv_config = csv_config
@@ -55,12 +62,13 @@ class SipBuilder:
     def export_device_definitions(self, target_device, with_voicemail=False):
         self.log("Writing config for target device: %s" % target_device, 3)
         for device in self.devices:
+            device.template = self.template
             self.log("Checking device: %s" % device.name, 10)
             if target_device == "all" or device.name == target_device:
                 self.log("Target device found (%s). Appending config to %s" % (device.name, self.sip_conf_path), 3)
                 f = open(self.sip_conf_path, 'a')
                 f.write(device.get_device_definition())
-                f.close
+                f.close()
 
                 if with_voicemail:
                     self.log("Adding voicemail definitions to %s" % self.voicemail_conf_path, 3)

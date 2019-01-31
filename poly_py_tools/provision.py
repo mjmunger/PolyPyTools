@@ -62,11 +62,13 @@ if args['list']:
     sys.exit(0)
 
 if args['extension']:
+    count = 0
     for device in parser.devices:
 
         if args['<extension>'] != "all" and device.name != args['<extension>']:
             continue
 
+        count = count + 1
         device.valid_registration()
 
         parser.log("Provisioning %s " % device.name, 1)
@@ -77,6 +79,7 @@ if args['extension']:
         config_writer.set_path()
         config_writer.write_config()
 
+    print("Provisioned %s devices" % count)
     sys.exit(0)
 
 if args['show']:
