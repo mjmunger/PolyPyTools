@@ -136,6 +136,10 @@ class SipConfParser:
 
         f.close()
 
+        # Add the last one if we haven't already.
+        if len(buffer) > 0:
+            self.raw_extensions.append(buffer)
+
         self.remove_unwanted_sections()
 
     def swap_mac(self, mac1, mac2):

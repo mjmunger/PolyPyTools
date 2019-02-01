@@ -3,7 +3,8 @@
 usage: polypy [ -v ... ] [options] provision extension <extension>
        polypy [ -v ... ] [options] provision extension all
        polypy [ -v ... ] [options] provision list [ templates | devices | all ]
-       polypy [ -v ... ] [options] provision show <extension>
+       polypy [ -v ... ] [options] provision show-extension <extension>
+       polypy [ -v ... ] [options] provision show-mac <macaddress>
        polypy [ -v ... ] [options] provision clean <extension>
        polypy [ -v ... ] [options] provision swap <extension1> <extension2>
        polypy [ -v ... ] [options] provision passwords audit [ failures-only | passing-only ]
@@ -54,11 +55,27 @@ if args['list']:
     if args['templates']:
         for template in parser.templates:
             print(template)
+        print("%s templates provisioned." % len(parser.templates))
 
     if args['devices']:
         for device in parser.devices:
             print(device)
+        print("%s devices provisioned." % len(parser.devices))
 
+    sys.exit(0)
+
+if args['show-extension']:
+    for device in parser.devices:
+        if device.name == args['<extension>']:
+            print(device)
+            break
+    sys.exit(0)
+
+if args['show-mac']:
+    for device in parser.devices:
+        if device.mac == args['<macaddress>']:
+            print(device)
+            break;
     sys.exit(0)
 
 if args['extension']:
@@ -71,7 +88,7 @@ if args['extension']:
         count = count + 1
         device.valid_registration()
 
-        parser.log("Provisioning %s " % device.name, 1)
+        parser.log("Provisioning device %s with mac %s " % (device.name, device.mac), 1)
 
         config_writer = PolycomConfigWriter()
         config_writer.use(device)
@@ -80,13 +97,10 @@ if args['extension']:
         config_writer.write_config()
 
     print("Provisioned %s devices" % count)
-    sys.exit(0)
-
-if args['show']:
-    for device in parser.devices:
-        if device.name == args['<extension>']:
-            print(device)
-            break
+    if args['<extension>'] != "all" and count > 1:
+        print("WARNING: Two devices were provisioned for extension %s. \n"
+              "This will likely cause problems where only the last config loaded will be active. \n"
+              "The other phone will either not get provisioned, or not gain access to Asterisk." % args['<extension>'])
     sys.exit(0)
 
 if args['clean']:
