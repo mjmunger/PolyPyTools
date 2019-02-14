@@ -75,7 +75,7 @@ if args['show-mac']:
     for device in parser.devices:
         if device.mac == args['<macaddress>']:
             print(device)
-            break;
+            break
     sys.exit(0)
 
 if args['extension']:

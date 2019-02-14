@@ -12,6 +12,8 @@ class CSVParserConfig:
     email_column = None
     device_column = None
     cid_number = None
+    reg_priority_column = None
+    reg_label_column = None
     startrow = 0
     site = None
     verbosity = 0
@@ -65,6 +67,12 @@ class CSVParserConfig:
         if column == "device":
             self.device_column = definition if definition is not None and self.device_column is None else "undefined"
 
+        if column == "label":
+            self.reg_label_column = definition if definition is not None and self.reg_label_column is None else "undefined"
+
+        if column == "priority":
+            self.reg_priority_column = definition if definition is not None and self.reg_priority_column is None else "undefined"
+
     def set_verbosity(self, verbosity):
         self.verbosity = verbosity
 
@@ -79,6 +87,8 @@ class CSVParserConfig:
         settings['startrow'] = self.startrow
         settings['cid_number'] = self.cid_number
         settings['device'] = self.device_column
+        settings['label'] = self.reg_label_column
+        settings['priority'] = self.reg_priority_column
 
         buffer = json.JSONEncoder().encode(settings)
         f = open('csv_columns.map', 'w')
@@ -102,6 +112,7 @@ class CSVParserConfig:
         self.cid_number = buffer['cid_number']
         self.device_column = buffer['device']
         self.startrow = buffer['startrow']
+        self.reg_priority_column = buffer['priority']
 
     def __str__(self):
         buffer = []
@@ -114,4 +125,6 @@ class CSVParserConfig:
         buffer.append("cid_number: %s" % self.cid_number)
         buffer.append("device_column: %s" % self.device_column)
         buffer.append("startrow: %s" % self.startrow)
+        buffer.append("priority: %s" % self.priority)
+        buffer.append("label: %s" % self.label)
         return "\n".join(buffer)

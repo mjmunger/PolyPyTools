@@ -5,6 +5,7 @@ import sys
 
 from pprint import pprint
 
+
 class PolycomConfigWriter(ConfigWriter):
 
     tftproot = None

@@ -3,6 +3,7 @@ import os
 import re
 from poly_py_tools.template import Template
 from poly_py_tools.registration import Registration
+from poly_py_tools.polycom_phone import PolycomPhone
 from pprint import pprint
 import uuid
 
@@ -10,6 +11,7 @@ import uuid
 class SipConfParser:
     verbosity = 0
     templates = []
+    registrations = []
     devices = []
     sip_conf_path = None
     raw_extensions = []
@@ -32,15 +34,52 @@ class SipConfParser:
 
         self.parse_raw()
         self.parse_templates()
-        self.parse_extensions()
+        self.parse_registrations()
+        self.parse_devices()
 
-        # for device in self.devices:
-        #     print("Name: %s" % device.name)
-        #     print("Device Type: %s" % device.device_type)
+    def parse_devices(self):
+        device_macs = []
 
-    def parse_extensions(self):
-        for device in self.raw_extensions:
-            template_name = Template.match_template_definition(device[0])
+        for registration in self.registrations:
+
+            if registration.mac is None:
+                continue
+
+            if registration.mac in device_macs:
+                continue
+
+            self.log("Found unique mac address: %s" % registration.mac, 2)
+            device_macs.append(registration.mac)
+
+        phones = []
+        for mac_address in device_macs:
+            self.log("Creating Polycom phone with mac address: %s" % mac_address, 2)
+            phone = PolycomPhone(mac_address)
+            phones.append(phone)
+
+        self.log("%s phones found." % len(phones))
+
+        for phone in phones:
+
+            self.log("Adding registrations to phone with mac %s..." % phone.mac_address)
+
+            for registration in self.registrations:
+                if registration.mac != phone.mac_address:
+                    self.log("Trying to match mac %s to this phones mac: %s" % (registration.mac, phone.mac_address), 3)
+                    continue
+
+                if registration.mac == phone.mac_address:
+                    phone.registrations.append(registration)
+                    self.log("Adding registration %s to phone with mac %s" % (registration.name, phone.mac_address), 1)
+
+        for phone in phones:
+            self.log("Phone with mac address %s has %s registrations." % (phone.mac_address, len(phone.registrations)), 1)
+
+        self.devices = phones
+
+    def parse_registrations(self):
+        for raw_entry in self.raw_extensions:
+            template_name = Template.match_template_definition(raw_entry[0])
             if template_name is not False:
                 continue
 
@@ -48,8 +87,8 @@ class SipConfParser:
             registration.set_verbosity(self.verbosity)
             template = False
 
-            if registration.implements_template(device):
-                template = registration.implements_template(device)[1:-1]
+            if registration.implements_template(raw_entry):
+                template = registration.implements_template(raw_entry)[1:-1]
 
             if template is not False:
                 self.log("%s template in use" % template, 3)
@@ -60,8 +99,8 @@ class SipConfParser:
                         registration.import_template(t)
                         break
 
-            registration.parse_registration(device)
-            self.devices.append(registration)
+            registration.parse_registration(raw_entry)
+            self.registrations.append(registration)
 
     def parse_templates(self):
         for device in self.raw_extensions:

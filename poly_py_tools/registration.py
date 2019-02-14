@@ -331,14 +331,14 @@ class Registration:
             return match.group(2).strip()
         return False
 
-    def parse_registration(self, raw_device):
+    def parse_registration(self, raw_entry):
 
         if self.device_type == "device":
             pattern = r"^(\[[a-zA-Z0-9]+?\])(\([a-zA-Z0-9-]+?\)){0,}$"
-            match = re.match(pattern, raw_device[0])
+            match = re.match(pattern, raw_entry[0])
             self.name = match.group(1)[1:-1]
 
-        for line in raw_device:
+        for line in raw_entry:
             line = line.strip()
             if "=" not in line:
                 continue
@@ -356,7 +356,12 @@ class Registration:
             if(directive[:1]) == ";":
                 directive = directive[1:]
 
-            setattr(self, directive, buff[1].strip())
+            value = buff[1]
+            # remove comments
+            if ";" in value:
+                value = value.split(";")[0].strip()
+
+            setattr(self, directive, value)
 
     def valid_registration(self):
 
