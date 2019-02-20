@@ -88,9 +88,12 @@ class Registration:
     email = None
     first_name = None
     last_name = None
+    label = None
+    order = None
 
     def __init__(self):
         self.type = "friend"
+        self.order = 0
 
     def set_verbosity(self, level):
         self.verbosity = level
@@ -361,13 +364,8 @@ class Registration:
             if ";" in value:
                 value = value.split(";")[0].strip()
 
+            self.log("Setting registration attribute %s to %s" % (directive, value), 3)
             setattr(self, directive, value)
-
-    def valid_registration(self):
-
-        if self.mac is None:
-            print("ERROR: Mac address not set for %s. Cannot provision this device" % self.name)
-            sys.exit(1)
 
     def import_template(self, template):
         self.type = template.type

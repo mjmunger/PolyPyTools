@@ -3,7 +3,7 @@
 usage: polypy [ -v ... ] [options] sip configure help
        polypy [ -v ... ] [options] sip configure <column_definitions>...
        polypy [ -v ... ] [options] sip generate <extension> from <file> [assign <template>] [with voicemail]
-       polypy [ -v ... ] [options] sip dump
+       polypy [ -v ... ] [options] sip dump [csv]
 
  sip commands:
     configure      Create a configuration file that is used to read your CSV data source.
@@ -36,6 +36,7 @@ from docopt import docopt
 import sys
 import os
 import json
+import csv
 from poly_py_tools.sip_parser import SipConfParser
 from poly_py_tools.pw_strength_calculator import PasswordStrengthCalculator
 from poly_py_tools.csv_parser_config import CSVParserConfig
@@ -67,6 +68,12 @@ if args['dump']:
     parser.set_verbosity(args['-v'])
     parser.parse()
 
+    if args['csv']:
+        csvfile = open('dump.csv', 'w')
+        dump_writer = csv.writer(csvfile)
+        dump_writer.writerow(["device", "template", "name", "type", "host", "context", "mac", "model", "mailbox", "callerid"])
+
+
     if args['-v'] >= 3:
         print("%s raw entries found." % len(parser.raw_extensions))
 
@@ -79,6 +86,7 @@ if args['dump']:
     c7 = len("mac")
     c8 = len("model")
     c9 = len("mailbox")
+    c10 = len("callerid")
 
     for phone in parser.devices:
         for registration in phone.registrations:
@@ -94,6 +102,7 @@ if args['dump']:
                 c9 = 0
                 continue
             c9 = len(registration.mailbox) if len(registration.mailbox) > c9 else c9
+            c10 = len(registration.callerid) if len(registration.callerid) > c10 else c10
 
     c1 = c1 + 2
     c2 = c2 + 2
@@ -104,8 +113,9 @@ if args['dump']:
     c7 = c7 + 2
     c8 = c8 + 2
     c9 = c9 + 2
+    c10 = c10 + 2
 
-    print("%s%s%s%s%s%s%s%s%s" % ("device".ljust(c1),
+    print("%s%s%s%s%s%s%s%s%s%s" % ("device".ljust(c1),
                                   "template".ljust(c2),
                                   "name".ljust(c3),
                                   "type".ljust(c4),
@@ -113,11 +123,15 @@ if args['dump']:
                                   "context".ljust(c6),
                                   "mac".ljust(c7),
                                   "model".ljust(c8),
-                                  "mailbox".ljust(c9)))
+                                  "mailbox".ljust(c9),
+                                  "callerid".ljust(c10)))
 
     for phone in parser.devices:
         for registration in phone.registrations:
-            print("%s%s%s%s%s%s%s%s%s" %
+            if args['csv']:
+                dump_writer.writerow([registration.device_type, registration.template, registration.name, registration.type, registration.host, registration.context, registration.mac, registration.model, registration.mailbox, registration.callerid])
+
+            print("%s%s%s%s%s%s%s%s%s%s" %
                   (registration.device_type.ljust(c1),
                    registration.template.ljust(c2),
                    registration.name.ljust(c3),
@@ -126,7 +140,8 @@ if args['dump']:
                    registration.context.ljust(c6),
                    registration.mac.ljust(c7),
                    registration.model.ljust(c8),
-                   registration.mailbox.ljust(c9) if registration.mailbox is not None else ""
+                   registration.mailbox.ljust(c9) if registration.mailbox is not None else "",
+                   registration.callerid.ljust(c10) if registration.callerid is not None else ""
                    )
                   )
 

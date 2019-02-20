@@ -37,6 +37,9 @@ class SipConfParser:
         self.parse_registrations()
         self.parse_devices()
 
+        for phone in self.devices:
+            phone.sort_registrations()
+
     def parse_devices(self):
         device_macs = []
 
@@ -55,6 +58,7 @@ class SipConfParser:
         for mac_address in device_macs:
             self.log("Creating Polycom phone with mac address: %s" % mac_address, 2)
             phone = PolycomPhone(mac_address)
+            phone.verbosity = self.verbosity
             phones.append(phone)
 
         self.log("%s phones found." % len(phones))

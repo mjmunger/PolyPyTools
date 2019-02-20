@@ -1,12 +1,11 @@
 #!/usr/bin/env python3
 """
-usage: polypy [ -v ... ] [options] provision extension <extension>
-       polypy [ -v ... ] [options] provision extension all
+usage: polypy [ -v ... ] [options] provision polycom <macaddress>
        polypy [ -v ... ] [options] provision list [ templates | devices | all ]
        polypy [ -v ... ] [options] provision show-extension <extension>
        polypy [ -v ... ] [options] provision show-mac <macaddress>
-       polypy [ -v ... ] [options] provision clean <extension>
-       polypy [ -v ... ] [options] provision swap <extension1> <extension2>
+       polypy [ -v ... ] [options] provision clean <macaddress>
+       polypy [ -v ... ] [options] provision swap <phone1> <phone2>
        polypy [ -v ... ] [options] provision passwords audit [ failures-only | passing-only ]
        polypy [ -v ... ] [options] provision passwords reset <extension>
 
@@ -66,41 +65,44 @@ if args['list']:
 
 if args['show-extension']:
     for device in parser.devices:
-        if device.name == args['<extension>']:
-            print(device)
-            break
+        for registration in device.registrations:
+            if registration.name == args['<extension>']:
+                print(registration)
+                break
     sys.exit(0)
 
 if args['show-mac']:
     for device in parser.devices:
-        if device.mac == args['<macaddress>']:
-            print(device)
-            break
+        for registration in device.registrations:
+            if registration.mac == args['<macaddress>']:
+                print(registration)
     sys.exit(0)
 
-if args['extension']:
+if args['polycom']:
     count = 0
-    for device in parser.devices:
+    for phone in parser.devices:
+        if not phone.type == "Polycom":
+            continue
 
-        if args['<extension>'] != "all" and device.name != args['<extension>']:
+        if args['<macaddress>'] != "all" and phone.mac_address != args['<macaddress>']:
             continue
 
         count = count + 1
-        device.valid_registration()
 
-        parser.log("Provisioning device %s with mac %s " % (device.name, device.mac), 1)
+        parser.log("Provisioning Polycom phone with mac %s " % phone.mac_address, 1)
 
         config_writer = PolycomConfigWriter()
-        config_writer.use(device)
+        config_writer.set_verbosity(args['-v'])
+        config_writer.use(phone)
         config_writer.use_configs(configs)
         config_writer.set_path()
         config_writer.write_config()
 
     print("Provisioned %s devices" % count)
-    if args['<extension>'] != "all" and count > 1:
-        print("WARNING: Two devices were provisioned for extension %s. \n"
-              "This will likely cause problems where only the last config loaded will be active. \n"
-              "The other phone will either not get provisioned, or not gain access to Asterisk." % args['<extension>'])
+    # if args['<macaddress>'] != "all" and count > 1:
+    #     print("WARNING: Two devices were provisioned for extension %s. \n"
+    #           "This will likely cause problems where only the last config loaded will be active. \n"
+    #           "The other phone will either not get provisioned, or not gain access to Asterisk." % args['<extension>'])
     sys.exit(0)
 
 if args['clean']:
