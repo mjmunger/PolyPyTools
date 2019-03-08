@@ -18,9 +18,11 @@ This helps setup the polypy environment by telling PolyPy where to find your ast
 
 ### provision
 
+Command: `polypy provision polycom`
+
 This command helps you provision Polycom phones and maintain decent security on those phones. You can:
-1. Provision a single extension defined in sip.conf.
-1. Provision all extensions defined in sip.conf.
+1. Provision one or more extensions as defined in sip.conf to a single phone.
+1. Provision all phones defined in sip.conf.
 1. List all the devices that are found in sip.conf
 1. Show a particular extension
 1. Clean a particiular extension
@@ -31,3 +33,4 @@ This command helps you provision Polycom phones and maintain decent security on 
 ### sip
 
 This command generates device entries for `sip.conf` and (optionally) voicemail entries for `voicemail.conf`.
+See command help: `polypy sip` for more commands and details.
