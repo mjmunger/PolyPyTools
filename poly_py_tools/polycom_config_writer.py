@@ -100,10 +100,17 @@ class PolycomConfigWriter(ConfigWriter):
                 self.log("Could not create %s" % self.phone_config_dir)
                 sys.exit(1)
 
-        f = open(self.phone_boostrap_file, 'w')
+        try:
+            f = open(self.phone_boostrap_file, 'w')
+        except PermissionError:
+            print("I don't have write access for %s. Check file permissions and try again." % self.phone_boostrap_file)
+            exit(1)
+
+        self.log("Writing bootstrap file: %s" % self.phone_boostrap_file, 1)
         f.write(self.get_cfg())
         f.close()
 
+        self.log("Writing phone config: %s" % self.phone_config, 1)
         f = open(self.phone_config, 'w')
         f.write(self.get_config())
         f.close()

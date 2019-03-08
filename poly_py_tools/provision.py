@@ -79,12 +79,13 @@ if args['show-mac']:
     sys.exit(0)
 
 if args['polycom']:
+    target_macaddress = str(args['<macaddress>']).lower()
     count = 0
     for phone in parser.devices:
         if not phone.type == "Polycom":
             continue
 
-        if args['<macaddress>'] != "all" and phone.mac_address != args['<macaddress>']:
+        if target_macaddress != "all" and phone.mac_address != target_macaddress:
             continue
 
         count = count + 1
