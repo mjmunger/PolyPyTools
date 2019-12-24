@@ -1,3 +1,9 @@
+# Quickstart and installation
+
+## Dependencies
+1. Python 3.6 or higher
+1. `pwgen_secure` library. Install with: `pip3 install pwgen_secure`
+
 # Configure Asterisk and Polycoms from a CSV file.
 
 
