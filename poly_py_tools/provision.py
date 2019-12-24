@@ -58,6 +58,8 @@ if args['list']:
 
     if args['devices']:
         for device in parser.devices:
+            if device is None:
+                continue
             print(device)
         print("%s devices provisioned." % len(parser.devices))
 
