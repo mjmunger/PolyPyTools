@@ -64,4 +64,4 @@ class PolycomPhone:
                 print("%i. (%s)%s" % (index, reg.label, reg.name))
 
     def __str__(self):
-        print("Mac: %s" % self.mac_address)
+        return "Mac: {0}".format(self.mac_address)
