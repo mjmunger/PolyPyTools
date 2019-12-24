@@ -24,16 +24,18 @@ from docopt import docopt
 from pprint import pprint
 
 if __name__ == '__main__':
-    args = docopt(__doc__)
+    args = docopt(__doc__, version='1.0', options_first=True)
+
+    argv = [args['<command>']] + args['<args>']
 
     if args['<command>'] == 'configure':
         from poly_py_tools import configure
-        docopt(configure.__doc__)
+        docopt(configure.__doc__, argv=argv)
 
     if args['<command>'] == 'provision':
         from poly_py_tools import provision
-        docopt(provision.__doc__)
+        docopt(provision.__doc__, argv=argv)
 
     if args['<command>'] == 'sip':
         from poly_py_tools import sip_manager
-        docopt(sip_manager.__doc__)
+        docopt(sip_manager.__doc__, argv=argv)
