@@ -36,13 +36,12 @@ from poly_py_tools.sip_parser import SipConfParser
 from poly_py_tools.pw_strength_calculator import PasswordStrengthCalculator
 from poly_py_tools.csv_parser_config import CSVParserConfig
 from poly_py_tools.sip_builder import SipBuilder
+from poly_py_tools.polypy_config_finder import ConfigFinder
 
 args = docopt(__doc__)
 
-config_dir = "/etc/polypy/"
-config_path = os.path.join(config_dir, "polypy.conf")
-f = open(config_path, 'r')
-configs = json.load(f)
+config_finder = ConfigFinder()
+configs = config_finder.get_configs()
 
 if args['configure']:
     parser_config = CSVParserConfig()

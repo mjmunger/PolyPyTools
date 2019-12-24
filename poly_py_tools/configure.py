@@ -4,10 +4,11 @@ usage: polypy [options] configure set-path asterisk <path>
        polypy [options] configure set-path tftproot <path>
        polypy [options] configure set-server <server_addr>
        polypy [options] configure show
-       polypy [options] configure set-defaults
+       polypy [options] configure set-defaults [here]
        polypy [options] configure validate
 
 options:
+  -d, Debug mode
   -v, --verbose  Be verbose
   -f, --force    Force the setting.
 
@@ -18,13 +19,17 @@ from docopt import docopt
 import sys
 import os
 import json
+from poly_py_tools.polypy_config_finder import ConfigFinder
 
 args = docopt(__doc__)
 
-config_dir = "/etc/polypy/"
-config_path = os.path.join(config_dir, "polypy.conf")
-configs = None
+print(args)
 
+config_finder = ConfigFinder()
+configs = config_finder.get_configs()
+
+if args['-d']:
+    print(configs)
 
 def write_config(configs):
     f = open(configs['config_path'], 'w')
@@ -34,9 +39,12 @@ def write_config(configs):
     print("Configs saved.")
 
 
-if os.getegid() != 0:
-    print("You must run this as root. Cannot continue")
-    sys.exit(1)
+config_dir = config_finder.get_config_dir()
+
+if not config_finder.is_local:
+    if os.getegid() != 0:
+        print("You must run this as root. Cannot continue")
+        sys.exit(1)
 
 if not os.path.exists(config_dir):
     try:
@@ -58,7 +66,7 @@ if os.path.exists(config_path):
 
 if args['show']:
     if bool(configs) is False:
-        print("PolyPyTools has not been configured. Run polypy configure.")
+        print("PolyPyTools has not been configured. Run polypy configure!")
         sys.exit(1)
 
     print("Current configuration:")
@@ -68,6 +76,8 @@ if args['show']:
     sys.exit(1)
 
 if args['set-defaults']:
+
+    print(args)
     # Setup default values:
     lib_path = '/var/lib/polypy'
     config_path = '/etc/polypy/'
