@@ -14,7 +14,7 @@ class ConfigFinder():
         local_config = os.path.join(os.getcwd(),"polypy.conf")
         default_config = os.path.join(config_dir, "polypy.conf")
         self.config_path =  local_config if os.path.exists(local_config) else default_config
-        is_local = True if os.path.exists(local_config) else False
+        self.is_local = True if os.path.exists(local_config) else False
 
     def get_configs(self):
         if not os.path.exists(self.config_path):
@@ -25,7 +25,7 @@ class ConfigFinder():
         try:
             configs = json.load(f)
         except json.JSONDecodeError:
-            return None
+            return {}
             f.close()
 
         f.close()

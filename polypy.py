@@ -1,14 +1,13 @@
 #!/usr/bin/env python3
-"""
+"""PolyPy Command Line Provisioning Tool!
 
-usage: polypy.py [ -v ... ] [options] [--help]
-                 <command> [--] [<args>...]
+Usage: polypy.py [ options ] <command> [ <args>... ]
 
-options:
---version    Show the version of this package
--h           Show this help screen
--v           Be verbose. Levels 1-10 (or more).
--f, --force  Do it anyway.
+Options:
+  --version    Show the version of this package
+  -h           Show this help screen
+  -v           Be verbose. Levels 1-10 (or more).
+  -f, --force  Do it anyway.
 
 Commands:
 
@@ -29,8 +28,8 @@ if __name__ == '__main__':
     argv = [args['<command>']] + args['<args>']
 
     if args['<command>'] == 'configure':
-        from poly_py_tools import configure
-        docopt(configure.__doc__, argv=argv)
+        from poly_py_tools import polypy_configure
+        docopt(polypy_configure.__doc__, argv=argv)
 
     if args['<command>'] == 'provision':
         from poly_py_tools import provision

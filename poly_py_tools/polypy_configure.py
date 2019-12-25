@@ -1,16 +1,18 @@
 #!/usr/bin/env python3
 """
-usage: polypy [options] configure set-path asterisk <path>
-       polypy [options] configure set-path tftproot <path>
-       polypy [options] configure set-server <server_addr>
-       polypy [options] configure show
-       polypy [options] configure set-defaults [here]
-       polypy [options] configure validate
+usage: polypy configure [ options ] <command>  [ <args>... ]
 
-options:
-  -d, Debug mode
-  -v, --verbose  Be verbose
-  -f, --force    Force the setting.
+  Commands:
+    set-path <name> <path>    Set a path in the config file. Possible values: asterisk, tftproot
+    set-server <server_addr>  Set the SIP server address.
+    show                      Show the current configuration.
+    set-defaults [here]       Create a set of default configs and save them at the config path.
+    validate                  Validate the configuration.
+
+  Options:
+    -d,            Debug mode
+    -v, --verbose  Be verbose
+    -f, --force    Force the setting.
 
 """
 
@@ -29,7 +31,7 @@ config_finder = ConfigFinder()
 configs = config_finder.get_configs()
 
 if args['-d']:
-    print(configs)
+    print(config_finder)
 
 def write_config(configs):
     f = open(configs['config_path'], 'w')
@@ -58,13 +60,10 @@ paths = {}
 
 # Overwrite it with the saved settings if they exist.
 
-if os.path.exists(config_path):
-    f = open(config_path, 'r')
-    configs = json.load(f)
-    f.close()
-    paths = configs['paths']
+configs = config_finder.get_configs()
 
-if args['show']:
+
+if args['<command>'] == 'show':
     if bool(configs) is False:
         print("PolyPyTools has not been configured. Run polypy configure!")
         sys.exit(1)
@@ -75,12 +74,12 @@ if args['show']:
     print("SIP Server set to: %s" % ("<unset>" if configs['server_addr'] is None else configs['server_addr']))
     sys.exit(1)
 
-if args['set-defaults']:
+if args['<command>'] == 'set-defaults':
 
     print(args)
     # Setup default values:
     lib_path = '/var/lib/polypy'
-    config_path = '/etc/polypy/'
+    config_path = config_finder.get_config_dir()
     share_path = '/usr/share/polypy/'
     local_bin = '/usr/local/bin/'
     package_path = None
@@ -102,7 +101,7 @@ if args['set-defaults']:
     write_config(configs)
     sys.exit(1)
 
-if args['set-path']:
+if args['<command>'] == 'set-defaults':
     if not args['--force'] and not os.path.exists(args['<path>']):
         print("%s does not exist. Not saving this setting." % args['<path>'])
         sys.exit(1)
@@ -123,7 +122,7 @@ if args['set-path']:
     write_config(configs)
     sys.exit(1)
 
-if args['set-server']:
+if args['<command>'] == 'set-server':
     configs['server_addr'] = args['<server_addr>']
     write_config(configs)
 
