@@ -22,6 +22,17 @@ This package is designed to read a CSV file, and help you generate sip.conf devi
 
 This helps setup the polypy environment by telling PolyPy where to find your asterisk config path, tftp server config path and other important stuff.
 
+#### Local configuration
+In many cases, it's useful to keep a local `polypy.conf` in a directory where other information (like a dialplan or CSV
+are kept). `polypy` is smart, and will check the current directory for a `polypy.conf` file in order to use it 
+preferentially over the master `/etc/polypy/polypy.conf` file.
+
+To setup a local `polypy.conf` file, execute the following receipe:
+1. `polypy configure set-defaults here` to create the default `polypy.conf` file at the current path.
+1. `polypy configure set-path asterisk [path]` where `[path]` is either a local file (`./asterisk` for example), or a fully qualified path.
+1. `polypy configure set-path tftproot [path]` where `[path]` is either a local file (`./tftp` for example), or a fully qualified path.
+1. `polypy configure show` to verify the paths and settings.
+
 ### provision
 
 Command: `polypy provision polycom`

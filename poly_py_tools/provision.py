@@ -23,21 +23,13 @@ import json
 from poly_py_tools.sip_parser import SipConfParser
 from poly_py_tools.polycom_config_writer import PolycomConfigWriter
 from poly_py_tools.pw_strength_calculator import PasswordStrengthCalculator
+from poly_py_tools.polypy_config_finder import ConfigFinder
 
 args = docopt(__doc__)
 
-config_dir = "/etc/polypy/"
-config_path = os.path.join(config_dir, "polypy.conf")
-configs = None
+config_finder = ConfigFinder()
+configs = config_finder.get_configs()
 
-if not os.path.exists(config_path):
-    print("PolyPy has not been configured. Run polypy configure")
-    sys.exit(1)
-
-
-f = open(config_path, 'r')
-configs = json.load(f)
-f.close()
 paths = configs['paths']
 
 parser = SipConfParser(os.path.join(paths['asterisk'], 'sip.conf'))
