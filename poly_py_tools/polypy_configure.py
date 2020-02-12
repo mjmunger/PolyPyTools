@@ -25,23 +25,61 @@ from poly_py_tools.polypy_config_finder import ConfigFinder
 
 args = docopt(__doc__)
 
-print(args)
-
 config_finder = ConfigFinder()
 configs = config_finder.get_configs()
 
 if args['-d']:
     print(config_finder)
 
+
 def write_config(configs):
-    f = open(configs['config_path'], 'w')
+    try:
+        f = open(configs['config_path'], 'w')
+    except PermissionError:
+        print("ERROR: I do not have permission to write to {}. I could not do anything. Check permissions and try again.".format(configs['config_path']))
+        exit(1)
+
     f.write(json.JSONEncoder().encode(configs))
     f.close()
 
     print("Configs saved.")
 
 
+def write_default_configs(config_path):
+    # Setup default values:
+    lib_path = '/var/lib/polypy'
+    share_path = '/usr/share/polypy/'
+    local_bin = '/usr/local/bin/'
+    package_path = None
+
+    paths = {}
+
+    for path in sys.path:
+        if '/usr/local/lib' in path:
+            package_path = os.path.join(path, "poly_py_tools")
+
+    paths["asterisk"] = "/etc/asterisk/"
+    paths["tftproot"] = "/srv/tftp/"
+    configs['lib_path'] = lib_path
+    configs['share_path'] = share_path
+    configs['config_path'] = os.path.join(config_path, 'polypy.conf')
+    configs['package_path'] = package_path
+    configs['paths'] = paths
+    configs['server_addr'] = "126.0.0.1"
+    write_config(configs)
+    sys.exit(0)
+
+
 config_dir = config_finder.get_config_dir()
+
+if args['<command>'] == 'set-defaults':
+    if args['<args>'][0] == 'here':
+        config_path = os.getcwd()
+    else:
+        config_path = config_finder.get_config_dir()
+
+    write_default_configs(config_path)
+    print("Defaults written to: {1}" % config_path)
 
 if not config_finder.is_local:
     if os.getegid() != 0:
@@ -62,71 +100,67 @@ paths = {}
 
 configs = config_finder.get_configs()
 
-
 if args['<command>'] == 'show':
     if bool(configs) is False:
         print("PolyPyTools has not been configured. Run polypy configure!")
         sys.exit(1)
 
+    paths = configs['paths']
+
     print("Current configuration:")
+    print("Configuration file: %s" % configs['config_path'])
     print("Asterisk path: %s" % paths['asterisk'])
     print("Tftp root path: %s" % paths['tftproot'])
     print("SIP Server set to: %s" % ("<unset>" if configs['server_addr'] is None else configs['server_addr']))
     sys.exit(1)
 
-if args['<command>'] == 'set-defaults':
+# if args['<command>'] == 'set-defaults':
+#     if not args['--force'] and not os.path.exists(args['<path>']):
+#         print("%s does not exist. Not saving this setting." % args['<path>'])
+#         sys.exit(1)
+#
+#     # Setup default values:
+#     paths["asterisk"] = "/etc/asterisk/"
+#     paths["tftproot"] = "/srv/tftp/"
+#
+#     # Overwrite with command values
+#     if args['asterisk']:
+#         paths['asterisk'] = args['<path>']
+#
+#     if args['tftproot']:
+#         paths['tftproot'] = args['<path>']
+#
+#     configs['paths'] = paths
+#
+#     write_config(configs)
+#     sys.exit(1)
 
-    print(args)
-    # Setup default values:
-    lib_path = '/var/lib/polypy'
-    config_path = config_finder.get_config_dir()
-    share_path = '/usr/share/polypy/'
-    local_bin = '/usr/local/bin/'
-    package_path = None
+if args['<command>'] == 'set-path':
+    path_name = args['<args>'][0]
+    path_path = args['<args>'][1]
+    if not path_name in configs['paths']:
+        print("%s is not a path in settings. Not setting anything." % path_name)
+        exit(1)
 
-    paths = {}
+    if path_path.startswith("."):
+        path_path = os.path.join(os.getcwd(), path_path[2:])
 
-    for path in sys.path:
-        if '/usr/local/lib' in path:
-            package_path = os.path.join(path, "poly_py_tools")
+    if not os.path.exists(path_path):
+        print("%s does not exist. If  you are trying to use a relvant path, did you for get to write it as: ./mydirectory ?" % path_path)
+        exit(1)
 
-    paths["asterisk"] = "/etc/asterisk/"
-    paths["tftproot"] = "/srv/tftp/"
-    configs['lib_path'] = lib_path
-    configs['share_path'] = share_path
-    configs['config_path'] = os.path.join(config_path, 'polypy.conf')
-    configs['package_path'] = package_path
-    configs['paths'] = paths
-    configs['server_addr'] = "127.0.0.1"
+    configs['paths'][path_name] = path_path
     write_config(configs)
-    sys.exit(1)
-
-if args['<command>'] == 'set-defaults':
-    if not args['--force'] and not os.path.exists(args['<path>']):
-        print("%s does not exist. Not saving this setting." % args['<path>'])
-        sys.exit(1)
-
-    # Setup default values:
-    paths["asterisk"] = "/etc/asterisk/"
-    paths["tftproot"] = "/srv/tftp/"
-
-    # Overwrite with command values
-    if args['asterisk']:
-        paths['asterisk'] = args['<path>']
-
-    if args['tftproot']:
-        paths['tftproot'] = args['<path>']
-
-    configs['paths'] = paths
-
-    write_config(configs)
-    sys.exit(1)
+    print("%s set to %s" % (path_name, path_path))
+    print("Don't forget to validate this path before you use it. (polypy configure validate) ")
+    exit(1)
 
 if args['<command>'] == 'set-server':
-    configs['server_addr'] = args['<server_addr>']
+    server_addr = args['<args>'][0]
+    configs['server_addr'] = server_addr
     write_config(configs)
 
-if args['validate']:
+if args['<command>'] == 'validate':
 
     missing_files = []
     paths = configs['paths']
