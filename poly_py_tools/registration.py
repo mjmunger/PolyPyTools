@@ -5,7 +5,9 @@ from pprint import pprint
 
 class Registration:
     verbosity = 0
+    debug_mode = False
     device_type = "device"
+    extension = None
 
     disallow = []
     allow = []
@@ -98,6 +100,10 @@ class Registration:
     def set_verbosity(self, level):
         self.verbosity = level
 
+    def set_debug_mode(self):
+        self.debug_mode = True
+        self.verbosity = 10
+
     def log(self, message, minimum_level=1):
         if self.verbosity < minimum_level:
             return True
@@ -106,12 +112,16 @@ class Registration:
 
     def __str__(self):
         buffer = []
-        buffer.append("============================================================")
+        buffer.append("-----------------START DEVICE-----------------")
         buffer.append("Type: %s" %self.device_type)
         buffer.append("Template: %s" % ("<unset>" if self.template is None else self.template))
+        buffer.append("Extension: {}".format(self.extension))
         buffer.append("name: %s" % self.name)
         buffer.append("allow: %s" % (", ".join(self.allow)))
         buffer.append("disallow: %s" % (", ".join(self.disallow)))
+
+        if self.secret is not None or self.verbosity > 2:
+            buffer.append("secret: %s" % ("<unset>" if self.secret is None else self.secret))
 
         if self.name is not None or self.verbosity > 2:
             buffer.append("name: %s" % ("<unset>" if self.name is None else self.name))
@@ -136,9 +146,6 @@ class Registration:
 
         if self.deny is not None or self.verbosity > 2:
             buffer.append("deny: %s" % ("<unset>" if self.deny is None else self.deny))
-
-        if self.secret is not None or self.verbosity > 2:
-            buffer.append("secret: %s" % ("<unset>" if self.secret is None else self.secret))
 
         if self.md5secret is not None or self.verbosity > 2:
             buffer.append("md5secret: %s" % ("<unset>" if self.md5secret is None else self.md5secret))
@@ -323,6 +330,7 @@ class Registration:
         if self.model is not None or self.verbosity > 2:
             buffer.append("model: %s" % ("<unset>" if self.model is None else self.model))
 
+        buffer.append("------------------END DEVICE-------------------")
         return "\n".join(buffer)
 
     @staticmethod
@@ -439,34 +447,53 @@ class Registration:
 
     def import_csv_row(self, row, csv_config):
 
+        if self.debug_mode:
+            print("CSV Configuration:")
+            print(csv_config)
+            print("Importing this row for parsing: ")
+            print(row)
+
         try:
-            self.name = row[csv_config.extension_column]
+            self.extension = row[csv_config.extension_column]
         except IndexError:
-            print("The target csv file (%s) does not appear to have %s columns. Re-run polypy sip configure and check your file.")
+            print("The target csv file (%s) does not appear to have %s columns. Re-run polypy sip configure and check "
+                  "your file.")
+            sys.exit(1)
+
+        try:
+            self.name = row[csv_config.mac_column]
+            self.log("I think the mac is in column {} and is [{}]".format(csv_config.mac_column, self.name), 9)
+        except IndexError:
+            print("The target csv file (%s) does not appear to have %s columns. Re-run polypy sip configure and check "
+                  "your file.")
             sys.exit(1)
 
         try:
             self.mac = row[csv_config.mac_column]
         except IndexError:
-            print("The target csv file (%s) does not appear to have %s columns. Re-run polypy sip configure and check your file.")
+            print("The target csv file (%s) does not appear to have %s columns. Re-run polypy sip configure and check "
+                  "your file.")
             sys.exit(1)
 
         try:
-            self.first_name = row[csv_config.first_name_column]
+            self.first_name = str(row[csv_config.first_name_column]).strip()
         except IndexError:
-            print("The target csv file (%s) does not appear to have %s columns. Re-run polypy sip configure and check your file.")
+            print("The target csv file (%s) does not appear to have %s columns. Re-run polypy sip configure and check "
+                  "your file.")
 
         try:
-            self.last_name = row[csv_config.last_name_column]
+            self.last_name = str(row[csv_config.last_name_column]).strip()
         except IndexError:
-            print("The target csv file (%s) does not appear to have %s columns. Re-run polypy sip configure and check your file.")
+            print("The target csv file (%s) does not appear to have %s columns. Re-run polypy sip configure and check "
+                  "your file.")
 
         try:
-            self.callerid = '"%s %s" <%s>' % (row[csv_config.first_name_column],
-                                              row[csv_config.last_name_column],
+            self.callerid = '"%s %s" <%s>' % (self.first_name.title(),
+                                              self.last_name.title(),
                                               row[csv_config.cid_number])
         except IndexError:
-            print("The target csv file (%s) does not appear to have %s columns. Re-run polypy sip configure and check your file.")
+            print("The target csv file (%s) does not appear to have %s columns. Re-run polypy sip configure and check "
+                  "your file.")
             sys.exit(1)
 
         if csv_config.voicemail_column is not None:
@@ -483,23 +510,29 @@ class Registration:
         lines.append("\n")
 
         if self.template is None:
-            lines.append("[%s]" % self.name)
+            lines.append("[%s]" % str(self.mac).lower())
         else:
-            lines.append("[%s](%s)" % (self.name, self.template))
+            lines.append("[%s](%s)" % (str(self.mac).lower(), self.template))
 
         lines.append(";mac=%s" % str(self.mac).lower())
         lines.append(";model=%s" % self.model)
+        lines.append(";extension=%s" % self.extension)
         lines.append("type=%s" % self.type)
         lines.append("secret=%s" % self.secret)
         lines.append("callerid=%s" % self.callerid)
         lines.append("mailbox=%s" % self.mailbox)
         buffer = "\n".join(lines)
+
+        if self.debug_mode:
+            self.log("-------------------Device definition---------------------")
+            self.log(buffer)
+            self.log("------------------End Device definition------------------")
         return buffer
 
     def get_voicemail_definition(self):
 
         components = []
-        components.append("%s => 1234" % self.name)
+        components.append("%s => 1234" % self.extension)
         if len(self.first_name.strip()) > 0 and len(self.last_name.strip()) > 0:
             components.append("%s %s" % (self.first_name, self.last_name))
 

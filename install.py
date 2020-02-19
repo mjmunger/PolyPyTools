@@ -27,12 +27,13 @@ for path in paths:
     if not os.path.exists(path):
         os.mkdir(path)
 
-for root, dirs, files in os.walk(os.path.join(os.getcwd(),"poly_py_tools")):
+for root, dirs, files in os.walk(os.path.join(os.getcwd(), "poly_py_tools")):
     for file in files:
         src = os.path.join(root, file)
         copyfile(src, os.path.join(package_path, file))
 
 copyfile("lib/10k-most-common.txt", os.path.join(lib_path, "10k-most-common.txt"))
+copyfile("lib/csvguess.json", os.path.join(lib_path, "csvguess.json"))
 copyfile("polypy.py", os.path.join('/usr/local/bin/', 'polypy'))
 os.chmod(os.path.join('/usr/local/bin/', 'polypy'), 0o777)
 

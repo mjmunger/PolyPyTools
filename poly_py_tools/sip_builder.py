@@ -13,22 +13,29 @@ class SipBuilder:
     devices = []
     verbosity = 0
     template = None
+    debug_mode = False
 
     def __str__(self):
         pass
+
+    def set_debug_mode(self, debug_mode):
+        if debug_mode:
+            self.verbosity = 10
+            self.debug_mode = debug_mode
 
     def set_verbosity(self, verbosity):
         self.verbosity = verbosity
 
     def set_template(self, assign, template):
         if assign is None or template is None:
+            self.log("No template assigned.", 9)
             return False
 
         self.template = template
 
     def with_config(self, csv_config):
         self.csv_config = csv_config
-        self.log(csv_config, 10)
+        self.log(csv_config, 9)
 
     def log(self, message, minimum_verbosity=1):
         if self.verbosity >= minimum_verbosity:
@@ -48,6 +55,9 @@ class SipBuilder:
                 if counter >= int(self.csv_config.startrow):
                     self.log(row, 10)
                     device = Registration()
+                    if self.debug_mode:
+                        device.set_debug_mode()
+
                     device.import_csv_row(row, self.csv_config)
                     if device.secret is None:
                         rpg = Rpg("strong", None)
@@ -64,6 +74,7 @@ class SipBuilder:
         for device in self.devices:
             device.template = self.template
             self.log("Checking device: %s" % device.name, 10)
+            self.log(str(device), 10)
             if target_device == "all" or device.name == target_device:
                 self.log("Target device found (%s). Appending config to %s" % (device.name, self.sip_conf_path), 3)
                 f = open(self.sip_conf_path, 'a')

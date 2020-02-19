@@ -1,16 +1,22 @@
 #!/usr/bin/env python3
 """
-usage: polypy configure [ options ] <command>  [ <args>... ]
+Usage: polypy configure [ -v ... ] [ options ] set-path <name> <path>
+       polypy configure [ -v ... ] [ options ] set-server <server_addr>
+       polypy configure [ -v ... ] [ options ] show
+       polypy configure [ -v ... ] [ options ] set-defaults [here]
+       polypy configure [ -v ... ] [ options ] validate
+       polypy configure [ -v ... ] [ options ] copy-files <source_path>
 
   Commands:
-    set-path <name> <path>    Set a path in the config file. Possible values: asterisk, tftproot
-    set-server <server_addr>  Set the SIP server address.
-    show                      Show the current configuration.
-    set-defaults [here]       Create a set of default configs and save them at the config path.
-    validate                  Validate the configuration.
-
+      set-path <name> <path>       Set a path in the config file. Possible values: asterisk, tftproot
+      set-server <server_addr>     Set the SIP server address.
+      show                         Show the current configuration.
+      set-defaults [here]          Create a set of default configs and save them at the config path.
+      validate                     Validate the configuration.
+      copy-files <source_path>     Copies required Polycom files from <source_path> to the tftproot defined in your config.
   Options:
     -d,            Debug mode
+    -h, --help     Show this help.
     -v, --verbose  Be verbose
     -f, --force    Force the setting.
 
@@ -22,6 +28,12 @@ import sys
 import os
 import json
 from poly_py_tools.polypy_config_finder import ConfigFinder
+from shutil import copyfile
+
+polycom_files = ['000000000000.cfg', '000000000000-directory~.xml', "Config/applications.cfg", "Config/device.cfg",
+                     "Config/features.cfg", "Config/H323.cfg", "Config/polycomConfig.xsd", "Config/reg-advanced.cfg",
+                     "Config/reg-basic.cfg", "Config/region.cfg", "Config/sip-basic.cfg", "Config/sip-interop.cfg",
+                     "Config/site.cfg", "Config/video.cfg", "Config/video-integration.cfg"]
 
 args = docopt(__doc__)
 
@@ -29,6 +41,10 @@ config_finder = ConfigFinder()
 configs = config_finder.get_configs()
 
 if args['-d']:
+    print("Debug: {}".format(__file__))
+    print("--------------------------------------------------")
+    print(args)
+    print("--------------------------------------------------\n")
     print(config_finder)
 
 
@@ -72,7 +88,7 @@ def write_default_configs(config_path):
 
 config_dir = config_finder.get_config_dir()
 
-if args['<command>'] == 'set-defaults':
+if args['set-defaults']:
     if args['<args>'][0] == 'here':
         config_path = os.getcwd()
     else:
@@ -100,7 +116,7 @@ paths = {}
 
 configs = config_finder.get_configs()
 
-if args['<command>'] == 'show':
+if args['show']:
     if bool(configs) is False:
         print("PolyPyTools has not been configured. Run polypy configure!")
         sys.exit(1)
@@ -135,7 +151,7 @@ if args['<command>'] == 'show':
 #     write_config(configs)
 #     sys.exit(1)
 
-if args['<command>'] == 'set-path':
+if args['set-path']:
     path_name = args['<args>'][0]
     path_path = args['<args>'][1]
     if not path_name in configs['paths']:
@@ -155,12 +171,12 @@ if args['<command>'] == 'set-path':
     print("Don't forget to validate this path before you use it. (polypy configure validate) ")
     exit(1)
 
-if args['<command>'] == 'set-server':
+if args['set-server']:
     server_addr = args['<args>'][0]
     configs['server_addr'] = server_addr
     write_config(configs)
 
-if args['<command>'] == 'validate':
+if args['validate']:
 
     missing_files = []
     paths = configs['paths']
@@ -172,11 +188,6 @@ if args['<command>'] == 'validate':
         print(
             'Could not find the blank Config directory for the Polycom configs. Make sure the firmware has been '
             'placed in the tftp root.')
-
-    polycom_files = ['000000000000.cfg', '000000000000-directory~.xml', "Config/applications.cfg", "Config/device.cfg",
-                     "Config/features.cfg", "Config/H323.cfg", "Config/polycomConfig.xsd", "Config/reg-advanced.cfg",
-                     "Config/reg-basic.cfg", "Config/region.cfg", "Config/sip-basic.cfg", "Config/sip-interop.cfg",
-                     "Config/site.cfg", "Config/video.cfg", "Config/video-integration.cfg"]
 
     for file in polycom_files:
         target_path = os.path.join(paths['tftproot'],file)
@@ -191,3 +202,43 @@ if args['<command>'] == 'validate':
     if len(missing_files) == 0:
         print("Configuration looks good.")
     sys.exit(1)
+
+
+if args['copy-files']:
+
+    source_path = args['<args>'][0]
+    if not os.path.exists(source_path):
+        print("Path %s does not exist. Quitting." % source_path)
+        exit(1)
+
+    missing_files = []
+
+    for file in polycom_files:
+        target_path = os.path.join(source_path, file)
+        if not os.path.exists(target_path):
+            missing_files.append(target_path)
+
+    if len(missing_files) > 0:
+        print("Some required files are missing from {}".format(source_path))
+        for file in missing_files:
+            print("- {}".format(file))
+
+        exit(1)
+
+    #Copy everything over.
+
+    target_path = os.path.join(os.getcwd(),'tftp')
+    target_path = configs['paths']['tftproot']
+
+    if not os.path.exists(target_path):
+        os.mkdir(target_path)
+
+    target_config_path = os.path.join(target_path, "Config")
+    if not os.path.exists(target_config_path):
+        os.mkdir(target_config_path)
+
+    for file in polycom_files:
+        source_file = os.path.join(source_path, file)
+        target_file = os.path.join(target_path, file)
+        print("Copying: {} => {}".format(source_file, target_file))
+        copyfile(source_file, target_file)

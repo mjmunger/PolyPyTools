@@ -43,7 +43,7 @@ This command helps you provision Polycom phones and maintain decent security on 
 1. List all the devices that are found in sip.conf
 1. Show a particular extension
 1. Clean a particiular extension
-1. Swap two extensiosn (really useful when Bob and Alice want to swap phones).
+1. Swap two extensions (really useful when Bob and Alice want to swap phones).
 1. Audit passwords
 1. Reset a password for an extension.
 

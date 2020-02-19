@@ -100,7 +100,7 @@ class CSVParserConfig:
         self.site = site
 
     def load(self, csv_config_path):
-        f = open(csv_config_path,'r')
+        f = open(csv_config_path, 'r')
         buffer = json.load(f)
 
         self.first_name_column = buffer['first']
@@ -112,7 +112,8 @@ class CSVParserConfig:
         self.cid_number = buffer['cid_number']
         self.device_column = buffer['device']
         self.startrow = buffer['startrow']
-        self.reg_priority_column = buffer['priority']
+        if 'priority' in buffer:
+            self.reg_priority_column = buffer['priority']
 
     def __str__(self):
         buffer = []
@@ -125,6 +126,14 @@ class CSVParserConfig:
         buffer.append("cid_number: %s" % self.cid_number)
         buffer.append("device_column: %s" % self.device_column)
         buffer.append("startrow: %s" % self.startrow)
-        buffer.append("priority: %s" % self.priority)
-        buffer.append("label: %s" % self.label)
+        if 'priority' in buffer:
+            buffer.append("priority: %s" % self.priority)
+        else:
+            buffer.append("priority: Not set")
+
+        if 'label' in buffer:
+            buffer.append("label: %s" % self.label)
+        else:
+            buffer.append("label: Not set")
+
         return "\n".join(buffer)

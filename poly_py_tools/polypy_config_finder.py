@@ -4,7 +4,8 @@ import os
 import sys
 import json
 
-class ConfigFinder():
+
+class ConfigFinder:
 
     config_path = None
     is_local = False

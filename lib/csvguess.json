@@ -1,0 +1,12 @@
+{
+	"first": ["first", "firstname", "first name"],
+	"last": ["last", "lastname", "last name"],
+	"exten": ["exten", "extension", "new extension"],
+	"vm" : ["vm","voicemail"],
+	"mac" : ["mac", "macaddr", "mac address", "physical address"],
+	"email" : ["email"],
+	"device":["device", "phone", "model"],
+	"cid_number" : ["cid", "cname", "callerid", "Caller-ID"],
+	"priority" : ["priority", "sort", "order by", "order"],
+	"label" : ["label"]
+}

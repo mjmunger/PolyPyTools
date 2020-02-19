@@ -1,10 +1,10 @@
 #!/usr/bin/env python3
 """PolyPy Command Line Provisioning Tool!
 
-Usage: polypy.py [ options ] <command> [ <args>... ]
+Usage: polypy.py [ -v ... ] [ options ] <command> [ <args> ... ]
 
 Options:
-  --version    Show the version of this package
+  -d           Debug mode
   -h           Show this help screen
   -v           Be verbose. Levels 1-10 (or more).
   -f, --force  Do it anyway.
@@ -14,18 +14,46 @@ Commands:
   configure  Configure PolyPyTools.
   provision  Creates provisioning files for Polycom phones from asterisk's sip.conf.
   sip        Manage sip.conf
+  version    Show the version of this package
 
 See polypy help <command> for more information with a specific command.
 
 """
-import sys
+import subprocess
+import os
 from docopt import docopt
-from pprint import pprint
+
+
+def show_version():
+    execution_dir = os.getcwd()
+    working_dir = os.path.dirname(os.readlink("/usr/local/bin/polypy")) if os.path.exists(
+        "/usr/local/bin/polypy") else os.getcwd()
+    os.chdir(working_dir)
+    proc = subprocess.Popen(['git', 'describe', '--tags', '--long'], 1024, stdout=subprocess.PIPE)
+    try:
+        outs, errs = proc.communicate(1)
+    except subprocess.TimeoutExpired:
+        proc.kill()
+        outs, errs = proc.communicate(1)
+    program_version = outs.decode("utf-8").strip()
+    print("polypy version: {}".format(program_version))
+
 
 if __name__ == '__main__':
-    args = docopt(__doc__, version='1.0', options_first=True)
+
+    args = docopt(__doc__, options_first=True)
+
+    if args['-d']:
+        t = "{}: {}"
+        print("Debug mode enabled")
+        print("")
+        print("args:")
+        print(args)
 
     argv = [args['<command>']] + args['<args>']
+
+    if args['<command>'] == 'version':
+        show_version()
 
     if args['<command>'] == 'configure':
         from poly_py_tools import polypy_configure
