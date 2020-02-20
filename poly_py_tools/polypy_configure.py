@@ -89,7 +89,7 @@ def write_default_configs(config_path):
 config_dir = config_finder.get_config_dir()
 
 if args['set-defaults']:
-    if args['<args>'][0] == 'here':
+    if args['here']:
         config_path = os.getcwd()
     else:
         config_path = config_finder.get_config_dir()
