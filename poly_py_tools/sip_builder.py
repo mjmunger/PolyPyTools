@@ -14,6 +14,8 @@ class SipBuilder:
     verbosity = 0
     template = None
     debug_mode = False
+    use_column_for_template = False
+    template_column = None
 
     def __str__(self):
         pass
@@ -30,6 +32,11 @@ class SipBuilder:
         if assign is None or template is None:
             self.log("No template assigned.", 9)
             return False
+
+        if assign == "column":
+            self.use_column_for_template = True
+            self.template_column = template
+            return True
 
         self.template = template
 
@@ -72,10 +79,18 @@ class SipBuilder:
     def export_device_definitions(self, target_device, with_voicemail=False):
         self.log("Writing config for target device: %s" % target_device, 3)
         for device in self.devices:
-            device.template = self.template
+
+            if self.use_column_for_template:
+                device.set_template_from_column(self.template_column)
+            else:
+                device.template = self.template
+
             self.log("Checking device: %s" % device.name, 10)
             self.log(str(device), 10)
             if target_device == "all" or device.name == target_device:
+                if len(device.mac) == 0:
+                    continue
+
                 self.log("Target device found (%s). Appending config to %s" % (device.name, self.sip_conf_path), 3)
                 f = open(self.sip_conf_path, 'a')
                 f.write(device.get_device_definition())

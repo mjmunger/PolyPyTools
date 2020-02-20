@@ -3,7 +3,7 @@
 usage: polypy sip [ -v ... ] [options] configure help
        polypy sip [ -v ... ] [options] configure map <column_definitions>...
        polypy sip [ -v ... ] [options] configure guess from <file> [ --startrow=<startrow> ] [ --save ]
-       polypy sip [ -v ... ] [options] generate <extension> from <file> [assign <template>] [with voicemail]
+       polypy sip [ -v ... ] [options] generate <extension> from <file> ([assign <template>] | [ use template column <column> ]) [with voicemail]
        polypy sip [ -v ... ] [options] dump [csv]
 
  sip commands:
@@ -202,7 +202,11 @@ if args['generate']:
     builder = SipBuilder()
     builder.set_verbosity(args['-v'])
     builder.set_debug_mode(args['-d'])
-    builder.set_template(args['assign'], args['<template>'])
+    if args['use'] and args['template'] and args['column']:
+        builder.set_template('column', args['<column>'])
+
+    if args['assign']:
+        builder.set_template(args['assign'], args['<template>'])
     builder.with_config(parser_config)
     builder.from_csv_file(args['<file>'])
     builder.append_device_definitions_to(configs['paths']['asterisk'])

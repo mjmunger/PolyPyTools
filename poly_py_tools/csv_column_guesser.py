@@ -72,6 +72,7 @@ class ColumnGuesser:
         if not guess_success:
             print("\nCould not guess all the columns. Column map not created.")
             print("Either update the dictionary, or re-name the columns to comply with the column guesser.")
+            return False
 
         if not self.save:
             print("I have found the following columns. Re-run the command with the --save option to write the map.")

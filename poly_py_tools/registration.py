@@ -8,6 +8,9 @@ class Registration:
     debug_mode = False
     device_type = "device"
     extension = None
+    row = None
+    csv_config = None
+    column_letters = None
 
     disallow = []
     allow = []
@@ -96,6 +99,8 @@ class Registration:
     def __init__(self):
         self.type = "friend"
         self.order = 0
+
+        self.column_letters = "A B C D E F G H I J K L M N O P Q R S T U V W X Y Z".split()
 
     def set_verbosity(self, level):
         self.verbosity = level
@@ -447,6 +452,9 @@ class Registration:
 
     def import_csv_row(self, row, csv_config):
 
+        self.row = row
+        self.csv_config = csv_config
+
         if self.debug_mode:
             print("CSV Configuration:")
             print(csv_config)
@@ -469,7 +477,7 @@ class Registration:
             sys.exit(1)
 
         try:
-            self.mac = row[csv_config.mac_column]
+            self.mac = str(row[csv_config.mac_column]).lower().strip()
         except IndexError:
             print("The target csv file (%s) does not appear to have %s columns. Re-run polypy sip configure and check "
                   "your file.")
@@ -505,16 +513,24 @@ class Registration:
         if csv_config.email_column is not None:
             self.email = row[csv_config.email_column]
 
+    def set_template_from_column(self, column):
+        try:
+            self.template = str(self.row[self.column_letters.index(column)]).replace(" ", "-").lower()
+        except ValueError:
+            print("Tried to set the template using column {}, but it seems the row doesn't have that value?".format(column))
+            print("Quitting.")
+            exit(1)
+
     def get_device_definition(self):
         lines = []
         lines.append("\n")
 
         if self.template is None:
-            lines.append("[%s]" % str(self.mac).lower())
+            lines.append("[%s]" % self.mac)
         else:
-            lines.append("[%s](%s)" % (str(self.mac).lower(), self.template))
+            lines.append("[%s](%s)" % (self.mac, self.template))
 
-        lines.append(";mac=%s" % str(self.mac).lower())
+        lines.append(";mac=%s" % self.mac)
         lines.append(";model=%s" % self.model)
         lines.append(";extension=%s" % self.extension)
         lines.append("type=%s" % self.type)

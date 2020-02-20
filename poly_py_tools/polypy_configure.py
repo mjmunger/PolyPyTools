@@ -152,8 +152,8 @@ if args['show']:
 #     sys.exit(1)
 
 if args['set-path']:
-    path_name = args['<args>'][0]
-    path_path = args['<args>'][1]
+    path_name = args['<name>']
+    path_path = args['<path>']
     if not path_name in configs['paths']:
         print("%s is not a path in settings. Not setting anything." % path_name)
         exit(1)
@@ -205,8 +205,7 @@ if args['validate']:
 
 
 if args['copy-files']:
-
-    source_path = args['<args>'][0]
+    source_path = args['<source_path>']
     if not os.path.exists(source_path):
         print("Path %s does not exist. Quitting." % source_path)
         exit(1)
