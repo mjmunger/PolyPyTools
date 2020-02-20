@@ -14,6 +14,14 @@ class PolycomConfigWriter(ConfigWriter):
     phone_boostrap_file = None
     phone_config_dir = None
     phone_config = None
+    debug_mode = False
+
+    def set_debug_mode(self, debug_mode):
+        if debug_mode is False:
+            return False
+
+        self.debug_mode = True
+        self.verbosity = 10
 
     def log(self, message, minimum_level=1):
         if self.verbosity < minimum_level:
@@ -47,13 +55,13 @@ class PolycomConfigWriter(ConfigWriter):
 
         self.log("%s registrations sorted." % len(self.device.registrations), 1)
         for registration in self.device.registrations:
-            self.log("Writing Registration {} for {}".format(registration.name, self.device.mac_address), 1)
+            self.log("Writing Registration {} for {}".format(registration.extension, self.device.mac_address), 1)
             count = count + 1
             for s in itemlist:
                 s.attributes['reg.{}.address'.format(count)] = '{}@{}'.format(registration.name, self.configs['server_addr'])
                 s.attributes['reg.{}.auth.password'.format(count)] = registration.secret
                 s.attributes['reg.{}.auth.userId'.format(count)] = registration.name
-                s.attributes['reg.{}.label'.format(count)] = registration.label if registration.label is not None else registration.name
+                s.attributes['reg.{}.label'.format(count)] = registration.label if registration.label is not None else registration.extension
                 # s.attributes['reg.1.outboundProxy.address']
         output = xmldoc.toxml()
 
