@@ -172,7 +172,7 @@ if args['set-path']:
     exit(1)
 
 if args['set-server']:
-    server_addr = args['<args>'][0]
+    server_addr = args['<server_addr>']
     configs['server_addr'] = server_addr
     write_config(configs)
 
