@@ -25,20 +25,7 @@ commands.append("pip3 install requests".split(" "))
 for command in commands:
     print("Executing: {}".format(" ".join(command)))
 
-    try:
-        proc = subprocess.Popen(command, stdin=subprocess.PIPE, stdout= subprocess.PIPE)
-    except subprocess.TimeoutExpired:
-        proc.kill()
-        print("Could not update system. Cannot install")
-        outs, errs = proc.communicate()
-        print(errs)
-        sys.exit(1)
-
-    outs, errs = proc.communicate()
-    try:
-        print(outs)
-    except Exception:
-        print(outs.decode("utf-8")).strip()
+    proc = subprocess.call(command)
 
 paths = [lib_path, config_path, share_path]
 
