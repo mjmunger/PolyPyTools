@@ -30,11 +30,11 @@ for command in commands:
     except subprocess.TimeoutExpired:
         proc.kill()
         print("Could not update system. Cannot install")
-        outs,errs = proc.communicate()
+        outs, errs = proc.communicate()
         print(errs)
         sys.exit(1)
 
-    outs = proc.communicate()
+    outs, errs = proc.communicate()
     print(outs.decode("utf-8")).strip()
 
 paths = [lib_path, config_path, share_path]
