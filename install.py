@@ -3,6 +3,7 @@ import os
 import sys
 import json
 from shutil import copyfile
+import subprocess
 
 if os.getegid() != 0:
     print("You must run this as root. Cannot continue")
@@ -13,6 +14,26 @@ lib_path = '/var/lib/polypy'
 config_path = '/etc/polypy/'
 share_path = '/usr/share/polypy/'
 local_bin = '/usr/local/bin/'
+
+commands = []
+commands.append("apt update".split(" "))
+commands.append("apt -y upgrade".split(" "))
+commands.append("pip3 install pip --upgrade".split(" "))
+commands.append("pip3 install docopt".split(" "))
+commands.append("pip3 install requests".split(" "))
+
+for command in commands:
+    try:
+        proc = subprocess.Popen(command, stdin=subprocess.PIPE, stdout= subprocess.PIPE)
+    except subprocess.TimeoutExpired:
+        proc.kill()
+        print("Could not update system. Cannot install")
+        outs,errs = proc.communicate()
+        print(errs)
+        sys.exit(1)
+
+    outs = proc.communicate()
+    print(str(outs.decode("utf-8")).strip())
 
 paths = [lib_path, config_path, share_path]
 
