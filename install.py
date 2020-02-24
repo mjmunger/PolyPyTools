@@ -35,7 +35,10 @@ for command in commands:
         sys.exit(1)
 
     outs, errs = proc.communicate()
-    print(outs.decode("utf-8")).strip()
+    try:
+        print(outs)
+    except Exception
+        print(outs.decode("utf-8")).strip()
 
 paths = [lib_path, config_path, share_path]
 
