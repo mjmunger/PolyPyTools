@@ -23,6 +23,8 @@ commands.append("pip3 install docopt".split(" "))
 commands.append("pip3 install requests".split(" "))
 
 for command in commands:
+    print("Executing: {}".format(" ".join(command)))
+
     try:
         proc = subprocess.Popen(command, stdin=subprocess.PIPE, stdout= subprocess.PIPE)
     except subprocess.TimeoutExpired:
@@ -33,7 +35,7 @@ for command in commands:
         sys.exit(1)
 
     outs = proc.communicate()
-    print(str(outs.decode("utf-8")).strip())
+    print(outs.decode("utf-8")).strip()
 
 paths = [lib_path, config_path, share_path]
 
