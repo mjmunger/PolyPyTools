@@ -37,7 +37,7 @@ for command in commands:
     outs, errs = proc.communicate()
     try:
         print(outs)
-    except Exception
+    except Exception:
         print(outs.decode("utf-8")).strip()
 
 paths = [lib_path, config_path, share_path]
