@@ -173,6 +173,7 @@ if args['dump']:
 
 if args['generate']:
 
+
     target_sip_path = os.path.join(configs['paths']['asterisk'], 'sip.conf')
 
     if not os.path.exists(target_sip_path):

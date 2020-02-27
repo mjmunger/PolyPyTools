@@ -84,6 +84,16 @@ class Registration:
     maxforwards = None
     encryption = None
 
+    # pjsip directives
+    username = None
+    type = None
+    context = None
+    allow = None
+    direct_media = None
+    trust_id_outbound = None
+    device_state_busy_at = None
+    dtmf_mode = None
+
     # Non-asterisk directives
 
     mac = None
@@ -99,6 +109,8 @@ class Registration:
     def __init__(self):
         self.type = "friend"
         self.order = 0
+        self.allow=[]
+        self.allow.append("ulaw")
 
         self.column_letters = "A B C D E F G H I J K L M N O P Q R S T U V W X Y Z".split()
 
@@ -469,8 +481,8 @@ class Registration:
             sys.exit(1)
 
         try:
-            self.name = row[csv_config.mac_column]
-            self.log("I think the mac is in column {} and is [{}]".format(csv_config.mac_column, self.name), 9)
+            self.name = row[csv_config.extension_column]
+            self.log("I think the mac is in column {} and is [{}]".format(csv_config.extension_column, self.name), 9)
         except IndexError:
             print("The target csv file (%s) does not appear to have %s columns. Re-run polypy sip configure and check "
                   "your file.")

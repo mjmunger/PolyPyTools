@@ -58,9 +58,10 @@ class PolycomConfigWriter(ConfigWriter):
             self.log("Writing Registration {} for {}".format(registration.extension, self.device.mac_address), 1)
             count = count + 1
             for s in itemlist:
-                s.attributes['reg.{}.address'.format(count)] = '{}@{}'.format(registration.name, self.configs['server_addr'])
+                s.attributes['reg.{}.address'.format(count)] = '{}@{}'.format(registration.extension, self.configs['server_addr'])
                 s.attributes['reg.{}.auth.password'.format(count)] = registration.secret
-                s.attributes['reg.{}.auth.userId'.format(count)] = registration.name
+                s.attributes['reg.{}.auth.userId'.format(count)] = registration.mac
+                s.attributes['reg.{}.extension'.format(count)] = registration.extension
                 s.attributes['reg.{}.label'.format(count)] = registration.label if registration.label is not None else registration.extension
                 # s.attributes['reg.1.outboundProxy.address']
         output = xmldoc.toxml()

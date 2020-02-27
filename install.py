@@ -15,12 +15,15 @@ config_path = '/etc/polypy/'
 share_path = '/usr/share/polypy/'
 local_bin = '/usr/local/bin/'
 
+python_packages = [ 'pip --upgrade' 'docopt' 'requests', 'pwgen_secure']
+
 commands = []
 commands.append("apt update".split(" "))
 commands.append("apt -y upgrade".split(" "))
-commands.append("pip3 install pip --upgrade".split(" "))
-commands.append("pip3 install docopt".split(" "))
-commands.append("pip3 install requests".split(" "))
+commands.append("apt install python3-pip".split(" "))
+
+for pkg in python_packages:
+    commands.append("pip3 install {}".format(pkg).split(" "))
 
 for command in commands:
     print("Executing: {}".format(" ".join(command)))
