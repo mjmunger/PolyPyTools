@@ -203,7 +203,3 @@ if args['audit']:
         print("Device: %s => %s" % (name, result))
 
     print("%s total devices found, %s passed and %s failed." % (len(results), passed, failed))
-
-
-
-

@@ -361,8 +361,11 @@ class Registration:
 
     def parse_registration(self, raw_entry):
 
+        if self.debug_mode:
+            print(raw_entry)
+
         if self.device_type == "device":
-            pattern = r"^(\[[a-zA-Z0-9]+?\])(\([a-zA-Z0-9-]+?\)){0,}$"
+            pattern = r"^(\[[a-zA-Z0-9]+?\])(\([a-zA-Z0-9-\.]+?\)){0,}$"
             match = re.match(pattern, raw_entry[0])
             self.name = match.group(1)[1:-1]
 
@@ -538,9 +541,9 @@ class Registration:
         lines.append("\n")
 
         if self.template is None:
-            lines.append("[%s]" % self.mac)
+            lines.append("[%s]" % self.name)
         else:
-            lines.append("[%s](%s)" % (self.mac, self.template))
+            lines.append("[%s](%s)" % (self.name, self.template.replace(".", "-")))
 
         lines.append(";mac=%s" % self.mac)
         lines.append(";model=%s" % self.model)

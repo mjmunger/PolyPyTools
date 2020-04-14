@@ -15,6 +15,7 @@ Commands:
   provision  Creates provisioning files for Polycom phones from asterisk's sip.conf.
   sip        Manage sip.conf
   version    Show the version of this package
+  ssl        Configure SSL for a phone.
 
 See polypy help <command> for more information with a specific command.
 
@@ -66,3 +67,7 @@ if __name__ == '__main__':
     if args['<command>'] == 'sip':
         from poly_py_tools import sip_manager
         docopt(sip_manager.__doc__, argv=argv)
+
+    if args['<command>'] == 'ssl':
+        from poly_py_tools import ssl_manager
+        docopt(ssl_manager.__doc__, argv=argv)

@@ -103,6 +103,7 @@ class SipConfParser:
                         registration.import_template(t)
                         break
 
+            self.log("About to parse raw entry:\n{}".format(raw_entry),9)
             registration.parse_registration(raw_entry)
             self.registrations.append(registration)
 

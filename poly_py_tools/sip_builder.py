@@ -66,15 +66,16 @@ class SipBuilder:
                     legacy_device = Registration()
                     if self.debug_mode:
                         device.set_debug_mode()
-                    legacy_device.import_csv_row(row,self.csv_config)
+                    legacy_device.import_csv_row(row, self.csv_config)
                     device.import_csv_row(row, self.csv_config)
 
                     random_password = rpg.generate_password()
 
-                    if legacy_device.secret is None:
-                        legacy_device.secret = random_password
+
                     if device.password is None:
                         device.password = random_password
+
+                    legacy_device.secret = device.password
 
                     self.log(device, 10)
                     self.log(legacy_device)

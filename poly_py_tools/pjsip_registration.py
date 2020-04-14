@@ -132,7 +132,7 @@ class PJSIPRegistration:
             sys.exit(1)
 
         try:
-            self.username = row[csv_config.mac_column]
+            self.username = str(row[csv_config.mac_column]).lower().strip()
             self.log("I think the mac is in column {} and is [{}]".format(csv_config.mac_column, self.name), 9)
         except IndexError:
             print("The target csv file (%s) does not appear to have %s columns. Re-run polypy sip configure and check "
@@ -210,7 +210,7 @@ class PJSIPRegistration:
         lines.append("type=auth")
         lines.append("auth_type=userpass")
         lines.append("password={}".format(self.password))
-        lines.append("username={}".format(self.username))
+        lines.append("username={}".format(str(self.username).lower()))
         buffer = "\n".join(lines)
 
         if self.debug_mode:
