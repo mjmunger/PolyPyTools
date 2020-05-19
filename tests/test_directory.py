@@ -35,46 +35,75 @@ class TestDirectory(unittest.TestCase):
         f.close()
 
         directory = Directory("bac58fc0b629")
-        directory.read(test_csv)
+        directory.add_csv(test_csv)
+        directory.read()
         self.assertEqual(expected_directory_body, directory.render())
 
     def test_csv_not_exist(self):
 
         directory = Directory("bac58fc0b629")
         with self.assertRaises(FileNotFoundError):
-            directory.read("/tmp/8f2b6a37-a96e-4d79-be48-2349b769d897.csv")
+            directory.add_csv("/tmp/8f2b6a37-a96e-4d79-be48-2349b769d897.csv")
+            directory.read()
 
-    def test_read(self):
+    provider_test_read = lambda : (
+        #Mac address Files                                                                  Expected item count
+        ("AC:47:4A:96:B0:41", ("speed-dial-test.csv",),                                                7),
+        ("D2:E5:3B:FB:03:BA", ("speed-dial-test.csv", "speed-dial-test2.csv"),                         18),
+        ("5F:61:82:4A:26:39", ("speed-dial-test.csv", "speed-dial-test2.csv", "user-bw-test.csv"),     24),
+    )
+
+    @data_provider(provider_test_read)
+    def test_add_csv(self, mac_address, files, expected_item_count):
         fixtures_root = os.path.join(os.path.dirname(__file__), "fixtures")
-        test_csv = os.path.join(fixtures_root, "speed-dial-test.csv")
+        directory = Directory(mac_address)
 
-        self.assertEqual(True, os.path.exists(test_csv))
+        for file in files:
+            directory.add_csv(os.path.join(fixtures_root, file))
 
-        directory = Directory("bac58fc0b629")
-        directory.read(test_csv)
+        self.assertEqual(len(files), len(directory.csv_files))
 
-        f = open(test_csv, 'r')
-        lines = f.readlines()
-        f.close()
+    @data_provider(provider_test_read)
+    def test_read(self, mac_address, files, expected_item_count):
+        file = None
+        fixtures_root = os.path.join(os.path.dirname(__file__), "fixtures")
 
-        self.assertEqual(len(lines) -1, len(directory.items))
+        directory = Directory(mac_address)
+        for file in files:
+            test_csv = os.path.join(fixtures_root, file)
+            directory.add_csv(test_csv)
+
+        directory.read()
+
+        # i = 0
+        # print("\n")
+        # for item in directory.items:
+        #     i = i + 1
+        #     print("({}) {} {} <{}>".format(i, item.first_name, item.last_name, item.contact))
+
+        self.assertEqual(expected_item_count, len(directory.items))
 
         counter = -1
-        with open(test_csv, 'r') as csvfile:
-            csvfile.__next__() #Skip the header
-            csv_reader = csv.reader(csvfile)
-            for row in csv_reader:
-                counter = counter + 1
 
-                target_item = directory.items[counter]
+        for file in files:
+            target_csv = os.path.join(fixtures_root, file)
+            # print("Processing: {}".format(target_csv))
 
-                self.assertEqual(row[0], target_item.first_name)
-                self.assertEqual(row[1], target_item.last_name)
-                self.assertEqual(row[2], target_item.contact)
+            with open(target_csv, 'r') as csvfile:
+                # Skip the header
+                csvfile.__next__()
+                csv_reader = csv.reader(csvfile)
+                for row in csv_reader:
+                    row = [col.strip() for col in row]
+                    counter = counter + 1
+                    # print("Counter: {}".format(counter))
+                    target_item = None
+                    target_item = directory.items[counter]
 
-        with open(test_csv, 'r') as csvfile:
-            csv_reader = csv.reader(csvfile)
-            header_row = next(csv_reader)
+                    self.assertEqual(row[0], target_item.first_name)
+                    self.assertEqual(row[1], target_item.last_name)
+                    self.assertEqual(row[2], target_item.contact)
+                    self.assertEqual(row[3], "Yes" if target_item.buddy_watch == 1 else "No")
 
             header_exists = False
             for item in directory.items:

@@ -9,3 +9,5 @@ dist/
 poly_py_tools.egg-info/
 pip-update/
 .~*polypy.conf
+/tests/fixtures/srv/tftp/
+/tests/fixtures/etc/asterisk/

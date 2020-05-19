@@ -8,7 +8,7 @@ usage: polypy provision [ -v ... ] [options] polycom <macaddress>
        polypy provision [ -v ... ] [options] swap <phonemac1> <phonemac2>
        polypy provision [ -v ... ] [options] passwords audit [ failures-only | passing-only ]
        polypy provision [ -v ... ] [options] passwords reset <extension>
-       polypy provision [ -v ... ] [options] directory for <macaddress> using <csvfile>
+       polypy provision [ -v ... ] [options] directory for <macaddress> using <csvfile>...
 
 options:
   -d  --debug    Debug mode
@@ -208,5 +208,7 @@ if args['audit']:
 
 if args['directory']:
     directory = Directory(args['<macaddress>'])
-    directory.read(args['<csvfile>'])
-    directory.save(configs)
+    for file in args['<csvfile>']:
+        directory.add_csv(file)
+        directory.read()
+        directory.save(configs)

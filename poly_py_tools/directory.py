@@ -4,12 +4,20 @@ from poly_py_tools.directory_item import DirectoryItem
 
 
 class Directory:
-    items = []
+    items = None
     mac_addr = None
+    csv_files = None
 
     def __init__(self, mac_addr):
         self.items = []
+        self.csv_files = []
         self.set_mac(mac_addr)
+
+    def add_csv(self, csv_file):
+        if not os.path.exists(csv_file):
+            raise FileNotFoundError("Cannot find: {}".format(csv_file))
+
+        self.csv_files.append(csv_file)
 
     def set_mac(self, mac):
         self.mac_addr = str(mac).replace(":", "").replace("-","").lower().strip()
@@ -32,16 +40,19 @@ class Directory:
 
         return "\n".join(buffer)
 
-    def read(self, path_to_csv):
+    def read(self):
+        for csv_file in self.csv_files:
+            self.read_csv(csv_file)
+
+    def read_csv(self, path_to_csv):
         if not os.path.exists(path_to_csv):
             raise FileNotFoundError
 
         with open(path_to_csv) as csvfile:
+            csvfile.__next__()
             csv_reader = csv.reader(csvfile)
             for row in csv_reader:
-                if row[0] == "First" and row[1] == "Last" and row[2] == "Number":
-                    continue
-
+                row = [col.strip() for col in row]
                 item = DirectoryItem("SPIP670", row[1], row[0], row[2], "", "", "", "", 0, 0,
                                      1 if row[3] == "Yes" else 0, 0)
 
