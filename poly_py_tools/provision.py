@@ -43,6 +43,11 @@ configs = config_finder.get_configs()
 
 paths = configs['paths']
 
+if paths is None:
+    print("No paths configured. Perhaps you forgot to run `polypy configure`? Is your polypy.conf file missing? Are "
+          "you in the correct directory?")
+    sys.exit(1)
+
 parser = SipConfParser(os.path.join(paths['asterisk'], 'sip.conf'))
 if args['-v'] > 0:
     parser.set_verbosity(args['-v'])
