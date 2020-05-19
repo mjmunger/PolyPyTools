@@ -9,6 +9,7 @@ from shutil import copy
 class SiteWriter:
 
     configs = None
+    args = None
 
     source_paths = {}
     dst_paths = {}
@@ -21,8 +22,10 @@ class SiteWriter:
     nat_media_start_port = None
     nat_signal_port = None
 
-    def __init__(self, configs):
+    def __init__(self, configs, args):
+        self.args = args
         self.configs = configs
+
         self.source_paths = {"device.cfg" : None, "features.cfg" : None, "H323.cfg" : None, "reg-advanced.cfg" : None,
                              "reg-basic.cfg" : None, "region.cfg": None, "sip-basic.cfg": None, "sip-interop.cfg": None,
                              "site.cfg" : None, "video.cfg" : None, "video-integration.cfg" : None}
@@ -34,10 +37,12 @@ class SiteWriter:
             self.source_paths[k] = os.path.join(os.path.join(self.configs['paths']['tftproot'], "Config"), k)
 
         for k in self.dst_paths:
-            self.dst_paths[k] = os.path.join(self.configs['paths']['tftproot'], k)
+            self.dst_paths[k] = os.path.join(os.path.join(self.configs['paths']['tftproot'], self.site), k)
 
     def set_site(self, site):
-        self.site = site
+        buffer = str(site).split(".")
+        buffer.reverse()
+        self.site = "-".join(buffer)
         self.setup_paths()
 
     def set_gmt_offset(self, gmtOffset):
@@ -99,6 +104,7 @@ class SiteWriter:
         self.save_cfg('site.cfg', sitecfg)
 
     def save_cfg(self, cfg_file, xml_document):
+        print("Saving: {}".format(self.dst_paths[cfg_file]))
         fp = open(self.dst_paths[cfg_file], 'w')
         fp.write(xml_document.toxml())
         fp.close()
@@ -193,3 +199,51 @@ class SiteWriter:
             if not os.path.exists(self.dst_paths[cfg]):
                 copy(self.source_paths[cfg], self.dst_paths[cfg])
                 print("Filling: {}".format(cfg))
+
+    def disable_vlan(self):
+        site_cfg = xml.dom.minidom.parse(self.get_cfg('site.cfg'))
+        root = site_cfg.getElementsByTagName('polycomConfig')[0]
+
+        device_node = root.getElementsByTagName("device")[0]
+
+        auth_node = device_node.getElementsByTagName("device.net")[0]
+        auth_node.setAttribute("lldpEnabled", "0")
+        auth_node.setAttribute("cdpEnabled", "0")
+
+        set_lldp_node = device_node.getElementsByTagName("device.net.lldpEnabled")[0]
+        set_lldp_node.setAttribute("device.net.lldpEnabled.set", "1")
+
+        set_cdp_node = device_node.getElementsByTagName("device.net.cdpEnabled")[0]
+        set_cdp_node.setAttribute("device.net.cdpEnabled.set", "1")
+
+        dhcp_node = root.getElementsByTagName("device.dhcp")[0]
+        dhcp_node.setAttribute("device.dhcp.dhcpVlanDiscUseOpt", 'disabled')
+
+        set_dhcp_vlan_disc_node = dhcp_node.getElementsByTagName("device.dhcp.dhcpVlanDiscUseOpt")[0]
+        set_dhcp_vlan_disc_node.setAttribute("device.dhcp.dhcpVlanDiscUseOpt.set", "1")
+
+        self.save_cfg("site.cfg", site_cfg)
+
+    def enable_vlan(self):
+        site_cfg = xml.dom.minidom.parse(self.get_cfg('site.cfg'))
+        root = site_cfg.getElementsByTagName('polycomConfig')[0]
+
+        device_node = root.getElementsByTagName("device")[0]
+
+        dhcp_node = root.getElementsByTagName("device.dhcp")[0]
+        dhcp_node.setAttribute("device.dhcp.dhcpVlanDiscUseOpt", 'fixed')
+
+        set_dhcp_vlan_disc_node = dhcp_node.getElementsByTagName("device.dhcp.dhcpVlanDiscUseOpt")[0]
+        set_dhcp_vlan_disc_node.setAttribute("device.dhcp.dhcpVlanDiscUseOpt.set", "0")
+
+        auth_node = device_node.getElementsByTagName("device.net")[0]
+        auth_node.setAttribute("lldpEnabled", "1")
+        auth_node.setAttribute("cdpEnabled", "1")
+
+        set_lldp_node = device_node.getElementsByTagName("device.net.lldpEnabled")[0]
+        set_lldp_node.setAttribute("device.net.lldpEnabled.set", "1")
+
+        set_cdp_node = device_node.getElementsByTagName("device.net.cdpEnabled")[0]
+        set_cdp_node.setAttribute("device.net.cdpEnabled.set", "1")
+
+        self.save_cfg("site.cfg", site_cfg)

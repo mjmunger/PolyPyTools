@@ -8,6 +8,7 @@ usage: polypy provision [ -v ... ] [options] polycom <macaddress>
        polypy provision [ -v ... ] [options] swap <phonemac1> <phonemac2>
        polypy provision [ -v ... ] [options] passwords audit [ failures-only | passing-only ]
        polypy provision [ -v ... ] [options] passwords reset <extension>
+       polypy provision [ -v ... ] [options] directory for <macaddress> using <csvfile>
 
 options:
   -d  --debug    Debug mode
@@ -25,6 +26,7 @@ from poly_py_tools.sip_parser import SipConfParser
 from poly_py_tools.polycom_config_writer import PolycomConfigWriter
 from poly_py_tools.pw_strength_calculator import PasswordStrengthCalculator
 from poly_py_tools.polypy_config_finder import ConfigFinder
+from poly_py_tools.directory import Directory
 
 args = docopt(__doc__)
 debug_mode = False
@@ -203,3 +205,8 @@ if args['audit']:
         print("Device: %s => %s" % (name, result))
 
     print("%s total devices found, %s passed and %s failed." % (len(results), passed, failed))
+
+if args['directory']:
+    directory = Directory(args['<macaddress>'])
+    directory.read(args['<csvfile>'])
+    directory.save(configs)

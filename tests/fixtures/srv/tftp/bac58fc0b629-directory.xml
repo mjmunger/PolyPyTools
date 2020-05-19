@@ -1,0 +1,95 @@
+<directory>
+  <item_list>
+    <item>
+      <ln>333#</ln>
+      <fn>External Conference</fn>
+      <ct>6786262111</ct>
+      <sd>1</sd>
+      <lb></lb>
+      <rt></rt>
+      <dc></dc>
+      <ad>0</ad>
+      <ar>0</ar>
+      <bw>0</bw>
+      <bb>0</bb>
+    </item>
+    <item>
+      <ln>A and A Resources</ln>
+      <fn></fn>
+      <ct>2055904298</ct>
+      <sd>2</sd>
+      <lb></lb>
+      <rt></rt>
+      <dc></dc>
+      <ad>0</ad>
+      <ar>0</ar>
+      <bw>0</bw>
+      <bb>0</bb>
+    </item>
+    <item>
+      <ln>Conference Call</ln>
+      <fn>Internal</fn>
+      <ct>*98</ct>
+      <sd>3</sd>
+      <lb></lb>
+      <rt></rt>
+      <dc></dc>
+      <ad>0</ad>
+      <ar>0</ar>
+      <bw>0</bw>
+      <bb>0</bb>
+    </item>
+    <item>
+      <ln>Fax Phone</ln>
+      <fn>Fax Phone</fn>
+      <ct>106</ct>
+      <sd>4</sd>
+      <lb></lb>
+      <rt></rt>
+      <dc></dc>
+      <ad>0</ad>
+      <ar>0</ar>
+      <bw>0</bw>
+      <bb>0</bb>
+    </item>
+    <item>
+      <ln>Last1</ln>
+      <fn>First1</fn>
+      <ct>(770) 565-1556</ct>
+      <sd>5</sd>
+      <lb></lb>
+      <rt></rt>
+      <dc></dc>
+      <ad>0</ad>
+      <ar>0</ar>
+      <bw>0</bw>
+      <bb>0</bb>
+    </item>
+    <item>
+      <ln>Last2</ln>
+      <fn>First2</fn>
+      <ct>+17705651556</ct>
+      <sd>6</sd>
+      <lb></lb>
+      <rt></rt>
+      <dc></dc>
+      <ad>0</ad>
+      <ar>0</ar>
+      <bw>0</bw>
+      <bb>0</bb>
+    </item>
+    <item>
+      <ln>Last3</ln>
+      <fn>First3</fn>
+      <ct>1234</ct>
+      <sd>7</sd>
+      <lb></lb>
+      <rt></rt>
+      <dc></dc>
+      <ad>0</ad>
+      <ar>0</ar>
+      <bw>1</bw>
+      <bb>0</bb>
+    </item>
+  </item_list>
+</directory>

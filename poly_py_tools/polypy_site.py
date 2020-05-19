@@ -7,20 +7,20 @@ Usage: polypy site [ options ] setup sntp for <site> --offset=<gmtoffset> [--ser
        polypy site [ options ] setup digitmap for <site> add <pattern>
        polypy site [ options ] setup digitmap for <site> del <pattern>
        polypy site [ options ] setup voipprot for <site> --address=<address> [ --port=<port> ]
+       polypy site [ options ] setup vlan for <site> [enable | disable ]
        polypy site [ options ] configs flush
        polypy site [ options ] configs fill
 
   Commands:
       setup        Setup a site with basic settings.
       flush        Remove all the configured cfg files (but not the ones from the Config/ directory)
+      fill         Copy files from Config/ to the tftproot, which do not yet exist so the configs are complete.
 
   Options:
     -d,            Debug mode
     -h, --help     Show this help.
     -v, --verbose  Be verbose
     -f, --force    Force the setting.
-    -w FILE        Write these site settings to a file FILE.
-
 """
 
 from pprint import pprint
@@ -41,7 +41,7 @@ if args['-d']:
 config_finder = ConfigFinder()
 configs = config_finder.get_configs()
 
-writer = SiteWriter(configs)
+writer = SiteWriter(configs, args)
 writer.debug_mode = args['-d']
 writer.set_site(args['<site>'])
 
@@ -74,6 +74,12 @@ if args['setup'] and args['voipprot']:
 
 if args['configs'] and args['flush']:
     writer.flush_cfgs()
+
+if args['setup'] and args['vlan']:
+    if args['disable']:
+        writer.disable_vlan()
+    elif args['enable']:
+        writer.enable_vlan()
 
 if args['configs'] and args['fill']:
     writer.fill_cfgs()
