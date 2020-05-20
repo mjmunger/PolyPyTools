@@ -28,7 +28,11 @@ class TestDialplan(unittest.TestCase):
         self.assertEqual(dialplan.column_config, self.get_column_config())
 
     def test_parse(self):
+        dialplan = Dialplan(self.get_dialplan_csv())
+        dialplan.with_config(self.get_column_config())
+        dialplan.parse()
 
+        self.assertEqual(20, dialplan.rows)
 
 if __name__ == '__main__':
     unittest.main()

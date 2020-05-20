@@ -82,3 +82,6 @@ if __name__ == '__main__':
         from poly_py_tools import polypy_deploy
         docopt(polypy_deploy.__doc__, argv=argv)
 
+    if args['<command>'] == 'dialplan':
+        from poly_py_tools import polypy_dialplan
+        docopt(polypy_dialplan.__doc__, argv=argv)

@@ -1,4 +1,6 @@
 import os
+import csv
+
 
 class Dialplan:
     csv_path = None
@@ -12,3 +14,11 @@ class Dialplan:
             raise FileNotFoundError
 
         self.column_config = column_map
+
+    def parse(self):
+        with open(self.csv_path, 'r') as dialplan_csv:
+            reader = csv.reader(dialplan_csv)
+            for row in reader:
+                dialplan_entry = Entry(self.column_config)
+                dialplan_entry.parse(row)
+                self.entries.append(dialplan_entry)
