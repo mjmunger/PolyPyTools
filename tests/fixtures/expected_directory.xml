@@ -5,7 +5,7 @@
       <fn>External Conference</fn>
       <ct>6786262111</ct>
       <sd>1</sd>
-      <lb></lb>
+      <lb>Ext-Conf</lb>
       <rt></rt>
       <dc></dc>
       <ad>0</ad>
@@ -18,7 +18,7 @@
       <fn></fn>
       <ct>2055904298</ct>
       <sd>2</sd>
-      <lb></lb>
+      <lb>A&A</lb>
       <rt></rt>
       <dc></dc>
       <ad>0</ad>
@@ -31,7 +31,7 @@
       <fn>Internal</fn>
       <ct>*98</ct>
       <sd>3</sd>
-      <lb></lb>
+      <lb>Int-Conf</lb>
       <rt></rt>
       <dc></dc>
       <ad>0</ad>
@@ -44,7 +44,7 @@
       <fn>Fax Phone</fn>
       <ct>106</ct>
       <sd>4</sd>
-      <lb></lb>
+      <lb>Fax line</lb>
       <rt></rt>
       <dc></dc>
       <ad>0</ad>
@@ -57,7 +57,7 @@
       <fn>First1</fn>
       <ct>(770) 565-1556</ct>
       <sd>5</sd>
-      <lb></lb>
+      <lb>First1x</lb>
       <rt></rt>
       <dc></dc>
       <ad>0</ad>
@@ -70,7 +70,7 @@
       <fn>First2</fn>
       <ct>+17705651556</ct>
       <sd>6</sd>
-      <lb></lb>
+      <lb>Last2x</lb>
       <rt></rt>
       <dc></dc>
       <ad>0</ad>
@@ -83,7 +83,7 @@
       <fn>First3</fn>
       <ct>1234</ct>
       <sd>7</sd>
-      <lb></lb>
+      <lb>FirstLast</lb>
       <rt></rt>
       <dc></dc>
       <ad>0</ad>

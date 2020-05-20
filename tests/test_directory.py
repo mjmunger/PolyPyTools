@@ -103,7 +103,8 @@ class TestDirectory(unittest.TestCase):
                     self.assertEqual(row[0], target_item.first_name)
                     self.assertEqual(row[1], target_item.last_name)
                     self.assertEqual(row[2], target_item.contact)
-                    self.assertEqual(row[3], "Yes" if target_item.buddy_watch == 1 else "No")
+                    self.assertEqual("Yes" if row[3] == "Yes" else "No", "Yes" if target_item.buddy_watch == 1 else "No")
+                    self.assertEqual(row[4], target_item.label)
 
             header_exists = False
             for item in directory.items:

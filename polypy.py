@@ -17,6 +17,7 @@ Commands:
   site       Manage site files
   version    Show the version of this package
   ssl        Configure SSL for a phone.
+  deploy     Deploy files rendered to tftproot
 
 See polypy help <command> for more information with a specific command.
 
