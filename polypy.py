@@ -26,7 +26,6 @@ import subprocess
 import os
 from docopt import docopt
 
-
 def show_version():
     execution_dir = os.getcwd()
     working_dir = os.path.dirname(os.readlink("/usr/local/bin/polypy")) if os.path.exists(

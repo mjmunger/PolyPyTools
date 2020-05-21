@@ -27,7 +27,7 @@ from docopt import docopt
 import sys
 import os
 import json
-from poly_py_tools.polypy_config_finder import ConfigFinder
+from poly_py_tools.polypy_config import PolypyConfig
 from shutil import copyfile
 
 polycom_files = ['000000000000.cfg', '000000000000-directory~.xml', "Config/applications.cfg", "Config/device.cfg",
@@ -37,8 +37,11 @@ polycom_files = ['000000000000.cfg', '000000000000-directory~.xml', "Config/appl
 
 args = docopt(__doc__)
 
-config_finder = ConfigFinder()
-configs = config_finder.get_configs()
+config = PolypyConfig()
+config.add_search_path(os.getcwd())
+config.add_search_path("/etc/polypy")
+config.find()
+config.load()
 
 if args['-d']:
     print("Debug: {}".format(__file__))
