@@ -12,6 +12,27 @@ from poly_py_tools.polypy_config import PolypyConfig
 from unittest.mock import patch, mock_open, Mock, MagicMock
 
 
+class HelperTestValidate:
+
+    states = None
+    polycom_paths = ['000000000000.cfg', '000000000000-directory~.xml', "Config/applications.cfg", "Config/device.cfg",
+                     "Config/features.cfg", "Config/H323.cfg", "Config/polycomConfig.xsd", "Config/reg-advanced.cfg",
+                     "Config/reg-basic.cfg", "Config/region.cfg", "Config/sip-basic.cfg", "Config/sip-interop.cfg",
+                     "Config/site.cfg", "Config/video.cfg", "Config/video-integration.cfg"]
+
+    def __init__(self, mock_states):
+        # setup default states - everything exists
+        default_states = {}
+        default_states["/etc/asterisk/sip.conf"] = True
+        default_states["/srv/tftp/Config"] = True
+        for path in self.polycom_paths:
+            default_states[os.path.join("/srv/tftp", path)] = True
+
+        self.states = {**default_states, **mock_states}
+
+    def lookup(self, path):
+        return self.states[path]
+
 class TestConfig(unittest.TestCase):
 
     provider_test_init = lambda : (
@@ -116,7 +137,7 @@ class TestConfig(unittest.TestCase):
                 config.write()
 
     provider_test_write_default_config = lambda : (
-        ( {"lib_path": "/var/lib/polypy", "share_path": "/usr/share/polypy/", "config_path": "/tmp/polypy.conf", "package_path": "/usr/local/lib/python3.7/dist-packages/poly_py_tools", "server_addr": "127.0.0.1", "paths": {"asterisk": "/etc/asterisk/", "tftproot": "/srv/tftp/"}}, ),
+        ({"lib_path": "/var/lib/polypy", "share_path": "/usr/share/polypy/", "config_path": "/tmp/polypy.conf", "package_path": "/usr/local/lib/python3.7/dist-packages/poly_py_tools", "server_addr": "127.0.0.1", "paths": {"asterisk": "/etc/asterisk/", "tftproot": "/srv/tftp/"}}, ),
     )
 
     @data_provider(provider_test_write_default_config)
@@ -181,15 +202,60 @@ class TestConfig(unittest.TestCase):
 
 
     provider_test_validate = lambda : (
-        #sip.conf exists  tftproot exists  expected_excetion   missing_polycom_count  missing_polycom_files
-        (True,             True,             None,               0,                   []),
-        (False,            True,             FileNotFoundError,  0,                   []),
-        (True,             False,            FileNotFoundError,  0,                   []),
-        (True,             True,             FileNotFoundError,  1,                   ["Config/features.cfg"]),
-        (True,             True,             FileNotFoundError,  4,                   ["Config/features.cfg", "Config/H323.cfg", "Config/polycomConfig.xsd", "Config/reg-advanced.cfg"]),
+        #sip.conf exists    tftproot exists       missing_file_count  missing_polycom_files
+        (True,              True,                 0,                   []),
+        (False,             True,                 1,                   []),
+        (True,              False,                1,                   []),
+        (True,              True,                 1,                   ["Config/features.cfg"]),
+        (True,              True,                 4,                   ["Config/features.cfg", "Config/H323.cfg", "Config/polycomConfig.xsd", "Config/reg-advanced.cfg"]),
+        (False,             True,                 5,                   ["Config/features.cfg", "Config/H323.cfg", "Config/polycomConfig.xsd", "Config/reg-advanced.cfg"]),
     )
-    def test_validate(self):
-        pass
+
+    @data_provider(provider_test_validate)
+    def test_validate(self, sip_conf_state, tftproot_state, missing_file_count, missing_polycom_files):
+
+        mock_states = {}
+        mock_states["/etc/asterisk/sip.conf"] = sip_conf_state
+        mock_states["/srv/tftp/"] = tftproot_state
+
+        for path in missing_polycom_files:
+            mock_states[os.path.join("/srv/tftp/", path)] = False
+
+        helper = HelperTestValidate(mock_states)
+
+        with patch("os.path.exists", MagicMock(side_effect=helper.lookup)) as mock_os_path:
+            config = PolypyConfig()
+            config.config = {"lib_path": "/var/lib/polypy", "share_path": "/usr/share/polypy/", "config_path": "/tmp/polypy.conf", "package_path": "/usr/local/lib/python3.7/dist-packages/poly_py_tools", "server_addr": "127.0.0.1", "paths": {"asterisk": "/etc/asterisk/", "tftproot": "/srv/tftp/"}}
+            status = config.validate()
+
+            failed_counter = 0
+            for path in status:
+                if status[path] is False:
+                    failed_counter = failed_counter + 1
+
+            self.assertEqual(missing_file_count, failed_counter)
+            self.assertEqual(status['/etc/asterisk/'], sip_conf_state)
+            self.assertEqual(status['/srv/tftp/'], tftproot_state)
+            self.assertEqual(status["/srv/tftp/000000000000.cfg"], "000000000000.cfg" not in missing_polycom_files)
+            self.assertEqual(status["/srv/tftp/000000000000-directory~.xml"], "000000000000-directory~.xml" not in missing_polycom_files)
+            self.assertEqual(status["/srv/tftp/Config/applications.cfg"], "Config/applications.cfg" not in missing_polycom_files)
+            self.assertEqual(status["/srv/tftp/Config/device.cfg"], "Config/device.cfg" not in missing_polycom_files)
+            self.assertEqual(status["/srv/tftp/Config/features.cfg"], "Config/features.cfg" not in missing_polycom_files)
+            self.assertEqual(status["/srv/tftp/Config/H323.cfg"], "Config/H323.cfg" not in missing_polycom_files)
+            self.assertEqual(status["/srv/tftp/Config/polycomConfig.xsd"], "Config/polycomConfig.xsd" not in missing_polycom_files)
+            self.assertEqual(status["/srv/tftp/Config/reg-advanced.cfg"], "Config/reg-advanced.cfg" not in missing_polycom_files)
+            self.assertEqual(status["/srv/tftp/Config/reg-basic.cfg"], "Config/reg-basic.cfg" not in missing_polycom_files)
+            self.assertEqual(status["/srv/tftp/Config/region.cfg"], "Config/region.cfg" not in missing_polycom_files)
+            self.assertEqual(status["/srv/tftp/Config/sip-basic.cfg"], "Config/sip-basic.cfg" not in missing_polycom_files)
+            self.assertEqual(status["/srv/tftp/Config/sip-interop.cfg"], "Config/sip-interop.cfg" not in missing_polycom_files)
+            self.assertEqual(status["/srv/tftp/Config/site.cfg"], "Config/site.cfg" not in missing_polycom_files)
+            self.assertEqual(status["/srv/tftp/Config/video.cfg"], "Config/video.cfg" not in missing_polycom_files)
+
+
+
+
+
+
 
 
 if __name__ == '__main__':

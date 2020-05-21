@@ -1,9 +1,7 @@
 import os
 import json
-import sys
 import site
-from typing import List
-
+from shutil import copyfile
 
 class PolypyConfig:
 
@@ -79,3 +77,60 @@ class PolypyConfig:
     def set_server(self, server_addr):
         self.config['server_addr'] = server_addr
         self.write()
+
+    def validate(self):
+        state_report = {}
+        state_report[self.config['paths']['asterisk']] = os.path.exists(os.path.join(self.config['paths']['asterisk'], "sip.conf"))
+        state_report[self.config['paths']['tftproot']] = os.path.exists(self.config['paths']['tftproot'])
+
+        for file in self.polycom_files:
+            target_path = os.path.join(self.config['paths']['tftproot'], file)
+            state_report[target_path] = os.path.exists(target_path)
+
+        if False in state_report.values():
+            print("The following files could not be found. Consider running copy-files to fix this.")
+            for path in state_report:
+                if state_report[path] == False:
+                    print(path)
+        else:
+            print("Configuration looks good.")
+
+        return state_report
+
+    def copy_files(self, source_path):
+
+        if not os.path.exists(source_path):
+            print("Path %s does not exist. Quitting." % source_path)
+            exit(1)
+
+        missing_files = []
+
+        for file in self.polycom_files:
+            target_path = os.path.join(source_path, file)
+            if not os.path.exists(target_path):
+                missing_files.append(target_path)
+
+        if len(missing_files) > 0:
+            print("Some required files are missing from {}".format(source_path))
+            for file in missing_files:
+                print("- {}".format(file))
+
+            exit(1)
+
+        # Copy everything over.
+
+        target_path = os.path.join(os.getcwd(), 'tftp')
+        target_path = self.config['paths']['tftproot']
+
+        if not os.path.exists(target_path):
+            os.mkdir(target_path)
+
+        target_config_path = os.path.join(target_path, "Config")
+        if not os.path.exists(target_config_path):
+            os.mkdir(target_config_path)
+
+        for file in self.polycom_files:
+            source_file = os.path.join(source_path, file)
+            target_file = os.path.join(target_path, file)
+            print("Copying: {} => {}".format(source_file, target_file))
+            copyfile(source_file, target_file)
