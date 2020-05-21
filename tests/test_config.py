@@ -2,7 +2,9 @@ import unittest
 import os.path
 import json
 import copy
+import site
 from tempfile import NamedTemporaryFile
+from tempfile import TemporaryDirectory
 
 from unittest_data_provider import data_provider
 
@@ -64,7 +66,6 @@ class TestConfig(unittest.TestCase):
                 config.add_search_path(path)
             config.find()
             config.load()
-            print(config.config)
             self.assertEqual(expected_config_object, config.config)
 
     def test_add_search_path(self):
@@ -92,8 +93,78 @@ class TestConfig(unittest.TestCase):
 
     @data_provider(config_fixtures)
     def test_write_config_failure(self, config_string, check_paths, expected_config_path):
+
+        m = mock_open()
+        with patch("builtins.open", m):
+            config = PolypyConfig()
+            config.config = json.loads(config_string)
+            m.side_effect = PermissionError()
+            with self.assertRaises(PermissionError):
+                config.write()
+
+    provider_test_write_default_config = lambda : (
+        ( {"lib_path": "/var/lib/polypy", "share_path": "/usr/share/polypy/", "config_path": "/tmp/polypy.conf", "package_path": "/usr/local/lib/python3.7/dist-packages/poly_py_tools", "server_addr": "127.0.0.1", "paths": {"asterisk": "/etc/asterisk/", "tftproot": "/srv/tftp/"}}, ),
+    )
+
+    @data_provider(provider_test_write_default_config)
+    def test_write_default_config(self, expected_config):
+        tmp_dir = TemporaryDirectory()
+        tmp_config = os.path.join(tmp_dir.name, 'polypy.conf')
         config = PolypyConfig()
-        config.config = json.loads(config_string)
+        config.write_default_config(tmp_config)
+
+        with open(tmp_config) as fp:
+            actual_config = json.load(fp)
+
+        expected_config['config_path'] = tmp_config
+        expected_config['package_path'] = os.path.join(site.getsitepackages()[0],"poly_py_tools")
+        self.assertEqual(expected_config, actual_config)
+
+        tmp_dir.cleanup()
+
+    provider_test_set_path = lambda : (
+        ("asterisk", "/current/working/directory/to/something", "/current/working/directory/to/something"),
+        ("asterisk", "to/something", "/current/working/directory/to/something"),
+        ("asterisk", ".", "/current/working/directory"),
+        ("tftproot", "/current/working/directory/to/something", "/current/working/directory/to/something"),
+        ("tftproot", "to/something", "/current/working/directory/to/something"),
+        ("tftproot", ".", "/current/working/directory"),
+    )
+
+    @data_provider(provider_test_set_path)
+    def test_set_path(self, path, target_path, expected_path):
+        configs = {}
+        configs['paths'] = {}
+        configs['paths']['asterisk'] = ""
+        configs['paths']['tftproot'] = ""
+
+        f = NamedTemporaryFile(delete=False)
+
+        with patch.object(os, 'getcwd', return_value="/current/working/directory") as mock_os:
+            config = PolypyConfig()
+            config.config_path = f.name
+            config.config = configs
+            config.set_path(path, target_path)
+
+            self.assertEqual(expected_path, config.config['paths'][path])
+
+            os.unlink(f.name)
+            self.assertFalse(os.path.exists(f.name))
+
+    def test_set_server(self):
+        configs = {}
+        configs['server_addr'] = ""
+        f = NamedTemporaryFile(delete=False)
+
+        config = PolypyConfig()
+        config.config = configs
+        config.config_path = f.name
+        config.set_server("test.example.org")
+
+        os.unlink(f.name)
+        self.assertFalse(os.path.exists(f.name))
+
+        self.assertEqual("test.example.org", config.config['server_addr'])
 
 
 if __name__ == '__main__':
