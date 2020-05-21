@@ -13,6 +13,19 @@ from unittest.mock import patch, mock_open, Mock, MagicMock
 
 
 class TestConfig(unittest.TestCase):
+
+    provider_test_init = lambda : (
+        (['000000000000.cfg', '000000000000-directory~.xml', "Config/applications.cfg", "Config/device.cfg",
+                     "Config/features.cfg", "Config/H323.cfg", "Config/polycomConfig.xsd", "Config/reg-advanced.cfg",
+                     "Config/reg-basic.cfg", "Config/region.cfg", "Config/sip-basic.cfg", "Config/sip-interop.cfg",
+                     "Config/site.cfg", "Config/video.cfg", "Config/video-integration.cfg"], ),
+    )
+
+    @data_provider(provider_test_init)
+    def test_init(self, polycom_files):
+        config = PolypyConfig()
+        self.assertEqual(polycom_files, config.polycom_files)
+
     provider_test_find_config = lambda: (
         # check_paths                                    expected_config_path
         (["/path/to/current/directory", "/etc/polypy/"], "/path/to/current/directory/polypy.conf", True),
@@ -165,6 +178,18 @@ class TestConfig(unittest.TestCase):
         self.assertFalse(os.path.exists(f.name))
 
         self.assertEqual("test.example.org", config.config['server_addr'])
+
+
+    provider_test_validate = lambda : (
+        #sip.conf exists  tftproot exists  expected_excetion   missing_polycom_count  missing_polycom_files
+        (True,             True,             None,               0,                   []),
+        (False,            True,             FileNotFoundError,  0,                   []),
+        (True,             False,            FileNotFoundError,  0,                   []),
+        (True,             True,             FileNotFoundError,  1,                   ["Config/features.cfg"]),
+        (True,             True,             FileNotFoundError,  4,                   ["Config/features.cfg", "Config/H323.cfg", "Config/polycomConfig.xsd", "Config/reg-advanced.cfg"]),
+    )
+    def test_validate(self):
+        pass
 
 
 if __name__ == '__main__':

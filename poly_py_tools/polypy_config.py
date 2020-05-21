@@ -9,9 +9,13 @@ class PolypyConfig:
 
     config_path = None
     search_paths = []
+    polycom_files = []
 
     def __init__(self):
-        pass
+        self.polycom_files = ['000000000000.cfg', '000000000000-directory~.xml', "Config/applications.cfg", "Config/device.cfg",
+                     "Config/features.cfg", "Config/H323.cfg", "Config/polycomConfig.xsd", "Config/reg-advanced.cfg",
+                     "Config/reg-basic.cfg", "Config/region.cfg", "Config/sip-basic.cfg", "Config/sip-interop.cfg",
+                     "Config/site.cfg", "Config/video.cfg", "Config/video-integration.cfg"]
 
     def find(self):
         for path in self.search_paths:
