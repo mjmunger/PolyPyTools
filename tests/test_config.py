@@ -13,7 +13,6 @@ from unittest.mock import patch, mock_open, Mock, MagicMock
 
 
 class HelperTestValidate:
-
     states = None
     polycom_paths = ['000000000000.cfg', '000000000000-directory~.xml', "Config/applications.cfg", "Config/device.cfg",
                      "Config/features.cfg", "Config/H323.cfg", "Config/polycomConfig.xsd", "Config/reg-advanced.cfg",
@@ -33,13 +32,13 @@ class HelperTestValidate:
     def lookup(self, path):
         return self.states[path]
 
-class TestConfig(unittest.TestCase):
 
-    provider_test_init = lambda : (
+class TestConfig(unittest.TestCase):
+    provider_test_init = lambda: (
         (['000000000000.cfg', '000000000000-directory~.xml', "Config/applications.cfg", "Config/device.cfg",
-                     "Config/features.cfg", "Config/H323.cfg", "Config/polycomConfig.xsd", "Config/reg-advanced.cfg",
-                     "Config/reg-basic.cfg", "Config/region.cfg", "Config/sip-basic.cfg", "Config/sip-interop.cfg",
-                     "Config/site.cfg", "Config/video.cfg", "Config/video-integration.cfg"], ),
+          "Config/features.cfg", "Config/H323.cfg", "Config/polycomConfig.xsd", "Config/reg-advanced.cfg",
+          "Config/reg-basic.cfg", "Config/region.cfg", "Config/sip-basic.cfg", "Config/sip-interop.cfg",
+          "Config/site.cfg", "Config/video.cfg", "Config/video-integration.cfg"],),
     )
 
     @data_provider(provider_test_init)
@@ -67,7 +66,7 @@ class TestConfig(unittest.TestCase):
 
     @staticmethod
     def create_config_tuples():
-        fixtures_dir = os.path.join(os.path.dirname(__file__),'fixtures/')
+        fixtures_dir = os.path.join(os.path.dirname(__file__), 'fixtures/')
         base_config_path = os.path.join(fixtures_dir, "base_config.json")
 
         with open(base_config_path) as fp:
@@ -79,11 +78,12 @@ class TestConfig(unittest.TestCase):
         config1['config_path'] = fixtures_dir
         config1['paths']['asterisk'] = os.path.join(fixtures_dir, "tests/fixtures/etc/asterisk/")
         config1['paths']['tftproot'] = os.path.join(fixtures_dir, "tests/fixtures/srv/tftp/")
-        return_tuples = return_tuples + ( (json.dumps(config1),["/path/to/current/directory", "/etc/polypy/"], "/path/to/current/directory/polypy.conf",),)
+        return_tuples = return_tuples + ((json.dumps(config1), ["/path/to/current/directory", "/etc/polypy/"],
+                                          "/path/to/current/directory/polypy.conf",),)
 
         return return_tuples
 
-    config_fixtures = lambda : TestConfig.create_config_tuples()
+    config_fixtures = lambda: TestConfig.create_config_tuples()
 
     @data_provider(config_fixtures)
     def test_load_config(self, config, check_paths, expected_config_path):
@@ -107,7 +107,7 @@ class TestConfig(unittest.TestCase):
         config.add_search_path("/path/to/some/place")
         config.add_search_path("/etc/polypy")
 
-        self.assertEqual(2,len(config.search_paths))
+        self.assertEqual(2, len(config.search_paths))
 
     @data_provider(config_fixtures)
     def test_write_config(self, config_string, check_paths, expected_config_path):
@@ -136,8 +136,18 @@ class TestConfig(unittest.TestCase):
             with self.assertRaises(PermissionError):
                 config.write()
 
-    provider_test_write_default_config = lambda : (
-        ({"lib_path": "/var/lib/polypy", "share_path": "/usr/share/polypy/", "config_path": "/tmp/polypy.conf", "package_path": "/usr/local/lib/python3.7/dist-packages/poly_py_tools", "server_addr": "127.0.0.1", "paths": {"asterisk": "/etc/asterisk/", "tftproot": "/srv/tftp/"}}, ),
+    provider_test_write_default_config = lambda: (
+        ({"lib_path": "/var/lib/polypy", "share_path": "/usr/share/polypy/", "config_path": "/etc/asterisk/polypy.conf",
+          "package_path": "/usr/local/lib/python3.7/dist-packages/poly_py_tools", "server_addr": "127.0.0.1",
+          "paths": {"asterisk": "/etc/asterisk/", "tftproot": "/srv/tftp/"},
+          "dictionary": {"first": ["first", "firstname", "first name"], "last": ["last", "lastname", "last name"],
+                         "exten": ["exten", "extension", "new extension"], "vm": ["vm", "voicemail"],
+                         "mac": ["mac", "macaddr", "mac address", "physical address"], "email": ["email"],
+                         "device": ["device", "phone", "model"],
+                         "cid_number": ["cid", "cname", "callerid", "Caller-ID"],
+                         "priority": ["priority", "sort", "order by", "order"], "label": ["label"], "model": ["model"],
+                         "did": ["contact", "direct phone", "did", "number"],
+                         "group_dial": ["Simul-ring", "group dial"], "site": ["site"]}, "csvmap": {}},),
     )
 
     @data_provider(provider_test_write_default_config)
@@ -151,12 +161,12 @@ class TestConfig(unittest.TestCase):
             actual_config = json.load(fp)
 
         expected_config['config_path'] = tmp_config
-        expected_config['package_path'] = os.path.join(site.getsitepackages()[0],"poly_py_tools")
+        expected_config['package_path'] = os.path.join(site.getsitepackages()[0], "poly_py_tools")
         self.assertEqual(expected_config, actual_config)
 
         tmp_dir.cleanup()
 
-    provider_test_set_path = lambda : (
+    provider_test_set_path = lambda: (
         ("asterisk", "/current/working/directory/to/something", "/current/working/directory/to/something"),
         ("asterisk", "to/something", "/current/working/directory/to/something"),
         ("asterisk", ".", "/current/working/directory"),
@@ -200,15 +210,16 @@ class TestConfig(unittest.TestCase):
 
         self.assertEqual("test.example.org", config.config['server_addr'])
 
-
-    provider_test_validate = lambda : (
-        #sip.conf exists    tftproot exists       missing_file_count  missing_polycom_files
-        (True,              True,                 0,                   []),
-        (False,             True,                 1,                   []),
-        (True,              False,                1,                   []),
-        (True,              True,                 1,                   ["Config/features.cfg"]),
-        (True,              True,                 4,                   ["Config/features.cfg", "Config/H323.cfg", "Config/polycomConfig.xsd", "Config/reg-advanced.cfg"]),
-        (False,             True,                 5,                   ["Config/features.cfg", "Config/H323.cfg", "Config/polycomConfig.xsd", "Config/reg-advanced.cfg"]),
+    provider_test_validate = lambda: (
+        # sip.conf exists    tftproot exists       missing_file_count  missing_polycom_files
+        (True, True, 0, []),
+        (False, True, 1, []),
+        (True, False, 1, []),
+        (True, True, 1, ["Config/features.cfg"]),
+        (True, True, 4,
+         ["Config/features.cfg", "Config/H323.cfg", "Config/polycomConfig.xsd", "Config/reg-advanced.cfg"]),
+        (False, True, 5,
+         ["Config/features.cfg", "Config/H323.cfg", "Config/polycomConfig.xsd", "Config/reg-advanced.cfg"]),
     )
 
     @data_provider(provider_test_validate)
@@ -225,7 +236,11 @@ class TestConfig(unittest.TestCase):
 
         with patch("os.path.exists", MagicMock(side_effect=helper.lookup)) as mock_os_path:
             config = PolypyConfig()
-            config.config = {"lib_path": "/var/lib/polypy", "share_path": "/usr/share/polypy/", "config_path": "/tmp/polypy.conf", "package_path": "/usr/local/lib/python3.7/dist-packages/poly_py_tools", "server_addr": "127.0.0.1", "paths": {"asterisk": "/etc/asterisk/", "tftproot": "/srv/tftp/"}}
+            config.config = {"lib_path": "/var/lib/polypy", "share_path": "/usr/share/polypy/",
+                             "config_path": "/tmp/polypy.conf",
+                             "package_path": "/usr/local/lib/python3.7/dist-packages/poly_py_tools",
+                             "server_addr": "127.0.0.1",
+                             "paths": {"asterisk": "/etc/asterisk/", "tftproot": "/srv/tftp/"}}
             status = config.validate()
 
             failed_counter = 0
@@ -237,24 +252,92 @@ class TestConfig(unittest.TestCase):
             self.assertEqual(status['/etc/asterisk/'], sip_conf_state)
             self.assertEqual(status['/srv/tftp/'], tftproot_state)
             self.assertEqual(status["/srv/tftp/000000000000.cfg"], "000000000000.cfg" not in missing_polycom_files)
-            self.assertEqual(status["/srv/tftp/000000000000-directory~.xml"], "000000000000-directory~.xml" not in missing_polycom_files)
-            self.assertEqual(status["/srv/tftp/Config/applications.cfg"], "Config/applications.cfg" not in missing_polycom_files)
+            self.assertEqual(status["/srv/tftp/000000000000-directory~.xml"],
+                             "000000000000-directory~.xml" not in missing_polycom_files)
+            self.assertEqual(status["/srv/tftp/Config/applications.cfg"],
+                             "Config/applications.cfg" not in missing_polycom_files)
             self.assertEqual(status["/srv/tftp/Config/device.cfg"], "Config/device.cfg" not in missing_polycom_files)
-            self.assertEqual(status["/srv/tftp/Config/features.cfg"], "Config/features.cfg" not in missing_polycom_files)
+            self.assertEqual(status["/srv/tftp/Config/features.cfg"],
+                             "Config/features.cfg" not in missing_polycom_files)
             self.assertEqual(status["/srv/tftp/Config/H323.cfg"], "Config/H323.cfg" not in missing_polycom_files)
-            self.assertEqual(status["/srv/tftp/Config/polycomConfig.xsd"], "Config/polycomConfig.xsd" not in missing_polycom_files)
-            self.assertEqual(status["/srv/tftp/Config/reg-advanced.cfg"], "Config/reg-advanced.cfg" not in missing_polycom_files)
-            self.assertEqual(status["/srv/tftp/Config/reg-basic.cfg"], "Config/reg-basic.cfg" not in missing_polycom_files)
+            self.assertEqual(status["/srv/tftp/Config/polycomConfig.xsd"],
+                             "Config/polycomConfig.xsd" not in missing_polycom_files)
+            self.assertEqual(status["/srv/tftp/Config/reg-advanced.cfg"],
+                             "Config/reg-advanced.cfg" not in missing_polycom_files)
+            self.assertEqual(status["/srv/tftp/Config/reg-basic.cfg"],
+                             "Config/reg-basic.cfg" not in missing_polycom_files)
             self.assertEqual(status["/srv/tftp/Config/region.cfg"], "Config/region.cfg" not in missing_polycom_files)
-            self.assertEqual(status["/srv/tftp/Config/sip-basic.cfg"], "Config/sip-basic.cfg" not in missing_polycom_files)
-            self.assertEqual(status["/srv/tftp/Config/sip-interop.cfg"], "Config/sip-interop.cfg" not in missing_polycom_files)
+            self.assertEqual(status["/srv/tftp/Config/sip-basic.cfg"],
+                             "Config/sip-basic.cfg" not in missing_polycom_files)
+            self.assertEqual(status["/srv/tftp/Config/sip-interop.cfg"],
+                             "Config/sip-interop.cfg" not in missing_polycom_files)
             self.assertEqual(status["/srv/tftp/Config/site.cfg"], "Config/site.cfg" not in missing_polycom_files)
             self.assertEqual(status["/srv/tftp/Config/video.cfg"], "Config/video.cfg" not in missing_polycom_files)
 
+    provider_test_dictionary_add = lambda : (
+        ("first", "nKhI"),
+        ("last", "rAQhbM"),
+        ("exten", "XZmx"),
+        ("vm", "wOVLrkhDhWvisNXW"),
+        ("mac", "oMbMxdFqBLWDfpDYl"),
+        ("email", "FQSOXqCWP"),
+        ("device", "wPMRgSHhyXy"),
+        ("cid_number", "ZqUaVz"),
+        ("priority", "ckoJofRYAJ"),
+        ("label", "vUkTydmDk"),
+        ("model", "ikzJbJm"),
+        ("did", "CQriEvEnQhbEIn"),
+        ("group_dial", "nxFjCJshs"),
+        ("site", "FnnBp"),
+    )
 
+    @data_provider(provider_test_dictionary_add)
+    def test_dictionary_add(self, word, alias):
+        f = NamedTemporaryFile(delete=False)
+        config = PolypyConfig()
+        config.config_path = f.name
+        config.write_default_config(f.name)
+        config.add_dictionary_alias(word, alias)
 
+        self.assertTrue(alias in config.config['dictionary'][word])
 
+        fp = open(f.name, 'r')
+        resultant_config = json.load(fp)
+        fp.close()
 
+        self.assertTrue(alias in resultant_config['dictionary'][word])
+
+        os.unlink(f.name)
+        self.assertFalse(os.path.exists(f.name))
+
+    @data_provider(provider_test_dictionary_add)
+    def test_dictionary_del(self, word, alias):
+        f = NamedTemporaryFile(delete=False)
+        config = PolypyConfig()
+        config.config_path = f.name
+        config.write_default_config(f.name)
+        config.add_dictionary_alias(word, alias)
+
+        self.assertTrue(alias in config.config['dictionary'][word])
+
+        fp = open(f.name, 'r')
+        resultant_config = json.load(fp)
+        fp.close()
+
+        self.assertTrue(alias in resultant_config['dictionary'][word])
+
+        config.del_dictionary_word(word, alias)
+
+        self.assertFalse(alias in config.config['dictionary'][word])
+
+        fp = open(f.name, 'r')
+        resultant_config = json.load(fp)
+        fp.close()
+
+        self.assertFalse(alias in resultant_config['dictionary'][word])
+
+        os.unlink(f.name)
+        self.assertFalse(os.path.exists(f.name))
 
 
 

@@ -35,6 +35,6 @@ if args['-d']:
     print(config_finder)
 
 if args['generate'] and args['list']:
-
+    pass
 
 

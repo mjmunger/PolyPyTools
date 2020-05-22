@@ -3,17 +3,20 @@ import json
 import site
 from shutil import copyfile
 
-class PolypyConfig:
 
+class PolypyConfig:
     config_path = None
     search_paths = []
     polycom_files = []
 
     def __init__(self):
-        self.polycom_files = ['000000000000.cfg', '000000000000-directory~.xml', "Config/applications.cfg", "Config/device.cfg",
-                     "Config/features.cfg", "Config/H323.cfg", "Config/polycomConfig.xsd", "Config/reg-advanced.cfg",
-                     "Config/reg-basic.cfg", "Config/region.cfg", "Config/sip-basic.cfg", "Config/sip-interop.cfg",
-                     "Config/site.cfg", "Config/video.cfg", "Config/video-integration.cfg"]
+        self.polycom_files = ['000000000000.cfg', '000000000000-directory~.xml', "Config/applications.cfg",
+                              "Config/device.cfg",
+                              "Config/features.cfg", "Config/H323.cfg", "Config/polycomConfig.xsd",
+                              "Config/reg-advanced.cfg",
+                              "Config/reg-basic.cfg", "Config/region.cfg", "Config/sip-basic.cfg",
+                              "Config/sip-interop.cfg",
+                              "Config/site.cfg", "Config/video.cfg", "Config/video-integration.cfg"]
 
     def find(self):
         for path in self.search_paths:
@@ -34,12 +37,16 @@ class PolypyConfig:
     def write(self):
         try:
             with open(self.config_path, 'w') as fp:
-                json.dump(self.config,fp)
+                json.dump(self.config, fp)
         except PermissionError:
             print("Could not write config to {}. Perhaps you need to be root?".format(self.config_path))
             raise PermissionError
 
     def write_default_config(self, target_path):
+        self.set_default_config(target_path)
+        self.write()
+
+    def set_default_config(self, target_path):
         self.config_path = target_path
         configs = {}
         # Setup default values:
@@ -47,11 +54,24 @@ class PolypyConfig:
         share_path = '/usr/share/polypy/'
         local_bin = '/usr/local/bin/'
         package_path = None
-
         paths = {}
-
         package_path = os.path.join(site.getsitepackages()[0], 'poly_py_tools')
-
+        csv_header_matching_dictionary = {
+            "first": ["first", "firstname", "first name"],
+            "last": ["last", "lastname", "last name"],
+            "exten": ["exten", "extension", "new extension"],
+            "vm": ["vm", "voicemail"],
+            "mac": ["mac", "macaddr", "mac address", "physical address"],
+            "email": ["email"],
+            "device": ["device", "phone", "model"],
+            "cid_number": ["cid", "cname", "callerid", "Caller-ID"],
+            "priority": ["priority", "sort", "order by", "order"],
+            "label": ["label"],
+            "model": ["model"],
+            "did": ["contact", "direct phone", "did", "number"],
+            "group_dial": ["Simul-ring", "group dial"],
+            "site": ["site"]
+        }
         paths["asterisk"] = "/etc/asterisk/"
         paths["tftproot"] = "/srv/tftp/"
         configs['lib_path'] = lib_path
@@ -60,9 +80,10 @@ class PolypyConfig:
         configs['package_path'] = package_path
         configs['paths'] = paths
         configs['server_addr'] = "127.0.0.1"
+        configs['dictionary'] = csv_header_matching_dictionary
+        configs['csvmap'] = {}
         self.config = configs
-
-        self.write()
+        return self.config
 
     def set_path(self, path, target_path):
         if target_path is ".":
@@ -80,7 +101,8 @@ class PolypyConfig:
 
     def validate(self):
         state_report = {}
-        state_report[self.config['paths']['asterisk']] = os.path.exists(os.path.join(self.config['paths']['asterisk'], "sip.conf"))
+        state_report[self.config['paths']['asterisk']] = os.path.exists(
+            os.path.join(self.config['paths']['asterisk'], "sip.conf"))
         state_report[self.config['paths']['tftproot']] = os.path.exists(self.config['paths']['tftproot'])
 
         for file in self.polycom_files:
@@ -134,3 +156,15 @@ class PolypyConfig:
             target_file = os.path.join(target_path, file)
             print("Copying: {} => {}".format(source_file, target_file))
             copyfile(source_file, target_file)
+
+    def add_dictionary_alias(self, word, alias):
+        word_list = list(self.config['dictionary'][word])
+        word_list.append(alias)
+        self.config['dictionary'][word] = word_list
+        self.write()
+
+    def del_dictionary_word(self, word, alias):
+        word_list = list(self.config['dictionary'][word])
+        word_list.remove(alias)
+        self.config['dictionary'][word] = word_list
+        self.write()
