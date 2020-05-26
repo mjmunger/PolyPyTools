@@ -9,6 +9,8 @@ from tempfile import TemporaryDirectory
 from unittest_data_provider import data_provider
 
 from poly_py_tools.polypy_config import PolypyConfig
+from poly_py_tools.column_mapper import ColumnMapper
+
 from unittest.mock import patch, mock_open, Mock, MagicMock
 
 
@@ -143,11 +145,11 @@ class TestConfig(unittest.TestCase):
           "dictionary": {"first": ["first", "firstname", "first name"], "last": ["last", "lastname", "last name"],
                          "exten": ["exten", "extension", "new extension"], "vm": ["vm", "voicemail"],
                          "mac": ["mac", "macaddr", "mac address", "physical address"], "email": ["email"],
-                         "device": ["device", "phone", "model"],
+                         "device": ["device", "phone", "fax"],
                          "cid_number": ["cid", "cname", "callerid", "Caller-ID"],
                          "priority": ["priority", "sort", "order by", "order"], "label": ["label"], "model": ["model"],
                          "did": ["contact", "direct phone", "did", "number"],
-                         "group_dial": ["Simul-ring", "group dial"], "site": ["site"]}, "csvmap": {}},),
+                         "group_dial": ["simul-ring", "group dial"], "site": ["site"]}, "csvmap": {}},),
     )
 
     @data_provider(provider_test_write_default_config)
@@ -339,6 +341,23 @@ class TestConfig(unittest.TestCase):
         os.unlink(f.name)
         self.assertFalse(os.path.exists(f.name))
 
+    provider_column_headers = lambda: (
+        (["Last name", "First Name", "Title", "Extension ", "Voicemail ", "Direct Phone", "Simul-ring", "Device", "Model", "MAC", "Email", "site", "callerid", "label", "priority"], {"first": 1, "last": 0, "exten": 3, "vm": 4, "mac": 9, "email": 10, "device": 7, "cid_number": 12, "priority": 14, "label": 13, "model": 8, "did": 5, "group_dial": 6, "site": 11 }),
+    )
+
+    @data_provider(provider_column_headers)
+    def test_map_csv(self, header, expected_map):
+        f = NamedTemporaryFile(delete=False)
+        config = PolypyConfig()
+        config.set_default_config(f.name)
+        mapper = ColumnMapper(config)
+        config.set_map(mapper.match_columns(header))
+
+        fp = open(f.name, 'r')
+        saved_configs = json.load(fp)
+        fp.close()
+
+        self.assertEqual(expected_map, saved_configs['csvmap'])
 
 
 if __name__ == '__main__':

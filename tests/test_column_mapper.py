@@ -20,7 +20,7 @@ class TestColumnMapper(unittest.TestCase):
             self.assertEqual(expected_column_list, mapper.column_list)
 
     provider_column_headers = lambda: (
-        (["Last name", "First Name", "Title", "Extension ", "Voicemail ", "Direct Phone", "Simul-ring", "Device", "Model", "MAC", "Email", "site", "callerid", "label", "priority"], {"first": 1, "last": 0, "exten": 3, "vm": 4, "mac": 8, "email": 9, "device": 7, "cid_number": 11, "priority": 13, "label": 12, "did": 5, "group_dial": 6, "site": 10}),
+        (["Last name", "First Name", "Title", "Extension ", "Voicemail ", "Direct Phone", "Simul-ring", "Device", "Model", "MAC", "Email", "site", "callerid", "label", "priority"], {"first": 1, "last": 0, "exten": 3, "vm": 4, "mac": 9, "email": 10, "device": 7, "cid_number": 12, "priority": 14, "label": 13, "model": 8, "did": 5, "group_dial": 6, "site": 11 }),
     )
 
     @data_provider(provider_column_headers)

@@ -63,13 +63,13 @@ class PolypyConfig:
             "vm": ["vm", "voicemail"],
             "mac": ["mac", "macaddr", "mac address", "physical address"],
             "email": ["email"],
-            "device": ["device", "phone", "model"],
+            "device": ["device", "phone", "fax"],
             "cid_number": ["cid", "cname", "callerid", "Caller-ID"],
             "priority": ["priority", "sort", "order by", "order"],
             "label": ["label"],
             "model": ["model"],
             "did": ["contact", "direct phone", "did", "number"],
-            "group_dial": ["Simul-ring", "group dial"],
+            "group_dial": ["simul-ring", "group dial"],
             "site": ["site"]
         }
         paths["asterisk"] = "/etc/asterisk/"
@@ -167,4 +167,8 @@ class PolypyConfig:
         word_list = list(self.config['dictionary'][word])
         word_list.remove(alias)
         self.config['dictionary'][word] = word_list
+        self.write()
+
+    def set_map(self, map):
+        self.config['csvmap'] = map
         self.write()

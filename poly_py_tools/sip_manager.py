@@ -41,11 +41,10 @@ import os
 import json
 import csv
 from poly_py_tools.sip_parser import SipConfParser
-from poly_py_tools.pw_strength_calculator import PasswordStrengthCalculator
 from poly_py_tools.csv_parser_config import CSVParserConfig
 from poly_py_tools.sip_builder import SipBuilder
 from poly_py_tools.polypy_config_finder import ConfigFinder
-from poly_py_tools.csv_column_guesser import ColumnGuesser
+from poly_py_tools.deprecated.csv_column_guesser import ColumnGuesser
 
 args = docopt(__doc__)
 

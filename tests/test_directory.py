@@ -75,12 +75,6 @@ class TestDirectory(unittest.TestCase):
 
         directory.read()
 
-        # i = 0
-        # print("\n")
-        # for item in directory.items:
-        #     i = i + 1
-        #     print("({}) {} {} <{}>".format(i, item.first_name, item.last_name, item.contact))
-
         self.assertEqual(expected_item_count, len(directory.items))
 
         counter = -1
