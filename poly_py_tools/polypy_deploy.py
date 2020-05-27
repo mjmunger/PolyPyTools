@@ -20,21 +20,34 @@ from docopt import docopt
 import sys
 import os
 import json
+
+from poly_py_tools.polypy_config import PolypyConfig
 from poly_py_tools.polypy_config_finder import ConfigFinder
+from poly_py_tools.dialplan import Dialplan
+from poly_py_tools.deploy import Deploy
 
 args = docopt(__doc__)
 
-config_finder = ConfigFinder()
-configs = config_finder.get_configs()
+configs = PolypyConfig()
+configs.add_search_path(os.getcwd())
+configs.add_search_path("/etc/polypy")
+configs.find()
+configs.load()
 
 if args['-d']:
     print("Debug: {}".format(__file__))
     print("--------------------------------------------------")
     print(args)
     print("--------------------------------------------------\n")
-    print(config_finder)
+    print(configs)
 
 if args['generate'] and args['list']:
-    pass
+    dialplan = Dialplan(args['<csvfile>'])
+    dialplan.with_config(configs.config)
+    deploy = Deploy(configs, dialplan)
+    deploy.build_rsync_lists()
+    deploy.write_scripts()
+    print("Run push.sh from the tftproot to upload your updated configs")
+    sys.exit(0)
 
 

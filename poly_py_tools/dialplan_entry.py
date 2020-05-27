@@ -1,6 +1,8 @@
 import os
 import json
 
+from poly_py_tools.polypy_config import PolypyConfig
+
 
 class Entry:
 
@@ -22,18 +24,23 @@ class Entry:
     model = None
     group_dial = None
     site = None
+    configs = None
 
-    def __init__(self, column_map):
-        if not os.path.exists(column_map):
-            raise FileNotFoundError
+    def __init__(self, configs : PolypyConfig):
 
-        self.column_map = column_map
-        self.load_column_map()
+        if configs is None:
+            raise TypeError("You must pass an instance of PolypyConfig to Entry.")
 
-    def load_column_map(self):
-        fp = open(self.column_map, 'r')
-        self.map = json.load(fp)
-        fp.close()
+        # if not os.path.exists(column_map):
+        #     raise FileNotFoundError
+
+        # self.column_map = column_map
+        self.map = configs.config['csvmap']
+
+    # def load_column_map(self):
+    #     fp = open(self.column_map, 'r')
+    #     self.map = json.load(fp)
+    #     fp.close()
 
     def parse(self, row):
 

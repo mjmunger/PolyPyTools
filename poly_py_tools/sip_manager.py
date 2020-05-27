@@ -40,12 +40,14 @@ import sys
 import os
 import json
 import csv
+
+from poly_py_tools.polypy_config import PolypyConfig
 from poly_py_tools.sip_parser import SipConfParser
 from poly_py_tools.csv_parser_config import CSVParserConfig
 from poly_py_tools.sip_builder import SipBuilder
 from poly_py_tools.polypy_config_finder import ConfigFinder
-from poly_py_tools.deprecated.csv_column_guesser import ColumnGuesser
-
+# from poly_py_tools.deprecated.csv_column_guesser import ColumnGuesser
+from poly_py_tools.column_mapper import ColumnMapper
 args = docopt(__doc__)
 
 
@@ -122,8 +124,11 @@ if args['-d']:
     print(args)
     print("--------------------------------------------------\n")
 
-config_finder = ConfigFinder()
-configs = config_finder.get_configs()
+configs = PolypyConfig()
+configs.add_search_path(os.getcwd())
+configs.add_search_path("/etc/polypy")
+configs.find()
+configs.load()
 
 if args['configure']:
     if args['help']:
@@ -131,25 +136,23 @@ if args['configure']:
         sys.exit(0)
 
     if args['map']:
-        parser_config = CSVParserConfig()
-        if os.path.exists('csv_columns.map'):
-            parser_config.load('csv_columns.map')
-        parser_config.import_column_defs(args['<column_definitions>'])
-        parser_config.save()
+        # parser_config = CSVParserConfig()
+        # if os.path.exists('csv_columns.map'):
+        #     parser_config.load('csv_columns.map')
+        # parser_config.import_column_defs(args['<column_definitions>'])
+        # parser_config.save()
         print("Configuration map saved.")
         sys.exit(1)
 
     if args['guess'] and args['from']:
-        f = open(os.path.join(configs['lib_path'], 'csvguess.json'))
-        guessing_dict = json.load(f)
-        f.close()
+        # Seems we should refactor the "popping off" the header row into the ColumnMapper...
+        with open(args['<file>'], 'r') as fp:
+            csv_reader = csv.reader(fp)
+            header_row = next(csv_reader)
+            mapper = ColumnMapper(configs)
+            configs.set_map(mapper.match_columns(header_row))
+            configs.write()
 
-        Guesser = ColumnGuesser(guessing_dict)
-        Guesser.startrow = int(args['--startrow']) if args['--startrow'] is not None else 0
-        if args['--save']:
-            Guesser.save = True
-
-        column_defs = Guesser.guess_columns(args['<file>'])
 
 if args['dump']:
     print("Dumping sip.conf entries...")

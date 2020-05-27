@@ -1,8 +1,10 @@
 import unittest
 import os
 import csv
+import json
 from unittest_data_provider import data_provider
 from poly_py_tools.dialplan import Dialplan
+from poly_py_tools.polypy_config import PolypyConfig
 
 
 class TestDialplan(unittest.TestCase):
@@ -11,7 +13,8 @@ class TestDialplan(unittest.TestCase):
         return os.path.join(os.path.dirname(__file__), "fixtures/dialplanbuilder_sample.csv")
 
     def get_column_config(self):
-        return os.path.join(os.path.dirname(__file__), "fixtures/csv_columns.map")
+        with open(os.path.join(os.path.dirname(__file__), "fixtures/csv_columns.map"), 'r') as fp:
+            return json.load(fp)
 
     def test_init(self):
         dialplan = Dialplan(self.get_dialplan_csv())
@@ -23,13 +26,25 @@ class TestDialplan(unittest.TestCase):
             dialplan.with_config("/tmp/9c152c3f-b020-45c6-a6d8-de67dd16b0b1.map")
 
     def test_with_config(self):
+        config = PolypyConfig()
+        config.config = {}
+        config.config['csvmap'] = self.get_column_config()
         dialplan = Dialplan(self.get_dialplan_csv())
-        dialplan.with_config(self.get_column_config())
+        dialplan.with_config(config)
         self.assertEqual(dialplan.column_config, self.get_column_config())
+        self.assertTrue(isinstance(dialplan.config, PolypyConfig))
+
+    def test_fail_with_config(self):
+        dialplan = Dialplan(self.get_dialplan_csv())
+        with self.assertRaises(TypeError):
+            dialplan.with_config(None)
 
     def test_parse(self):
+        config = PolypyConfig()
+        config.config = {}
+        config.config['csvmap'] = self.get_column_config()
         dialplan = Dialplan(self.get_dialplan_csv())
-        dialplan.with_config(self.get_column_config())
+        dialplan.with_config(config)
         dialplan.parse()
 
         self.assertEqual(20, len(dialplan.entries))
@@ -54,6 +69,12 @@ class TestDialplan(unittest.TestCase):
                 self.assertEqual(row[11], entry.cid_number, "Failure for entry.{} for index: {}".format("cid_number", index))
                 self.assertEqual(row[12], entry.label, "Failure for entry.{} for index: {}".format("label", index))
                 self.assertEqual(row[13], entry.priority, "Failure for entry.{} for index: {}".format("priority", index))
+
+    def test_parse_no_config(self):
+        dialplan = Dialplan(self.get_dialplan_csv())
+
+        with self.assertRaises(Exception):
+            dialplan.parse()
 
 
 if __name__ == '__main__':

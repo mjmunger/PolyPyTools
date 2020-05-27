@@ -5,11 +5,15 @@ from shutil import copyfile
 
 
 class PolypyConfig:
+    config = None
     config_path = None
-    search_paths = []
-    polycom_files = []
+    search_paths = None
+    polycom_files = None
 
     def __init__(self):
+        self.search_paths = []
+        self.polycom_files = []
+
         self.polycom_files = ['000000000000.cfg', '000000000000-directory~.xml', "Config/applications.cfg",
                               "Config/device.cfg",
                               "Config/features.cfg", "Config/H323.cfg", "Config/polycomConfig.xsd",
@@ -172,3 +176,9 @@ class PolypyConfig:
     def set_map(self, map):
         self.config['csvmap'] = map
         self.write()
+
+    def __str__(self):
+        buffer = []
+        for attr, value in self.__dict__.items():
+            buffer.append("{}: {}".format(attr,value))
+        return "\n".join(buffer)

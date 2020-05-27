@@ -1,20 +1,26 @@
 import unittest
 import os
+import json
 from unittest_data_provider import data_provider
 from poly_py_tools.dialplan_entry import Entry
+from poly_py_tools.polypy_config import PolypyConfig
 
 
 class TestDialplan(unittest.TestCase):
 
-    def get_column_config(self):
-        return os.path.join(os.path.dirname(__file__), "fixtures/csv_columns.map")
+    def get_csv_map(self):
+        with open(os.path.join(os.path.dirname(__file__), "fixtures/csv_columns.map"), 'r') as fp:
+            return json.load(fp)
 
     def test_fail_init(self):
-        with self.assertRaises(FileNotFoundError):
+        with self.assertRaises(AttributeError):
             entry = Entry("/tmp/3eaaa6ac-fc66-48bd-9874-d0dd491e983f.map")
 
     def test_init(self):
-        entry = Entry(self.get_column_config())
+        configs = PolypyConfig()
+        configs.config = {}
+        configs.config['csvmap'] = self.get_csv_map()
+        entry = Entry(configs)
         self.assertEqual(1, entry.map['first'])
         self.assertEqual(0, entry.map['last'])
         self.assertEqual(3, entry.map['exten'])
@@ -33,7 +39,10 @@ class TestDialplan(unittest.TestCase):
 
     @data_provider(provider_test_parse)
     def test_parse(self, row, expected_attribute_values):
-        entry = Entry(self.get_column_config())
+        configs = PolypyConfig()
+        configs.config = {}
+        configs.config['csvmap'] = self.get_csv_map()
+        entry = Entry(configs)
         entry.parse(row)
 
         for key in expected_attribute_values:
