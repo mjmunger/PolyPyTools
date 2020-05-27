@@ -22,13 +22,13 @@ class TestDialplan(unittest.TestCase):
         self.assertEqual(8, entry.map['mac'])
         self.assertEqual(9, entry.map['email'])
         self.assertEqual(11, entry.map['cid_number'])
-        self.assertEqual(7, entry.map['device'])
+        self.assertEqual(7, entry.map['endpoint'])
         self.assertEqual(12, entry.map['label'])
         self.assertEqual(13, entry.map['priority'])
         self.assertEqual(2, entry.map['startrow'])
 
     provider_test_parse = lambda: (
-        (["Viele", "Elliot", "OSnTJuK", "101", "101@testvm", "2025550100", "2125550200", "HahdyMhVj", "0004f23a626f", "eviele@example.org", "atl.example.org", "101", "101",""], {"last": "Viele", "first": "Elliot", "exten": "101", "vm": "101@testvm", "did": "2025550100", "sring": "2125550200", "model": "HahdyMhVj", "mac": "0004f23a626f", "email": "eviele@example.org", "site": "atl.example.org", "cid_number": "101", "label": "101", "priority": ""}),
+        (["Viele", "Elliot", "OSnTJuK", "101", "101@testvm", "2025550100", "2125550200", "HahdyMhVj", "0004f23a626f", "eviele@example.org", "atl.example.org", "101", "101", ""], {"last": "Viele", "first": "Elliot", "exten": "101", "vm": "101@testvm", "did": "2025550100", "group_dial": "2125550200", "endpoint": "HahdyMhVj", "mac": "0004f23a626f", "email": "eviele@example.org", "site": "atl.example.org", "cid_number": "101", "label": "101", "priority": ""}),
     )
 
     @data_provider(provider_test_parse)
@@ -37,7 +37,7 @@ class TestDialplan(unittest.TestCase):
         entry.parse(row)
 
         for key in expected_attribute_values:
-            self.assertEqual(expected_attribute_values[key], getattr(entry, key))
+            self.assertEqual(expected_attribute_values[key], getattr(entry, key), "{} should be {}, got {} instead.".format(key, expected_attribute_values[key], getattr(entry, key)))
 
 
 

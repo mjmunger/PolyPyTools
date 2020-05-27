@@ -57,14 +57,15 @@ class TestConfig(unittest.TestCase):
 
     @data_provider(provider_test_find_config)
     def test_find_config(self, check_paths, expected_config_path, exists):
-        os.path.exists = lambda path: path == expected_config_path
 
-        config = PolypyConfig()
-        for path in check_paths:
-            config.add_search_path(path)
+        with patch.object(os.path, "exists") as mock_os:
+            mock_os.side_effect = lambda path: path == expected_config_path
+            config = PolypyConfig()
+            for path in check_paths:
+                config.add_search_path(path)
 
-        self.assertEqual(exists, config.find())
-        self.assertEqual(expected_config_path, config.config_path)
+            self.assertEqual(exists, config.find())
+            self.assertEqual(expected_config_path, config.config_path)
 
     @staticmethod
     def create_config_tuples():
@@ -89,20 +90,20 @@ class TestConfig(unittest.TestCase):
 
     @data_provider(config_fixtures)
     def test_load_config(self, config, check_paths, expected_config_path):
-        os.path.exists = lambda path: path == expected_config_path
 
-        expected_config_object = json.loads(config)
+        with patch("os.path") as mock_os:
+            with patch("builtins.open", mock_open(read_data=config)) as mock_file:
+                mock_os.path.exists = lambda path: path == expected_config_path
+                expected_config_object = json.loads(config)
+                assert open(expected_config_path).read() == config
+                mock_file.assert_called_with(expected_config_path)
 
-        with patch("builtins.open", mock_open(read_data=config)) as mock_file:
-            assert open(expected_config_path).read() == config
-            mock_file.assert_called_with(expected_config_path)
-
-            config = PolypyConfig()
-            for path in check_paths:
-                config.add_search_path(path)
-            config.find()
-            config.load()
-            self.assertEqual(expected_config_object, config.config)
+                config = PolypyConfig()
+                for path in check_paths:
+                    config.add_search_path(path)
+                config.find()
+                config.load()
+                self.assertEqual(expected_config_object, config.config)
 
     def test_add_search_path(self):
         config = PolypyConfig()
