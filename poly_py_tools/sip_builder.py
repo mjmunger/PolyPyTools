@@ -1,7 +1,7 @@
 import os
 import csv
 from pwgen_secure.rpg import Rpg
-from poly_py_tools.pjsip_registration import PJSIPRegistration
+from poly_py_tools.pjsip_registration_old import PJSIPRegistration
 from poly_py_tools.registration import Registration
 
 class SipBuilder:
