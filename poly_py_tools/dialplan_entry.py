@@ -43,11 +43,14 @@ class Entry:
     #     fp.close()
 
     def parse(self, row):
-
         for key in self.map:
             if not hasattr(self, key):
                 print("{} was not found in the dialplan entry class".format(key))
                 continue
+
+            if self.map[key] is None:
+                continue
+
             setattr(self, key, row[int(self.map[key])])
 
     def __str__(self):

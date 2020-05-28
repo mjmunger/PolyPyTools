@@ -146,9 +146,9 @@ class TestConfig(unittest.TestCase):
           "dictionary": {"first": ["first", "firstname", "first name"], "last": ["last", "lastname", "last name"],
                          "exten": ["exten", "extension", "new extension"], "vm": ["vm", "voicemail"],
                          "mac": ["mac", "macaddr", "mac address", "physical address"], "email": ["email"],
-                         "device": ["device", "phone", "fax"],
+                         "endpoint": ["device", "phone", "fax", "model"],
                          "cid_number": ["cid", "cname", "callerid", "Caller-ID"],
-                         "priority": ["priority", "sort", "order by", "order"], "label": ["label"], "model": ["model"],
+                         "priority": ["priority", "sort", "order by", "order"], "label": ["label"],
                          "did": ["contact", "direct phone", "did", "number"],
                          "group_dial": ["simul-ring", "group dial"], "site": ["site"]}, "csvmap": {}},),
     )
@@ -284,11 +284,10 @@ class TestConfig(unittest.TestCase):
         ("vm", "wOVLrkhDhWvisNXW"),
         ("mac", "oMbMxdFqBLWDfpDYl"),
         ("email", "FQSOXqCWP"),
-        ("device", "wPMRgSHhyXy"),
+        ("endpoint", "wPMRgSHhyXy"),
         ("cid_number", "ZqUaVz"),
         ("priority", "ckoJofRYAJ"),
         ("label", "vUkTydmDk"),
-        ("model", "ikzJbJm"),
         ("did", "CQriEvEnQhbEIn"),
         ("group_dial", "nxFjCJshs"),
         ("site", "FnnBp"),
@@ -343,7 +342,7 @@ class TestConfig(unittest.TestCase):
         self.assertFalse(os.path.exists(f.name))
 
     provider_column_headers = lambda: (
-        (["Last name", "First Name", "Title", "Extension ", "Voicemail ", "Direct Phone", "Simul-ring", "Device", "Model", "MAC", "Email", "site", "callerid", "label", "priority"], {"first": 1, "last": 0, "exten": 3, "vm": 4, "mac": 9, "email": 10, "device": 7, "cid_number": 12, "priority": 14, "label": 13, "model": 8, "did": 5, "group_dial": 6, "site": 11 }),
+        (["Last name", "First Name", "Title", "Extension ", "Voicemail ", "Direct Phone", "Simul-ring", "Device", "MAC", "Email", "site", "callerid", "label", "priority"], {"first": 1, "last": 0, "exten": 3, "vm": 4, "mac": 8, "email": 9, "endpoint": 7, "cid_number": 11, "priority": 13, "label": 12,  "did": 5, "group_dial": 6, "site": 10}),
     )
 
     @data_provider(provider_column_headers)

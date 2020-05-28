@@ -67,11 +67,10 @@ class PolypyConfig:
             "vm": ["vm", "voicemail"],
             "mac": ["mac", "macaddr", "mac address", "physical address"],
             "email": ["email"],
-            "device": ["device", "phone", "fax"],
+            "endpoint": ["device", "phone", "fax", "model"],
             "cid_number": ["cid", "cname", "callerid", "Caller-ID"],
             "priority": ["priority", "sort", "order by", "order"],
             "label": ["label"],
-            "model": ["model"],
             "did": ["contact", "direct phone", "did", "number"],
             "group_dial": ["simul-ring", "group dial"],
             "site": ["site"]

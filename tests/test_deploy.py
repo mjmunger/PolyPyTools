@@ -52,8 +52,8 @@ class TestDeploy(unittest.TestCase):
                 self.assertEqual(config, deploy.config)
 
                 self.assertEqual(5, len(deploy.rsync_lists))
-                expected_filelist = [os.path.join(tftpdir, file) for file in expected_filelist.split("\n")]
-                self.assertEqual(expected_filelist, deploy.rsync_lists[site_list_filename])
+                # expected_filelist = [os.path.join(tftpdir, file) for file in expected_filelist.split("\n")]
+                self.assertEqual(expected_filelist, "\n".join(deploy.rsync_lists[site_list_filename]))
 
                 deploy.write_scripts()
 
@@ -64,12 +64,12 @@ class TestDeploy(unittest.TestCase):
 
                 target_file = os.path.join(tftpdir, site_list_filename + ".lst")
                 with open(target_file, 'r') as infile:
-                    self.assertEqual(expected_filelist, infile.read().split("\n"))
+                    self.assertEqual(expected_filelist.split("\n"), infile.read().split("\n"))
 
                 run_file = os.path.join(tftpdir, "push.sh")
                 self.assertTrue(os.path.exists(run_file))
 
-                expected_bash_file_content = "#!/bin/bash\nrsync -avh --from-file={DIR}/atl.example.org.lst root@pbx.hph.io:/var/www/html/io.hph.pbx/p/org.example.atl/\nrsync -avh --from-file={DIR}/abq.example.org.lst root@pbx.hph.io:/var/www/html/io.hph.pbx/p/org.example.abq/\nrsync -avh --from-file={DIR}/vegas.example.org.lst root@pbx.hph.io:/var/www/html/io.hph.pbx/p/org.example.vegas/\nrsync -avh --from-file={DIR}/nyc.example.org.lst root@pbx.hph.io:/var/www/html/io.hph.pbx/p/org.example.nyc/\nrsync -avh --from-file={DIR}/office.example.org.lst root@pbx.hph.io:/var/www/html/io.hph.pbx/p/org.example.office/\n".replace('{DIR}', tftpdir).split("\n")
+                expected_bash_file_content = "#!/bin/bash\nrsync -avh --files-from='atl.example.org.lst' . root@pbx.hph.io:/var/www/html/io.hph.pbx/p/org.example.atl/\nrsync -avh --files-from='abq.example.org.lst' . root@pbx.hph.io:/var/www/html/io.hph.pbx/p/org.example.abq/\nrsync -avh --files-from='vegas.example.org.lst' . root@pbx.hph.io:/var/www/html/io.hph.pbx/p/org.example.vegas/\nrsync -avh --files-from='nyc.example.org.lst' . root@pbx.hph.io:/var/www/html/io.hph.pbx/p/org.example.nyc/\nrsync -avh --files-from='office.example.org.lst' . root@pbx.hph.io:/var/www/html/io.hph.pbx/p/org.example.office/\n".split("\n")
 
                 with open(run_file, 'r') as fp_run_file:
                     buffer = fp_run_file.read().split("\n")

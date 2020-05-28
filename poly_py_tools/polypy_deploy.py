@@ -43,7 +43,7 @@ if args['-d']:
 
 if args['generate'] and args['list']:
     dialplan = Dialplan(args['<csvfile>'])
-    dialplan.with_config(configs.config)
+    dialplan.with_config(configs)
     deploy = Deploy(configs, dialplan)
     deploy.build_rsync_lists()
     deploy.write_scripts()

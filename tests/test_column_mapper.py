@@ -9,7 +9,7 @@ from poly_py_tools.polypy_config import PolypyConfig
 class TestColumnMapper(unittest.TestCase):
 
     def test_init(self):
-        expected_column_list = ["first", "last", "exten", "vm", "mac", "email", "device", "cid_number", "priority", "label", "model", "did", "group_dial", "site"]
+        expected_column_list = ["first", "last", "exten", "vm", "mac", "email", "endpoint", "cid_number", "priority", "label", "did", "group_dial", "site"]
 
         with NamedTemporaryFile() as f:
             config = PolypyConfig()
@@ -20,7 +20,7 @@ class TestColumnMapper(unittest.TestCase):
             self.assertEqual(expected_column_list, mapper.column_list)
 
     provider_column_headers = lambda: (
-        (["Last name", "First Name", "Title", "Extension ", "Voicemail ", "Direct Phone", "Simul-ring", "Device", "Model", "MAC", "Email", "site", "callerid", "label", "priority"], {"first": 1, "last": 0, "exten": 3, "vm": 4, "mac": 9, "email": 10, "device": 7, "cid_number": 12, "priority": 14, "label": 13, "model": 8, "did": 5, "group_dial": 6, "site": 11 }),
+        (["Last name", "First Name", "Title", "Extension ", "Voicemail ", "Direct Phone", "Simul-ring", "Device", "Model", "MAC", "Email", "site", "callerid", "label", "priority"], {"first": 1, "last": 0, "exten": 3, "vm": 4, "mac": 9, "email": 10,  "cid_number": 12, "priority": 14, "label": 13, "endpoint": 8, "did": 5, "group_dial": 6, "site": 11 }),
     )
 
     @data_provider(provider_column_headers)
