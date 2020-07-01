@@ -96,10 +96,13 @@ def generate_configs(configs):
 
     parser_config = CSVParserConfig()
 
-    if os.path.exists('csv_columns.map'):
-        parser_config.load('csv_columns.map')
-    else:
-        parser_config.import_column_defs(args['<column_definitions>'])
+    # Removed for issue #10. mj@hph.io
+    # if os.path.exists('csv_columns.map'):
+    #     parser_config.load('csv_columns.map')
+    # else:
+    #     parser_config.import_column_defs(args['<column_definitions>'])
+
+    parser_config.load(configs.config['csvmap'])
 
     builder = SipBuilder()
     builder.set_verbosity(args['-v'])
