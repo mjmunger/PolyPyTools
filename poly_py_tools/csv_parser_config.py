@@ -110,7 +110,7 @@ class CSVParserConfig:
         self.mac_column = buffer['mac']
         self.email_column = buffer['email']
         self.cid_number = buffer['cid_number']
-        self.device_column = buffer['device']
+        self.device_column = buffer['endpoint']
         self.startrow = buffer['startrow']
         if 'priority' in buffer:
             self.reg_priority_column = buffer['priority']
