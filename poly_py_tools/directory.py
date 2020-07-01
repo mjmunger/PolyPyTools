@@ -20,7 +20,7 @@ class Directory:
         self.csv_files.append(csv_file)
 
     def set_mac(self, mac):
-        self.mac_addr = str(mac).replace(":", "").replace("-","").lower().strip()
+        self.mac_addr = str(mac).replace(":", "").replace("-", "").lower().strip()
 
     def add_item(self, item):
         self.items.append(item)
