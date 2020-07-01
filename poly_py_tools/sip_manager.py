@@ -86,13 +86,13 @@ def check_writable(configs):
 
 def generate_configs(configs):
 
-    target_sip_path = os.path.join(configs['paths']['asterisk'], 'sip.conf')
-    target_pjsip_path = os.path.join(configs['paths']['asterisk'], 'pjsip.conf')
+    target_sip_path = os.path.join(configs.config['paths']['asterisk'], 'sip.conf')
+    target_pjsip_path = os.path.join(configs.config['paths']['asterisk'], 'pjsip.conf')
 
     check_regenerate(args, [target_sip_path, target_pjsip_path])
     check_force(args, [target_sip_path, target_pjsip_path])
     check_exists(args)
-    check_writable(configs)
+    check_writable(configs.config)
 
     parser_config = CSVParserConfig()
 
@@ -113,7 +113,7 @@ def generate_configs(configs):
 
     builder.with_config(parser_config)
     builder.from_csv_file(args['<file>'])
-    builder.append_device_definitions_to(configs['paths']['asterisk'])
+    builder.append_device_definitions_to(configs.config['paths']['asterisk'])
     builder.export_device_definitions(args['<extension>'], (args['with'] and args['voicemail']))
 
 if args['-d']:
