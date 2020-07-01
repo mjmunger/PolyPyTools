@@ -99,9 +99,9 @@ class CSVParserConfig:
     def set_site(self, site):
         self.site = site
 
-    def load(self, csv_config_path):
-        f = open(csv_config_path, 'r')
-        buffer = json.load(f)
+    def load(self, buffer):
+        # f = open(csv_config_path, 'r')
+        # buffer = json.load(f)
 
         self.first_name_column = buffer['first']
         self.last_name_column = buffer['last']
