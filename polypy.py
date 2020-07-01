@@ -17,6 +17,7 @@ Commands:
   site       Manage site files
   version    Show the version of this package
   ssl        Configure SSL for a phone.
+  deploy     Deploy files rendered to tftproot
 
 See polypy help <command> for more information with a specific command.
 
@@ -24,7 +25,6 @@ See polypy help <command> for more information with a specific command.
 import subprocess
 import os
 from docopt import docopt
-
 
 def show_version():
     execution_dir = os.getcwd()
@@ -72,7 +72,15 @@ if __name__ == '__main__':
     if args['<command>'] == 'ssl':
         from poly_py_tools import ssl_manager
         docopt(ssl_manager.__doc__, argv=argv)
+
     if args['<command>'] == 'site':
         from poly_py_tools import polypy_site
         docopt(polypy_site.__doc__, argv=argv)
 
+    if args['<command>'] == 'deploy':
+        from poly_py_tools import polypy_deploy
+        docopt(polypy_deploy.__doc__, argv=argv)
+
+    if args['<command>'] == 'dialplan':
+        from poly_py_tools import polypy_dialplan
+        docopt(polypy_dialplan.__doc__, argv=argv)

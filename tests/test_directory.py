@@ -1,9 +1,12 @@
 import os
 import csv
 import unittest
+from unittest.mock import Mock, MagicMock
+from tempfile import TemporaryDirectory, NamedTemporaryFile
 from unittest_data_provider import data_provider
 from poly_py_tools.directory_item import DirectoryItem
 from poly_py_tools.directory import Directory
+from poly_py_tools.polypy_config import PolypyConfig
 
 
 class TestDirectory(unittest.TestCase):
@@ -75,12 +78,6 @@ class TestDirectory(unittest.TestCase):
 
         directory.read()
 
-        # i = 0
-        # print("\n")
-        # for item in directory.items:
-        #     i = i + 1
-        #     print("({}) {} {} <{}>".format(i, item.first_name, item.last_name, item.contact))
-
         self.assertEqual(expected_item_count, len(directory.items))
 
         counter = -1
@@ -103,13 +100,43 @@ class TestDirectory(unittest.TestCase):
                     self.assertEqual(row[0], target_item.first_name)
                     self.assertEqual(row[1], target_item.last_name)
                     self.assertEqual(row[2], target_item.contact)
-                    self.assertEqual(row[3], "Yes" if target_item.buddy_watch == 1 else "No")
+                    self.assertEqual("Yes" if row[3] == "Yes" else "No", "Yes" if target_item.buddy_watch == 1 else "No")
+                    self.assertEqual(row[4], target_item.label)
 
             header_exists = False
             for item in directory.items:
                 if item.first_name == "First" and item.last_name == "Last" and item.contact == "Number":
                     header_exists = True
             self.assertFalse(header_exists)
+
+    provider_test_multiple_csvs_output = lambda : (
+        ("5F:61:82:4A:26:39", ("file1.csv", "file2.csv", "file3.csv"), "expected_directory.xml", 32),
+    )
+
+    @data_provider(provider_test_multiple_csvs_output)
+    def test_multiple_csvs(self, mac_address, files, expected_directory, expected_item_count):
+        fixtures_root = os.path.join(os.path.dirname(__file__), "fixtures")
+
+        with open(os.path.join(fixtures_root, "csvfiles/{}".format(expected_directory)), 'r') as fp:
+            expected_directory_xml = fp.read()
+
+        directory = Directory(mac_address)
+        for csv in files:
+            directory.add_csv(os.path.join(fixtures_root, "csvfiles/{}".format(csv)))
+
+        directory.read()
+        self.assertEqual(expected_item_count, len(directory.items))
+
+        with TemporaryDirectory() as tmpdir:
+            with NamedTemporaryFile() as f:
+                configs = PolypyConfig()
+                configs.set_default_config(f.name)
+                configs.config['paths']['tftproot'] = str(tmpdir)
+
+                directory.save(configs.config)
+
+                with open(os.path.join(tmpdir, mac_address.replace(":", "").replace("-", "").lower().strip() + "-directory.xml"), 'r') as actual_directory_xml:
+                    self.assertEqual(expected_directory_xml, actual_directory_xml.read())
 
 
 if __name__ == '__main__':

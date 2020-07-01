@@ -20,7 +20,7 @@ class Directory:
         self.csv_files.append(csv_file)
 
     def set_mac(self, mac):
-        self.mac_addr = str(mac).replace(":", "").replace("-","").lower().strip()
+        self.mac_addr = str(mac).replace(":", "").replace("-", "").lower().strip()
 
     def add_item(self, item):
         self.items.append(item)
@@ -53,7 +53,7 @@ class Directory:
             csv_reader = csv.reader(csvfile)
             for row in csv_reader:
                 row = [col.strip() for col in row]
-                item = DirectoryItem("SPIP670", row[1], row[0], row[2], "", "", "", "", 0, 0,
+                item = DirectoryItem("SPIP670", row[1], row[0], row[2], row[4], "", "", "", 0, 0,
                                      1 if row[3] == "Yes" else 0, 0)
 
                 self.items.append(item)
