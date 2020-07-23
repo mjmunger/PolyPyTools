@@ -42,6 +42,15 @@ class TestSipResource(unittest.TestCase):
         expected_str = "section: ['[1234]', 'attr1=value1', 'attr2=value2']\nattr1: value1\nattr2: value2"
         self.assertEqual(expected_str, resource.__str__())
 
+    @data_provider(provider_test_init)
+    def test_parse_section(self, section, expected_attributes):
+        expected_section = section[0]
+        resource = SipResource(section)
+        resource.set_attributes()
+        resource.section = expected_section
+
+
+
 
 if __name__ == '__main__':
     unittest.main()

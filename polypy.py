@@ -26,6 +26,9 @@ import subprocess
 import os
 from docopt import docopt
 
+from poly_py_tools.polypy_config import PolypyConfig
+
+
 def show_version():
     execution_dir = os.getcwd()
     working_dir = os.path.dirname(os.readlink("/usr/local/bin/polypy")) if os.path.exists(
@@ -45,13 +48,25 @@ if __name__ == '__main__':
 
     args = docopt(__doc__, options_first=True)
 
+    config = PolypyConfig()
+    config.add_search_path(os.getcwd())
+    config.add_search_path("/etc/polypy")
+    if not config.find():
+        print("Could not find polypy.conf. Perhaps you need to run set-defaults?")
+        print("PolyPyTools has not been configured. Run polypy configure!")
+        exit(1)
+    config.load()
+
     if args['-d']:
         t = "{}: {}"
         print("Debug mode enabled")
         print("")
         print("args:")
         print(args)
+        print("configs:")
+        print(config)
 
+    args['config'] = config
     argv = [args['<command>']] + args['<args>']
 
     if args['<command>'] == 'version':
@@ -62,7 +77,7 @@ if __name__ == '__main__':
         docopt(polypy_configure.__doc__, argv=argv)
 
     if args['<command>'] == 'provision':
-        from poly_py_tools import provision
+        from poly_py_tools.provision import provision
         docopt(provision.__doc__, argv=argv)
 
     if args['<command>'] == 'sip':

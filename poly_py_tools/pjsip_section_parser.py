@@ -15,6 +15,12 @@ class PjSipSectionParser:
         new_section = False
 
         for line in buffer:
+
+            hidden_attributes = [";mac"]
+            for attribute in hidden_attributes:
+                if line.startswith(attribute):
+                    line = line[1:]
+
             if line.startswith(";"):
                 continue
 

@@ -21,6 +21,7 @@ class SiteWriter:
     nat_ip = None
     nat_media_start_port = None
     nat_signal_port = None
+    nat_interval = None
 
     def __init__(self, configs, args):
         self.args = args
@@ -118,6 +119,7 @@ class SiteWriter:
         nat_node.setAttribute("nat.ip", self.nat_ip)
         nat_node.setAttribute("nat.mediaStartPort", self.nat_media_start_port)
         nat_node.setAttribute("nat.signalPort", self.nat_signal_port)
+        nat_node.setAttribute("nat.keepalive.interval", self.nat_interval)
 
         self.save_cfg('sip-interop.cfg', sip_interop)
 

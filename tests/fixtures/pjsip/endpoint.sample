@@ -6,6 +6,7 @@ allow=ulaw
 transport=simpletrans
 auth=auth6001
 aors=6001
+;mac=0004f23a43bf
 
 [6002]
 type=endpoint

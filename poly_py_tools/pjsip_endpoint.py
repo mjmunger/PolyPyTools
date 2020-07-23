@@ -88,6 +88,7 @@ class Endpoint(SipResource):
     set_var = None
     message_context = None
     accountcode = None
+    mac = None
 
     def set_attributes(self):
         self.process_exceptions()
