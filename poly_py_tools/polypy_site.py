@@ -80,7 +80,7 @@ if args['setup'] and args['nat']:
     if args['--signalPort'] is not None:
         writer.nat_signal_port = "5060"
 
-    writer.nat_interval = args['<interval>']
+    writer.nat_interval = args['--keepalive']
     writer.setup_nat()
 
 if args['setup'] and args['password']:
