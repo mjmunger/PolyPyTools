@@ -31,7 +31,7 @@ if args['-d']:
     print("--------------------------------------------------")
 
 factory = ProvisionFactory()
-runner = factory.getRunner(args)
+runner = factory.get_runner(args)
 runner.run()
 # config_finder = ConfigFinder()
 # configs = config_finder.get_configs()
