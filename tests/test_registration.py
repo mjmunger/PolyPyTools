@@ -1,6 +1,6 @@
 import unittest
 from unittest_data_provider import data_provider
-from poly_py_tools.pjsip_registration import Registration
+from poly_py_tools.pjsip.registration import Registration
 
 
 class TestRegistration(unittest.TestCase):

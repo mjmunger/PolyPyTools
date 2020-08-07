@@ -1,7 +1,7 @@
 import os
 
-from poly_py_tools.pjsip_resource_factory import SipResourceFactory
-from poly_py_tools.pjsip_section_parser import PjSipSectionParser
+from poly_py_tools.pjsip.resource_factory import SipResourceFactory
+from poly_py_tools.pjsip.section_parser import PjSipSectionParser
 
 
 class ProvisionLister:
@@ -14,9 +14,10 @@ class ProvisionLister:
         self.config = args['config']
 
     def run(self):
-        parser = PjSipSectionParser(os.path.join(self.config['paths']['asterisk'], 'pjsip.conf'))
-        parser.parse()
+
         factory = SipResourceFactory()
+        parser = PjSipSectionParser(os.path.join(self.config['paths']['asterisk'], 'pjsip.conf'), factory)
+        parser.parse()
         print("Endpoints found in pjsip.conf:")
         for section in parser.sections:
             if factory.extract_type(section) == "endpoint":

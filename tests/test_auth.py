@@ -1,6 +1,6 @@
 import unittest
 from unittest_data_provider import data_provider
-from poly_py_tools.pjsip_auth import Auth
+from poly_py_tools.pjsip.auth import Auth
 
 
 class TestAuth(unittest.TestCase):

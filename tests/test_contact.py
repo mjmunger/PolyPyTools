@@ -1,6 +1,6 @@
 import unittest
 from unittest_data_provider import data_provider
-from poly_py_tools.pjsip_contact import Contact
+from poly_py_tools.pjsip.contact import Contact
 
 
 class TestContact(unittest.TestCase):

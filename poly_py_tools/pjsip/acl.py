@@ -1,4 +1,4 @@
-from poly_py_tools.pjsip_resource import SipResource
+from poly_py_tools.pjsip.resource import SipResource
 
 
 class Acl(SipResource):

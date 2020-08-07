@@ -1,6 +1,6 @@
 import unittest
 from unittest_data_provider import data_provider
-from poly_py_tools.pjsip_acl import Acl
+from poly_py_tools.pjsip.acl import Acl
 
 
 class TestAor(unittest.TestCase):

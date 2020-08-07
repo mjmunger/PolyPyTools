@@ -1,6 +1,6 @@
 import unittest
 from unittest_data_provider import data_provider
-from poly_py_tools.pjsip_domain_alias import DomainAlias
+from poly_py_tools.pjsip.domain_alias import DomainAlias
 
 
 class TestDomainAlias(unittest.TestCase):

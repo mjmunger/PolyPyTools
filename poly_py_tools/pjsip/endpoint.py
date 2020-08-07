@@ -1,4 +1,4 @@
-from poly_py_tools.pjsip_resource import SipResource
+from poly_py_tools.pjsip.resource import SipResource
 
 
 class Endpoint(SipResource):
@@ -89,10 +89,36 @@ class Endpoint(SipResource):
     message_context = None
     accountcode = None
     mac = None
+    model = None
+    template = None
+    registrations = [] # This is an alternate shorthand for AORs because AORs are the registrations associated with an endpoint.
+    authorizations = [] # Holds Auth objects for this endpoint.
+    addresses = [] # Holds aors (Aor records) for this endpoint.
+    sip_proxy = None
 
+    def use_proxy(self, proxy):
+        self.sip_proxy = proxy
+
+    def add_registration(self, aor):
+        self.registrations.append(aor)
+        
     def set_attributes(self):
         self.process_exceptions()
         super().set_attributes()
+        self.parse_template()
+
+    def parse_template(self):
+        for line in self.section:
+            if not line.startswith("["):
+                continue
+
+            if not "(" in line or ")" not in line:
+                continue
+
+            line = str(line)
+            start = line.find("(")
+            stop = line.find(")")
+            self.template = line[start + 1:stop].strip()
 
     def process_exceptions(self):
         exceptions = {"100rel": "rel_100"}
@@ -100,3 +126,22 @@ class Endpoint(SipResource):
         for exception in exceptions:
             self.section = [x.replace(exception, exceptions[exception]) for x in self.section]
 
+    def load_aors(self, resources):
+        my_aor_list = self.aors.split(",")
+        my_aor_list = [s.strip() for s in my_aor_list]
+
+        for resource in resources:
+            if not resource.type == 'aor':
+                continue
+            if resource.section_name in my_aor_list:
+                self.addresses.append(resource)
+
+    def load_auths(self, resources):
+        my_auth_list = self.auth.split(",")
+        my_auth_list = [s.strip() for s in my_auth_list]
+
+        for resource in resources:
+            if not resource.type == 'auth':
+                continue
+            if resource.section_name in my_auth_list:
+                self.authorizations.append(resource)

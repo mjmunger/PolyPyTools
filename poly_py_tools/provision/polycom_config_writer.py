@@ -1,4 +1,6 @@
 from xml.dom import minidom
+from xml.dom.minidom import Document
+
 from poly_py_tools.config_writer import ConfigWriter
 import os
 import sys
@@ -15,6 +17,8 @@ class PolycomConfigWriter(ConfigWriter):
     phone_config_dir = None
     phone_config = None
     debug_mode = False
+    firmware_dir = None
+    model_meta = None
 
     def set_debug_mode(self, debug_mode):
         if debug_mode is False:
@@ -23,27 +27,21 @@ class PolycomConfigWriter(ConfigWriter):
         self.debug_mode = True
         self.verbosity = 10
 
-    def log(self, message, minimum_level=1):
-        if self.verbosity < minimum_level:
-            return True
-
-        print("%s" % message)
-
-    def set_verbosity(self, level):
-        self.verbosity = level
-        self.log("Verbosity set to: %s" % level)
-
     def set_path(self):
 
         paths = self.configs['paths']
         self.tftproot = paths['tftproot']
-        self.config_dir = os.path.join(self.tftproot, "Config")
+        self.firmware_dir = os.path.join(self.tftproot, "firmware/{}".format(self.model_meta.get_firmware_version(self.device.model)))
+        self.config_dir = os.path.join(self.firmware_dir, "Config")
         self.config_template = os.path.join(self.config_dir, 'reg-basic.cfg')
-        self.phone_boostrap_file = os.path.join(self.tftproot, self.device.mac_address + ".cfg")
+        self.phone_boostrap_file = os.path.join(self.tftproot, self.device.mac + ".cfg")
 
-        self.phone_config_dir = self.tftproot if self.device.registrations[0].site is None else os.path.join(self.tftproot, self.device.registrations[0].site)
-        self.phone_config = os.path.join(self.phone_config_dir, self.device.mac_address)
+        self.phone_config_dir = self.tftproot if self.device.template is None else os.path.join(self.tftproot, self.device.template)
+        self.phone_config = os.path.join(self.phone_config_dir,  self.device.mac)
 
+    def load(self, model_meta):
+        self.model_meta = model_meta
+        
     def get_config(self):
         xmldoc = minidom.parse(self.config_template)
         itemlist = xmldoc.getElementsByTagName('reg')
@@ -55,7 +53,7 @@ class PolycomConfigWriter(ConfigWriter):
 
         self.log("%s registrations sorted." % len(self.device.registrations), 1)
         for registration in self.device.registrations:
-            self.log("Writing Registration {} for {}".format(registration.extension, self.device.mac_address), 1)
+            self.log("Writing Registration {} for {}".format(registration.extension, self.device.mac), 1)
             count = count + 1
             for s in itemlist:
                 s.attributes['reg.{}.address'.format(count)] = '{}@{}'.format(registration.extension, self.configs['server_addr'])
@@ -68,56 +66,80 @@ class PolycomConfigWriter(ConfigWriter):
 
         return output
 
-    def get_cfg(self):
+    def get_cfg_application_element(self):
+        return "APPLICATION_{}".format(self.device.model)
 
-        xmldoc = minidom.parse(os.path.join(self.tftproot, '000000000000.cfg'))
+    def get_file_path_attribute(self):
+        return "APP_FILE_PATH_{}".format(self.device.model)
 
-        app = xmldoc.getElementsByTagName('APPLICATION')
+    def get_config_file_attribute(self):
+        return "CONFIG_FILES_{}".format(self.device.model)
 
+    def get_app_file_path(self):
+        return "firmware/{}/{}.sip.ld".format(self.model_meta.get_firmware_version(self.device.model), self.model_meta.get_part(self.device.model))
+
+    def get_cfg(self) -> Document:
+
+        xmldoc = minidom.parse(os.path.join(self.firmware_dir, '000000000000.cfg'))
+
+        app = xmldoc.getElementsByTagName(self.get_cfg_application_element())
+
+        if not app:
+            app = xmldoc.getElementsByTagName("APPLICATION")[0]
+            child = xmldoc.createElement(self.get_cfg_application_element())
+            app.appendChild(child)
+            app = xmldoc.getElementsByTagName(self.get_cfg_application_element())
+
+        for a in app:
+            a.attributes[self.get_config_file_attribute()] = self.assemble_config_file_list()
+            a.attributes[self.get_file_path_attribute()] = self.get_app_file_path()
+
+        return xmldoc
+
+    def assemble_config_file_list(self):
         # Assemble config file list
         files = ['site.cfg', 'sip-interop.cfg', 'features.cfg', 'sip-basic.cfg', 'reg-advanced.cfg']
         paths = []
-
         for f in files:
-            if self.device.registrations[0].site is None:
+            if self.device.template is None:
                 path = f
             else:
-                path = "%s/%s" % (self.device.registrations[0].site, f)
+                path = "%s/%s" % (self.device.template, f)
 
             paths.append(path)
 
         # Add the last one.
-        if self.device.registrations[0].site is None:
-            config = self.device.mac_address
+
+        if self.device.template is None:
+            config = self.device.mac
         else:
-            config = "%s/%s" % (self.device.registrations[0].site, self.device.mac_address)
+            config = "%s/%s" % (self.device.template, self.device.mac)
 
         paths.append(config)
-
         setting = ", ".join(paths)
+        return setting
 
-        for a in app:
-            a.attributes['CONFIG_FILES'] = setting
+    def write_bootstrap_file(self):
+        try:
+            f = open(self.phone_boostrap_file, 'w')
+        except PermissionError:
+            print("I don't have write access for %s. Check file permissions and try again." % self.phone_boostrap_file)
+            return False
+        f.close()
+        self.get_cfg().write()
 
-        return xmldoc.toxml()
-
-    def write_config(self):
+    def write_phone_config(self):
         if not os.path.exists(self.phone_config_dir):
             try:
                 os.mkdir(self.phone_config_dir)
             except Exception:
                 self.log("Could not create %s" % self.phone_config_dir)
-                sys.exit(1)
 
-        try:
-            f = open(self.phone_boostrap_file, 'w')
-        except PermissionError:
-            print("I don't have write access for %s. Check file permissions and try again." % self.phone_boostrap_file)
-            exit(1)
+    def write_config(self):
 
         self.log("Writing bootstrap file: %s" % self.phone_boostrap_file, 1)
-        f.write(self.get_cfg())
-        f.close()
+        self.write_bootstrap_file()
+
 
         self.log("Writing phone config: %s" % self.phone_config, 1)
         f = open(self.phone_config, 'w')

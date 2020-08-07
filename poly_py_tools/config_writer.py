@@ -12,8 +12,6 @@ class ConfigWriter:
         self.device = device
 
     def use_configs(self, configs):
-        if self.verbosity > 9:
-            print(configs)
         self.configs = configs
 
     def set_verbosity(self, level):

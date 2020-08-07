@@ -1,11 +1,12 @@
-from poly_py_tools.pjsip_endpoint import Endpoint
-from poly_py_tools.pjsip_transport import Transport
-from poly_py_tools.pjsip_auth import Auth
-from poly_py_tools.pjsip_aor import Aor
-from poly_py_tools.pjsip_registration import Registration
-from poly_py_tools.pjsip_domain_alias import DomainAlias
-from poly_py_tools.pjsip_acl import Acl
-from poly_py_tools.pjsip_contact import Contact
+from poly_py_tools.pjsip.endpoint import Endpoint
+from poly_py_tools.pjsip.transport import Transport
+from poly_py_tools.pjsip.auth import Auth
+from poly_py_tools.pjsip.aor import Aor
+from poly_py_tools.pjsip.registration import Registration
+from poly_py_tools.pjsip.domain_alias import DomainAlias
+from poly_py_tools.pjsip.acl import Acl
+from poly_py_tools.pjsip.contact import Contact
+
 
 class SipResourceFactory:
 

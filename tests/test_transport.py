@@ -1,6 +1,6 @@
 import unittest
 from unittest_data_provider import data_provider
-from poly_py_tools.pjsip_transport import Transport
+from poly_py_tools.pjsip.transport import Transport
 
 
 class TestTransport(unittest.TestCase):

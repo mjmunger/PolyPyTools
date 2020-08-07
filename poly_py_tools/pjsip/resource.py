@@ -1,6 +1,9 @@
 class SipResource:
 
     section = None
+    section_name = None
+    type = None
+
     # These are for testing only.
     attr1 = None
     attr2 = None
@@ -10,6 +13,14 @@ class SipResource:
 
     def set_attributes(self):
         for line in self.section:
+            if line is None:
+                continue
+
+            if "[" in line and "]" in line:
+                start = str(line).find("[") + 1
+                end = str(line).find("]")
+                self.section_name = line[start:end]
+                
             if not "=" in line:
                 continue
 

@@ -25,6 +25,7 @@ class Entry:
     group_dial = None
     site = None
     configs = None
+    order = None
 
     def __init__(self, configs : PolypyConfig):
 

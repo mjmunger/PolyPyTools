@@ -1,4 +1,4 @@
-from poly_py_tools.pjsip_resource import SipResource
+from poly_py_tools.pjsip.resource import SipResource
 
 
 class Aor(SipResource):
@@ -14,3 +14,5 @@ class Aor(SipResource):
     authenticate_qualify = None
     outbound_proxy = None
     support_path = None
+    label = None
+    order = None

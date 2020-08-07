@@ -1,6 +1,6 @@
 import unittest
 from unittest_data_provider import data_provider
-from poly_py_tools.pjsip_aor import Aor
+from poly_py_tools.pjsip.aor import Aor
 
 
 class TestAor(unittest.TestCase):
@@ -21,7 +21,7 @@ class TestAor(unittest.TestCase):
         for attribute in expected_attributes:
             expected_value = expected_attributes[attribute]
             actual_value = getattr(aor, attribute)
-            self.assertEqual(expected_value, actual_value, "auth.{} should be {}. Got {} instead.".format(attribute, expected_value, actual_value))
+            self.assertEqual(expected_value, actual_value, "aor.{} should be {}. Got {} instead.".format(attribute, expected_value, actual_value))
 
 
 if __name__ == '__main__':

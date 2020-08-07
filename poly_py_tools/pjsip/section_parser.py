@@ -1,9 +1,17 @@
+from poly_py_tools.pjsip.resource_factory import SipResourceFactory
+
+
 class PjSipSectionParser:
 
     conf_file = None
-    sections = []
+    sections = None
+    resources = None
+    factory = None
 
-    def __init__(self, conf_file):
+    def __init__(self, conf_file, factory: SipResourceFactory):
+        self.factory = factory
+        self.sections = []
+        self.resources = []
         self.conf_file = conf_file
 
     def parse(self):
@@ -16,7 +24,7 @@ class PjSipSectionParser:
 
         for line in buffer:
 
-            hidden_attributes = [";mac"]
+            hidden_attributes = [";mac", ";model", ";label", ";order"]
             for attribute in hidden_attributes:
                 if line.startswith(attribute):
                     line = line[1:]
@@ -39,6 +47,13 @@ class PjSipSectionParser:
             section_buffer.append(line)
 
         self.flush(section_buffer)
+
+        for section in self.sections:
+            object = self.factory.create(section)
+            if object is None:
+                continue
+            object.set_attributes()
+            self.resources.append(object)
 
     def flush(self, buffer):
         if len(buffer) == 0:
@@ -63,3 +78,13 @@ class PjSipSectionParser:
         buffer = list(filter(len, buffer))
         return buffer
 
+    def get_endpoint(self, target_mac):
+        for resource in self.resources:
+            if resource is None:
+                continue
+
+            if not resource.type == 'endpoint':
+                continue
+
+            if resource.type == 'endpoint' and resource.mac == target_mac:
+                return resource

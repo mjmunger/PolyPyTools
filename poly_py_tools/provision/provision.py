@@ -17,10 +17,10 @@ import sys
 import os
 import json
 
+from poly_py_tools.polypy_config_finder import ConfigFinder
 from poly_py_tools.provision_factory import ProvisionFactory
 
 args = docopt(__doc__)
-print(args)
 debug_mode = False
 
 if args['-d']:
@@ -29,6 +29,10 @@ if args['-d']:
     print("--------------------------------------------------")
     print(args)
     print("--------------------------------------------------")
+
+config_finder = ConfigFinder()
+configs = config_finder.get_configs()
+args['config'] = configs
 
 factory = ProvisionFactory()
 runner = factory.get_runner(args)

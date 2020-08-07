@@ -17,7 +17,7 @@ options:
 
 from pprint import pprint
 from docopt import docopt
-from poly_py_tools.polycom_config import PolycomConfig
+from poly_py_tools.provision.polycom_config import PolycomConfig
 from poly_py_tools.polypy_config_finder import ConfigFinder
 
 args = docopt(__doc__)

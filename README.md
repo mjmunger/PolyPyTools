@@ -33,21 +33,72 @@ To setup a local `polypy.conf` file, execute the following receipe:
 1. `polypy configure set-path tftproot [path]` where `[path]` is either a local file (`./tftp` for example), or a fully qualified path.
 1. `polypy configure show` to verify the paths and settings.
 
-### provision
+### Provisioning a site
 
-Command: `polypy provision polycom`
+Polypy expects that you create a `polypy.conf` config file that is kept in the same directory as the CSV from which you are provisioning phones. It will read that file to produce a file structure that a web server or tftp server can use to provision phones.
 
-This command helps you provision Polycom phones and maintain decent security on those phones. You can:
-1. Provision one or more extensions as defined in sip.conf to a single phone.
-1. Provision all phones defined in sip.conf.
-1. List all the devices that are found in sip.conf
-1. Show a particular extension
-1. Clean a particiular extension
-1. Swap two extensions (really useful when Bob and Alice want to swap phones).
-1. Audit passwords
-1. Reset a password for an extension.
+#### Notes on firmware:
+If you have correctly added the model to your endpoint definitions, polypy will choose the appropriate firmware for loading `000000000000.cfg` and `reg-basic`. It assumes that the `APPLICATION_SPIP[MODEL]` elements and attributes of that file are not to be used except in the case of manual overrides. Therefore, it will configure `APPLICATION APP_FILE_PATH` to a value for that phone with the firmware it should be using. For example, `APPLICATION APP_FILE_PATH="org-example-east/2233-12345674-001.ld"`. 
 
-### sip
+Polypy also assumes you are using **split** firmware.   
 
-This command generates device entries for `sip.conf` and (optionally) voicemail entries for `voicemail.conf`.
-See command help: `polypy sip` for more commands and details.
+#### How to provision a site:
+1. Upload the dialplan csv to `/root/clients/org-example/`
+1. Use `polypy configure` to setup the `polypy.conf` file so that polypy can:
+- Know where to find the `Config` folder in the firmware for the model phone you have. It will use this to write configs for that phone. 
+- Know where to save the bootstrap file (in the root of the tftp directory or www directory)
+- Know how to assemble the path to the site files, which are under the root.
+
+#### How to order registrations
+
+Registrations are created from three sections: endpoint, auth, and aor. As the parser reads the CSV, if multiple entries have the same mac address, those entries are assumed to be for the same physical phone. As such, they will be combined into a single `endpoint` section in the resulting pjsip.conf, which will have corresponding `auth` and `aors` options.
+
+When that endpoint is provisioned, the registrations will be generated from those `aors` and `auth` option values.
+
+It's important to note: the order for the `auth` and `aors` options *must be the same*!
+
+Example:
+
+The values in the table below will produce:
+- 1 endpoint record
+- 2 aor records
+- 2 auth records
+
+|Extension |Voicemail |Device |MAC         |Email            |site             |callerid|label|order|
+|----------|----------|-------|------------|-----------------|-----------------|--------|-----|-----|
+|101       |101@testvm|SPIP670|0004f23a626f|user1@example.org|place.example.org|101     |101  |2    |
+|102       |101@testvm|SPIP670|0004f23a626f|user1@example.org|place.example.org|102     |102  |1    |
+ 
+```
+[0004f23a626f]
+type=endpoint
+context=internal
+disallow=all
+allow=ulaw
+auth=auth0004f23a626f102,auth0004f23a626f101
+aors=0004f23a626f102,0004f23a626f101
+
+[0004f23a626f101]
+type=aor
+max_contacts=1
+
+[0004f23a626f102]
+type=aor
+max_contacts=1
+
+[auth0004f23a626f101]
+type=auth
+auth_type=userpass
+username=0004f23a626f101
+password=mHQFrPS
+
+[auth0004f23a626f102]
+type=auth
+auth_type=userpass
+username=0004f23a626f102
+password=CUzouRiNfNVRw
+
+```
+When these registrations are added to the phone configuration file (generated from `reg-basic.cfg`), they will be added in the order they are listed in the directives. (Notice the `aors` record shows the line that ends in `102` before it shows the line that ends in `101`. This is because the order in the spreadsheet shows that the `102` line should be registration #1, and the `101` line should be registration #2.)
+
+ 
