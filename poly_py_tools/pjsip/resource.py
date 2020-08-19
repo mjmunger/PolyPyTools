@@ -10,6 +10,8 @@ class SipResource:
 
     def __init__(self, section):
         self.section = section
+        self.section_name = None
+        self.type = None
 
     def set_attributes(self):
         for line in self.section:

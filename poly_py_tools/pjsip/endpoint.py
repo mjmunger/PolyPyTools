@@ -1,4 +1,8 @@
+from xml.dom import minidom
+from xml.etree import ElementTree
+
 from poly_py_tools.pjsip.resource import SipResource
+from poly_py_tools.provision.polycom_registration import PolycomRegistration
 
 
 class Endpoint(SipResource):
@@ -96,11 +100,20 @@ class Endpoint(SipResource):
     addresses = [] # Holds aors (Aor records) for this endpoint.
     sip_proxy = None
 
+    def __init__(self, section):
+        self.registrations = []
+        self.authorizations = []
+        self.addresses = []
+        super().__init__(section)
+
     def use_proxy(self, proxy):
         self.sip_proxy = proxy
 
-    def add_registration(self, aor):
-        self.registrations.append(aor)
+    def add_aor(self, aor):
+        self.addresses.append(aor)
+
+    def add_registration(self, registration: PolycomRegistration):
+        self.registrations.append(registration)
         
     def set_attributes(self):
         self.process_exceptions()
@@ -129,19 +142,99 @@ class Endpoint(SipResource):
     def load_aors(self, resources):
         my_aor_list = self.aors.split(",")
         my_aor_list = [s.strip() for s in my_aor_list]
+        unsorted_aors = []
 
         for resource in resources:
             if not resource.type == 'aor':
                 continue
+
             if resource.section_name in my_aor_list:
-                self.addresses.append(resource)
+                resource.order = int(resource.order)
+                unsorted_aors.append(resource)
+
+        max_index = 0
+
+        for aor in unsorted_aors:
+            if aor.order > max_index:
+                max_index = aor.order
+
+        first_index = max_index
+        for aor in unsorted_aors:
+            if aor.order < first_index:
+                first_index = aor.order
+
+        for i in range(first_index, max_index+1):
+            for aor in unsorted_aors:
+                if aor.order == i:
+                    self.addresses.append(aor)
+
 
     def load_auths(self, resources):
-        my_auth_list = self.auth.split(",")
-        my_auth_list = [s.strip() for s in my_auth_list]
+        # my_auth_list = self.auth.split(",")
+        # my_auth_list = [s.strip() for s in my_auth_list]
+        #
+        # for resource in resources:
+        #     if not resource.type == 'auth':
+        #         continue
+        #
+        #     if resource.section_name in my_auth_list:
+        #         self.authorizations.append(resource)
 
-        for resource in resources:
-            if not resource.type == 'auth':
-                continue
-            if resource.section_name in my_auth_list:
-                self.authorizations.append(resource)
+        if len(self.addresses) == 0:
+            raise ValueError("No addresses (AORs) registered for endpoint. Be sure to run load_aors() first.")
+
+        for aor in self.addresses:
+            for resource in resources:
+                if not resource.type == 'auth':
+                    continue
+                if resource.section_name == "auth{}".format(aor.section_name):
+                    self.authorizations.append(resource)
+
+    def hydrate_registrations(self):
+        if len(self.authorizations) != len(self.addresses):
+            raise ValueError("Authorization count and address count must be the same.")
+
+        for x in range(0, len(self.authorizations)):
+            auth = self.authorizations[x]
+            aor = self.addresses[x]
+
+            reg = PolycomRegistration()
+            reg.set_sip_server(self.sip_proxy)
+            reg.set_aor(aor)
+            reg.set_auth(auth)
+            reg.hydrate()
+            self.registrations.append(reg)
+
+    def basic_cfg(self, path_to_basic_cfg):
+        xml = ElementTree.ElementTree()
+        xml.parse(path_to_basic_cfg)
+        root = xml.getroot()
+
+        counter = 0
+        attribs = {}
+
+        for reg in self.registrations:
+            counter = counter + 1
+
+            tag = "reg.{}.address".format(counter)
+            attribs[tag] = reg.registration_address
+
+            tag = "reg.{}.auth.password".format(counter)
+            attribs[tag] = reg.password
+
+            tag = "reg.{}.auth.userId".format(counter)
+            attribs[tag] = reg.auth.username
+
+            tag = "reg.{}.label".format(counter)
+            attribs[tag] = reg.label
+
+        reg_node = root.find("reg")
+        reg_node.attrib = attribs
+
+        return ElementTree.tostring(root)
+
+
+
+
+
+

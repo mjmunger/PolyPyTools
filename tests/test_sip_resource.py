@@ -6,7 +6,7 @@ from poly_py_tools.pjsip.resource import SipResource
 class TestSipResource(unittest.TestCase):
 
     provider_test_init = lambda : (
-        (["[1234]", "attr1=value1", "attr2=value2"], {"attr1":"value1", "attr2":"value2"}, "1234"),
+        (["[1234]", "attr1=value1", "attr2=value2", "type=typevalue"], {"attr1":"value1", "attr2":"value2", "type": "typevalue"}, "1234"),
     )
 
     provider_fail_test_init = lambda : (
@@ -40,7 +40,7 @@ class TestSipResource(unittest.TestCase):
     def test_str(self, section, expected_attributes, expected_section_name):
         resource = SipResource(section)
         resource.set_attributes()
-        expected_str = "section: ['[1234]', 'attr1=value1', 'attr2=value2']\nsection_name: 1234\nattr1: value1\nattr2: value2"
+        expected_str = "section: ['[1234]', 'attr1=value1', 'attr2=value2', 'type=typevalue']\nsection_name: 1234\ntype: typevalue\nattr1: value1\nattr2: value2"
         self.assertEqual(expected_str, resource.__str__())
 
     @data_provider(provider_test_init)

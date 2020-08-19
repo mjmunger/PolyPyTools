@@ -1,3 +1,4 @@
+from poly_py_tools.pjsip.aor import Aor
 from poly_py_tools.pjsip.resource import SipResource
 
 
@@ -15,3 +16,4 @@ class Registration(SipResource):
     transport = None
     type = None
     support_path = None
+

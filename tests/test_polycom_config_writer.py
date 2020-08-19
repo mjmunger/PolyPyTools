@@ -1,5 +1,6 @@
 import unittest
 import os
+from pprint import pprint
 from xml.dom import minidom
 # from xml.dom import Attr
 from xml.dom.minidom import Element
@@ -185,8 +186,8 @@ class TestPolycomConfigWriter(unittest.TestCase):
         aor1 = Aor("section1")
         aor2 = Aor("section2")
 
-        endpoint.add_registration(aor1)
-        endpoint.add_registration(aor2)
+        endpoint.add_aor(aor1)
+        endpoint.add_aor(aor2)
 
         writer = PolycomConfigWriter()
         # writer.use_configs(self.create_config_tuples())
@@ -210,8 +211,8 @@ class TestPolycomConfigWriter(unittest.TestCase):
         aor1 = Aor("section1")
         aor2 = Aor("section2")
 
-        endpoint.add_registration(aor1)
-        endpoint.add_registration(aor2)
+        endpoint.add_aor(aor1)
+        endpoint.add_aor(aor2)
 
         config = TestPolycomConfigWriter.provider_test_set_paths()[0][0]
         config['paths']['tftproot'] = os.path.join(os.path.dirname(__file__), "fixtures/fs/")
@@ -236,33 +237,4 @@ class TestPolycomConfigWriter(unittest.TestCase):
         actual_app_file_path_attribute = app.attributes[expected_file_path_attribute]
         self.assertIsInstance(actual_app_file_path_attribute, Attr)
         self.assertEqual(expected_firmware_app, actual_app_file_path_attribute.value)
-
-    def test_get_phone_config(self):
-
-        factory = SipResourceFactory()
-        parser = PjSipSectionParser(os.path.join(os.path.dirname(__file__), "fixtures/pjsip/pjsip-multiple-registrations.conf"), factory)
-        parser.parse()
-
-        target_mac = "0004f23a626f"
-        sip_proxy = "33e9a719-de6e-4191-944f-601500b50b6e"
-        expected_reg_1_address = '102@33e9a719-de6e-4191-944f-601500b50b6e'
-        expected_reg_1_password = 'CUzouRiNfNVRw'
-        expected_reg_1_userId = '0004f23a626f102'
-        expected_reg_1_extension = ''
-        expected_reg_2_address = '101@33e9a719-de6e-4191-944f-601500b50b6e'
-
-        endpoint = parser.get_endpoint(target_mac)
-        self.assertIsInstance(endpoint, Endpoint)
-        self.assertEqual(target_mac, endpoint.mac)
-
-        endpoint.load_aors(parser.resources)
-        endpoint.load_auths(parser.resources)
-        endpoint.use_proxy(sip_proxy)
-        registration = endpoint.get_registration()
-        self.assertEqual(expected_reg_1_address, registration.address)
-        self.assertEqual(expected_reg_1_password, registration.password)
-
-        self.assertEqual(2, len(endpoint.authorizations))
-        self.assertEqual(2, len(endpoint.addresses))
-
 
