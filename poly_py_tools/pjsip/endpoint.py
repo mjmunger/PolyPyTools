@@ -1,7 +1,10 @@
+import os
+
 from xml.dom import minidom
 from xml.etree import ElementTree
 
 from poly_py_tools.pjsip.resource import SipResource
+from poly_py_tools.provision.model_meta import ModelMeta
 from poly_py_tools.provision.polycom_registration import PolycomRegistration
 
 
@@ -205,9 +208,12 @@ class Endpoint(SipResource):
             reg.hydrate()
             self.registrations.append(reg)
 
-    def basic_cfg(self, path_to_basic_cfg):
+    def basic_cfg_path(self, meta: ModelMeta, tftproot):
+        return os.path.join(tftproot, "firmware/{}/Config/reg-basic.cfg".format(meta.get_firmware_version(self.model)))
+
+    def basic_cfg(self, meta: ModelMeta, tftproot):
         xml = ElementTree.ElementTree()
-        xml.parse(path_to_basic_cfg)
+        xml.parse(self.basic_cfg_path(meta, tftproot))
         root = xml.getroot()
 
         counter = 0
@@ -233,8 +239,39 @@ class Endpoint(SipResource):
 
         return ElementTree.tostring(root)
 
+    def bootstrap_cfg_path(self, meta: ModelMeta, tftproot):
+        return os.path.join(tftproot, "firmware/{}/000000000000.cfg".format(meta.get_firmware_version(self.model)))
 
+    def bootstrap_cfg(self, meta: ModelMeta, tftproot):
+        xml = ElementTree.ElementTree()
+        xml.parse(self.bootstrap_cfg_path(meta, tftproot))
+        root = xml.getroot()
+        target_node = "APPLICATION_{}".format(self.model)
+        node = root.find(target_node)
 
+        if node is None:
+            app_node = ElementTree.Element(target_node)
+            root.append(app_node)
 
+        attribs = {}
+        attribs["APP_FILE_PATH_{}".format(self.model)] = "firmware/{}/{}.ld".format(meta.get_firmware_version(self.model), meta.get_part(self.model))
+        attribs["CONFIG_FILES_{}".format(self.model)] = "{}/{}".format(self.template, self.mac)
+        app_node.attrib = attribs
 
+        return ElementTree.tostring(root, encoding="unicode", method='xml')
 
+    def write_bootstrap(self, meta: ModelMeta, tftproot):
+        target_file = os.path.join(tftproot, "{}.cfg".format(self.mac))
+        element = ElementTree.fromstring(self.bootstrap_cfg(meta, tftproot))
+        ET = ElementTree.ElementTree(element)
+        ET.write(target_file, encoding="us-ascii", method="xml")
+
+    def write_configs(self, meta: ModelMeta, tftproot):
+        target_directory = os.path.join(tftproot, self.template)
+        if not os.path.exists(target_directory):
+            os.makedirs(target_directory)
+
+        target_file = os.path.join(target_directory, self.mac)
+        element = ElementTree.fromstring(self.basic_cfg(meta, tftproot))
+        ET = ElementTree.ElementTree(element)
+        ET.write(target_file, encoding="us-ascii", method="xml")

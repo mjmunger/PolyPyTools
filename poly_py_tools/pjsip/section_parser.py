@@ -1,3 +1,4 @@
+from poly_py_tools.pjsip.endpoint import Endpoint
 from poly_py_tools.pjsip.resource_factory import SipResourceFactory
 
 
@@ -78,7 +79,7 @@ class PjSipSectionParser:
         buffer = list(filter(len, buffer))
         return buffer
 
-    def get_endpoint(self, target_mac):
+    def get_endpoint(self, target_mac) -> Endpoint:
         for resource in self.resources:
             if resource is None:
                 continue

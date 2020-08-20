@@ -1,6 +1,7 @@
 from pprint import pprint
 import sys
 
+
 class ModelMeta(object):
     polycom_dict = {
         "SPIP320": {"part": "2345-12200-002", "current_firmware_version": "3.3.5.0247"},
@@ -43,7 +44,9 @@ class ModelMeta(object):
         for model in self.polycom_dict:
             if model == requested_model:
                 return self.polycom_dict[model]
-        print("The model you requested, {}, is unsupported. Legacy phones without a currently supported version of firmware are not supported.".format(requested_model))
+        print(
+            "The model you requested, {}, is unsupported. Legacy phones without a currently supported version of firmware are not supported.".format(
+                requested_model))
         return False
 
     def get_meta(self, requested_model, meta):

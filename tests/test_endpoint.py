@@ -1,5 +1,7 @@
 import unittest
 import os
+import json
+import shutil
 from xml.dom import minidom
 from xml.etree import ElementTree
 from unittest_data_provider import data_provider
@@ -9,6 +11,7 @@ from poly_py_tools.pjsip.auth import Auth
 from poly_py_tools.pjsip.resource_factory import SipResourceFactory
 from poly_py_tools.pjsip.section_parser import PjSipSectionParser
 from poly_py_tools.pjsip.endpoint import Endpoint
+from poly_py_tools.provision.model_meta import ModelMeta
 
 
 class TestEndpoint(unittest.TestCase):
@@ -371,13 +374,89 @@ class TestEndpoint(unittest.TestCase):
                                           "fixtures/fs/firmware/{}/Config/reg-basic.cfg".format(version))
         self.assertTrue(os.path.exists(reg_basic_cfg_file))
 
-        actual_basic_cfg_xml = endpoint.basic_cfg(reg_basic_cfg_file)
+        tftproot = reg_basic_cfg_file = os.path.join(os.path.dirname(__file__), "fixtures/fs/")
+        meta = ModelMeta()
+        actual_basic_cfg_xml = endpoint.basic_cfg(meta, tftproot)
         actual_basic_cfg_node = ElementTree.fromstring(actual_basic_cfg_xml)
 
         for reg in registrations:
             for tag in reg:
                 value = reg[tag]
                 self.assertEqual(value, actual_basic_cfg_node.find('reg').attrib[tag])
+
+    def test_basic_cfg_path(self):
+
+        f = open(os.path.join(os.path.dirname(__file__), 'fixtures/base_config.json'))
+        configs = json.load(f)
+        configs['paths']['tftproot'] = "/tmp/"
+        configs['paths']['asterisk'] = os.path.join(os.path.dirname(__file__), "fixtures/pjsip/")
+        f.close()
+
+        factory = SipResourceFactory()
+        meta = ModelMeta()
+
+        parser = PjSipSectionParser(
+            os.path.join(os.path.dirname(__file__), "fixtures/pjsip/pjsip.conf"), factory)
+        parser.parse()
+
+        target_mac = "0004f23a43bf"
+
+        ep = parser.get_endpoint(target_mac)
+        ep.set_attributes()
+        ep.load_aors(parser.resources)
+        ep.load_auths(parser.resources)
+        ep.hydrate_registrations()
+
+        expected_firmware_path = os.path.join(configs['paths']['tftproot'], "firmware/4.0.15.1009/Config/reg-basic.cfg")
+        self.assertEqual(expected_firmware_path, ep.basic_cfg_path(meta, configs['paths']['tftproot']))
+
+    def test_bootstrap_cfg(self):
+        f = open(os.path.join(os.path.dirname(__file__), 'fixtures/base_config.json'))
+        configs = json.load(f)
+        configs['paths']['tftproot'] = "/tmp/"
+        configs['paths']['asterisk'] = os.path.join(os.path.dirname(__file__), "fixtures/pjsip/")
+        f.close()
+
+        factory = SipResourceFactory()
+        meta = ModelMeta()
+
+        parser = PjSipSectionParser(
+            os.path.join(os.path.dirname(__file__), "fixtures/pjsip/pjsip.conf"), factory)
+        parser.parse()
+
+        target_mac = "0004f23a43bf"
+
+        ep = parser.get_endpoint(target_mac)
+        ep.set_attributes()
+        ep.load_aors(parser.resources)
+        ep.load_auths(parser.resources)
+        ep.hydrate_registrations()
+
+        expected_bootstrap_path = os.path.join(os.path.dirname(__file__), "fixtures/fs/firmware/4.0.15.1009/expected_bootstrap.cfg")
+        f = open(expected_bootstrap_path, 'r')
+        buffer = f.read()
+        f.close()
+        expected_bootstrap = "".join(buffer)
+
+        src_firmware_path = "/tmp/firmware/4.0.15.1009/"
+
+        if not os.path.exists(src_firmware_path):
+            os.makedirs(src_firmware_path)
+
+        src_bootstrap_cfg = os.path.join(src_firmware_path, "000000000000.cfg")
+
+        if not os.path.exists(src_bootstrap_cfg):
+            original_source = os.path.join(os.path.dirname(__file__), "fixtures/fs/firmware/4.0.15.1009/000000000000.cfg")
+            shutil.copyfile(original_source, src_bootstrap_cfg)
+
+        actual_bootstrap_cfg_xml = ElementTree.fromstring(ep.bootstrap_cfg(meta, configs['paths']['tftproot']))
+        target_node = "APPLICATION_SSIP7000"
+        application_node = actual_bootstrap_cfg_xml.find(target_node)
+
+        self.assertFalse(application_node is None)
+        self.assertTrue(application_node.tag, "APPLICATION_SSIP7000")
+        self.assertEqual("firmware/4.0.15.1009/3111-40000-001.ld", application_node.attrib['APP_FILE_PATH_SSIP7000'])
+        self.assertEqual("some-site-template/0004f23a43bf", application_node.attrib['CONFIG_FILES_SSIP7000'])
 
 
 if __name__ == '__main__':
