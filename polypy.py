@@ -1,14 +1,14 @@
 #!/usr/bin/env python3
 """PolyPy Command Line Provisioning Tool!
-
+ 
 Usage: polypy.py [ -v ... ] [ options ] <command> [ <args> ... ]
-
+ 
 Options:
   -d           Debug mode
   -h           Show this help screen
   -v           Be verbose. Levels 1-10 (or more).
   -f, --force  Do it anyway.
-
+ 
 Commands:
 
   configure  Configure PolyPyTools.
@@ -18,9 +18,9 @@ Commands:
   version    Show the version of this package
   ssl        Configure SSL for a phone.
   deploy     Deploy files rendered to tftproot
-
+ 
 See polypy help <command> for more information with a specific command.
-
+ 
 """
 import subprocess
 import os
