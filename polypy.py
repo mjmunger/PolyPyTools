@@ -27,21 +27,7 @@ import os
 from docopt import docopt
 
 from poly_py_tools.polypy_config import PolypyConfig
-
-
-def show_version():
-    execution_dir = os.getcwd()
-    working_dir = os.path.dirname(os.readlink("/usr/local/bin/polypy")) if os.path.exists(
-        "/usr/local/bin/polypy") else os.getcwd()
-    os.chdir(working_dir)
-    proc = subprocess.Popen(['git', 'describe', '--tags', '--long'], 1024, stdout=subprocess.PIPE)
-    try:
-        outs, errs = proc.communicate(1)
-    except subprocess.TimeoutExpired:
-        proc.kill()
-        outs, errs = proc.communicate(1)
-    program_version = outs.decode("utf-8").strip()
-    print("polypy version: {}".format(program_version))
+from poly_py_tools.versionator import Versionator
 
 
 if __name__ == '__main__':
@@ -70,7 +56,7 @@ if __name__ == '__main__':
     argv = [args['<command>']] + args['<args>']
 
     if args['<command>'] == 'version':
-        show_version()
+        Versionator.show_version()
 
     if args['<command>'] == 'configure':
         from poly_py_tools import polypy_configure
