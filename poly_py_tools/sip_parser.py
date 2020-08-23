@@ -1,7 +1,7 @@
 import re
 from poly_py_tools.template import Template
 from poly_py_tools.registration import Registration
-from poly_py_tools.provision.polycom_phone import PolycomPhone
+# from poly_py_tools.provision.polycom_phone import PolycomPhone
 import uuid
 
 

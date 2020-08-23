@@ -1,0 +1,20 @@
+Usage: polypy configure [ -v ... ] [ options ] set-path <name> <path>
+       polypy configure [ -v ... ] [ options ] set-server <server_addr>
+       polypy configure [ -v ... ] [ options ] show
+       polypy configure [ -v ... ] [ options ] set-defaults [here]
+       polypy configure [ -v ... ] [ options ] validate
+       polypy configure [ -v ... ] [ options ] copy-files <source_path>
+
+  Commands:
+      set-path <name> <path>       Set a path in the config file. Possible values: asterisk, tftproot
+      set-server <server_addr>     Set the SIP server address.
+      show                         Show the current configuration.
+      set-defaults [here]          Create a set of default configs and save them at the config path.
+      validate                     Validate the configuration.
+      copy-files <source_path>     Copies required Polycom files from <source_path> to the tftproot defined in your config.
+
+  Options:
+    -d,            Debug mode
+    -h, --help     Show this help.
+    -v, --verbose  Be verbose
+    -f, --force    Force the setting.
