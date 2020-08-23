@@ -15,11 +15,17 @@ class TestPolypy(unittest.TestCase):
 
     provider_test_polypy_commands = lambda : (
         ({'--force': False,
-          '-d': True,
+          '-d': False,
           '-h': False,
           '-v': 0,
           '<args>': [],
           '<command>': 'sip'}, 'sip_manager.py'),
+        ({'--force': False,
+         '-d': False,
+         '-h': False,
+         '-v': 0,
+         '<args>': [],
+         '<command>': 'provision'}, 'provision/provision.py'),
 
     )
 

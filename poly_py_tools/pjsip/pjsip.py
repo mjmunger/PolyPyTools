@@ -1,6 +1,6 @@
 #!/usr/bin/env python3
 """
-Usage: polypy provision [ -v ... ] [options] polycom <macaddress>
+usage: polypy provision [ -v ... ] [options] polycom <macaddress>
        polypy provision [ -v ... ] [options] list endpoints
        polypy provision [ -v ... ] [options] directory for <macaddress> using <csvfile>...
 
@@ -18,11 +18,11 @@ import os
 import json
 
 from poly_py_tools.polypy_config_finder import ConfigFinder
-from poly_py_tools.provision_factory import ProvisionFactory
+from poly_py_tools.pjsip.sip_factory import SipFactory
 
 args = docopt(__doc__)
 debug_mode = False
-print("asdfadf")
+
 if args['-d']:
     debug_mode = True
     print("Debug mode on. Debugging {}".format(__file__))
@@ -34,6 +34,6 @@ config_finder = ConfigFinder()
 configs = config_finder.get_configs()
 args['config'] = configs
 
-factory = ProvisionFactory()
+factory = SipFactory()
 runner = factory.get_runner(args)
 runner.run()
