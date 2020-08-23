@@ -3,29 +3,3 @@ usage: polypy sip [ -v ... ] [options] configure help
        polypy sip [ -v ... ] [options] configure guess from <file> [ --startrow=<startrow> ] [ --save ]
        polypy sip [ -v ... ] [options] generate <extension> from <file> ([assign <template>] | [ use template column <column> ]) [with voicemail]
        polypy sip [ -v ... ] [options] dump [csv]
-
- sip commands:
-    configure      Create a configuration file that is used to read your CSV data source.
-    generate       Generate one or more sip.conf device definitions from your CSV data source.
-
-    column definitions for the configure command:
-    first=<first>            The column which contains first name of this user.
-    last=<last>              The column which contains last name of this user.
-    exten=<exten>            The column which contains the extension of this user.
-    vm=<vm>                  The column which contains the voicemail mailbox of this user.
-    mac=<mac>                The column which contains the mac address of the phone for this user.
-    email=<email>            The column which contains email address of this user.
-    device=<device>          The column which contains the model of the phone for this user.
-    cid_number=<cid_number>  The caller ID number that should be used for this user.
-    startrow=<startrow>      The row in the csv file that we should start processing. (Ignore rows before this row).
-    priority=<priority>      The registration priority column. If not specified, it will not sort the keys.
-    label=<label>            The registration label. If omitted, the extension will be used.
-
-    Columns may be defined numerically or using A-Z.
-
-options:
-   -d             Debug mode
-   -v             Be verbose
-   -h, --help     Help
-   -r             Regenerate. Truncate sip.conf and pjsip.conf before writing.
-   -f, --force    Force the setting.

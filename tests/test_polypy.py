@@ -5,6 +5,7 @@ import io
 from pprint import pprint
 from unittest.mock import patch
 from docopt import DocoptExit
+from builtins import SystemExit
 from poly_py_tools.docopt_extractor import DocoptExtractor
 from unittest_data_provider import data_provider
 from poly_py_tools.polypy import Polypy
@@ -33,18 +34,10 @@ class TestPolypy(unittest.TestCase):
 
         self.assertEqual(args, polypy.args)
         error_message = doe.docopt(imported_file)
-        with patch("builtins.SystemExit"):
-            with self.assertRaises(DocoptExit) as cm:
-                try:
-                    polypy.run()
-                except DocoptExit:
-                    pass
-                pprint(cm.format_message)
 
-
-
-
-
+        with self.assertRaises(SystemExit) as cm:
+            polypy.run()
+        self.assertEqual(expected_message, str(cm.exception))
 
 
 if __name__ == '__main__':

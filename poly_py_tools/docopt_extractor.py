@@ -19,8 +19,11 @@ class DocoptExtractor():
 
         for line in buffer:
             if line.lower().startswith('"""'):
-                in_docopt = not in_docopt
+                in_docopt = True
                 continue #skip the first line.
+
+            if line.strip() == "":
+                in_docopt = False
 
             if in_docopt:
                 output.append(line)

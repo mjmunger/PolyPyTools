@@ -9,7 +9,10 @@
 1. Install Python 3.7 or higher: `apt install python3 python3-pip`
 1. Install python virtual environment: `pip3 install virtualenv`
 1. Source the environment `source /path/to/PolyPy/venv`
-1. Install: `./install.py`
+1. Install: `./install.py
+
+### Additional libraries needed for development:
+`pip3 install unittest-data-provider`
 
 # Configure Asterisk and Polycoms from a CSV file.
 
