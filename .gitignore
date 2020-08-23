@@ -1,3 +1,4 @@
+venv/*
 poly_py_tools/__pycache__/*
 .idea/*
 directory.csv
