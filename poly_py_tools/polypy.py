@@ -13,3 +13,7 @@ class Polypy(object):
         if self.args['<command>'] == 'sip':
             from poly_py_tools import sip_manager
             docopt(sip_manager.__doc__, argv=argv)
+
+        if self.args['<command>'] == 'provision':
+            from poly_py_tools.provision import provision
+            docopt(provision.__doc__, argv=argv)

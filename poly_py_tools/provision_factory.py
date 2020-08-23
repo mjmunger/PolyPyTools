@@ -1,3 +1,4 @@
+from poly_py_tools.provision.provision_directory import ProvisionDirectory
 from poly_py_tools.provision.provision_polycom import ProvisionPolycom
 from poly_py_tools.provision.provision_lister import ProvisionLister
 
@@ -13,6 +14,11 @@ class ProvisionFactory:
             return ProvisionPolycom(args)
 
         if args['list']:
-            if args['templates'] is True or args['endpoints'] is True or args['all'] is True:
+            if args['endpoints'] is True:
                 return ProvisionLister(args)
+
+        if args['directory']:
+            return ProvisionDirectory(args)
+
+        raise ValueError("Unable to figure out what processor we need to use for this command.")
 
