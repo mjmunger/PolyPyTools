@@ -15,7 +15,7 @@ config_path = '/etc/polypy/'
 share_path = '/usr/share/polypy/'
 local_bin = '/usr/local/bin/'
 
-python_packages = [ 'pip --upgrade' 'docopt' 'requests', 'pwgen_secure']
+python_packages = [ 'pip --upgrade', 'docopt', 'requests', 'pwgen_secure']
 
 commands = []
 commands.append("apt update".split(" "))

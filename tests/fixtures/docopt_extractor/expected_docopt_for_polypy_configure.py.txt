@@ -1,0 +1,6 @@
+Usage: polypy configure [ -v ... ] [ options ] set-path <name> <path>
+       polypy configure [ -v ... ] [ options ] set-server <server_addr>
+       polypy configure [ -v ... ] [ options ] show
+       polypy configure [ -v ... ] [ options ] set-defaults [here]
+       polypy configure [ -v ... ] [ options ] validate
+       polypy configure [ -v ... ] [ options ] copy-files <source_path>

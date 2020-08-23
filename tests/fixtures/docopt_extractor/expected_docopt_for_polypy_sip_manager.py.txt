@@ -1,0 +1,5 @@
+usage: polypy sip [ -v ... ] [options] configure help
+       polypy sip [ -v ... ] [options] configure map <column_definitions>...
+       polypy sip [ -v ... ] [options] configure guess from <file> [ --startrow=<startrow> ] [ --save ]
+       polypy sip [ -v ... ] [options] generate <extension> from <file> ([assign <template>] | [ use template column <column> ]) [with voicemail]
+       polypy sip [ -v ... ] [options] dump [csv]
