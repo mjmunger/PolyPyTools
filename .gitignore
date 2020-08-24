@@ -11,3 +11,5 @@ pip-update/
 .~*polypy.conf
 /tests/fixtures/srv/tftp/
 /tests/fixtures/etc/asterisk/
+poly_py_tools/deprecated/__pycache__/*
+poly_py_tools/provision/__pycache__/*
