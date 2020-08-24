@@ -35,6 +35,9 @@ class PolypyConfig:
         self.search_paths.append(path)
 
     def load(self):
+        if not self.find():
+            raise FileNotFoundError("Could not find polypy.conf. Perhaps you need to run set-defaults? Or polypy configure?")
+
         with open(self.config_path) as fp:
             self.config = json.load(fp)
 

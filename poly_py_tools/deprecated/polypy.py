@@ -21,7 +21,6 @@ Commands:
 See polypy help <command> for more information with a specific command.
  
 """
-import subprocess
 import os
 from docopt import docopt
 
@@ -65,8 +64,9 @@ if __name__ == '__main__':
         from poly_py_tools.provision import provision
         docopt(provision.__doc__, argv=argv)
 
-    if args['<command>'] == 'sip':
-        from poly_py_tools import sip_manager
+    if args['<command>'] == 'pjsip':
+        from poly_py_tools.deprecated import sip_manager
+
         docopt(sip_manager.__doc__, argv=argv)
 
     # if args['<command>'] == 'ssl':

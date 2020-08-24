@@ -1,8 +1,6 @@
 #!/usr/bin/env python3
 """
-usage: polypy provision [ -v ... ] [options] polycom <macaddress>
-       polypy provision [ -v ... ] [options] list endpoints
-       polypy provision [ -v ... ] [options] directory for <macaddress> using <csvfile>...
+usage: polypy pjsip [ -v ... ] [options] generate <extension> from <file> ([assign <template>] | [ use template column <column> ]) [with voicemail]
 
 options:
   -d  --debug    Debug mode
@@ -18,7 +16,7 @@ import os
 import json
 
 from poly_py_tools.polypy_config_finder import ConfigFinder
-from poly_py_tools.pjsip.sip_factory import SipFactory
+from poly_py_tools.pjsip.pjsip_factory import PJSipFactory
 
 args = docopt(__doc__)
 debug_mode = False
@@ -34,6 +32,6 @@ config_finder = ConfigFinder()
 configs = config_finder.get_configs()
 args['config'] = configs
 
-factory = SipFactory()
+factory = PJSipFactory()
 runner = factory.get_runner(args)
 runner.run()

@@ -38,14 +38,12 @@ from pprint import pprint
 from docopt import docopt
 import sys
 import os
-import json
 import csv
 
 from poly_py_tools.polypy_config import PolypyConfig
 from poly_py_tools.sip_parser import SipConfParser
 from poly_py_tools.csv_parser_config import CSVParserConfig
-from poly_py_tools.sip_builder import SipBuilder
-from poly_py_tools.polypy_config_finder import ConfigFinder
+from poly_py_tools.deprecated.sip_builder import SipBuilder
 # from poly_py_tools.deprecated.csv_column_guesser import ColumnGuesser
 from poly_py_tools.column_mapper import ColumnMapper
 args = docopt(__doc__)

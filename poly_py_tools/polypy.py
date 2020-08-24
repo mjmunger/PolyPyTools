@@ -1,6 +1,7 @@
 from docopt import docopt
 
-class Polypy(object):
+
+class Polypy():
 
     args = None
 
@@ -10,9 +11,9 @@ class Polypy(object):
     def run(self):
         argv = [self.args['<command>']] + self.args['<args>']
 
-        if self.args['<command>'] == 'sip':
-            from poly_py_tools import sip_manager
-            docopt(sip_manager.__doc__, argv=argv)
+        if self.args['<command>'] == 'pjsip':
+            from poly_py_tools.pjsip import pjsip
+            docopt(pjsip.__doc__, argv=argv)
 
         if self.args['<command>'] == 'provision':
             from poly_py_tools.provision import provision
