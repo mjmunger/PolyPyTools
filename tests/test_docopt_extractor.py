@@ -2,14 +2,13 @@ import unittest
 import os
 
 from unittest_data_provider import data_provider
-
 from poly_py_tools.docopt_extractor import DocoptExtractor
 
 
 class TestDocOptExtractor(unittest.TestCase):
 
     provider_test_extract_doctopt = lambda : (
-        ('polypy_configure.py', 'expected_docopt_for_polypy_configure.py.txt'),
+        ('configure/configure.py', 'expected_docopt_for_polypy_configure.py.txt'),
         ('sip_manager.py', 'expected_docopt_for_polypy_sip_manager.py.txt'),
     )
 

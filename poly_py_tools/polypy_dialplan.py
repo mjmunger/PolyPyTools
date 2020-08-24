@@ -15,12 +15,8 @@ Usage: polypy dialplan [ -v ... ] [ options ] dictionary add <word> for <column>
 
 """
 
-from pprint import pprint
 from docopt import docopt
-import sys
-import os
-import json
-from poly_py_tools.polypy_config_finder import ConfigFinder
+from poly_py_tools.configure.config_finder import ConfigFinder
 
 args = docopt(__doc__)
 

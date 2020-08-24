@@ -12,7 +12,7 @@ class ConfigFinder:
 
     def __init__(self):
         config_dir = "/etc/polypy/"
-        local_config = os.path.join(os.getcwd(),"polypy.conf")
+        local_config = os.path.join(os.getcwd(), "polypy.conf")
         default_config = os.path.join(config_dir, "polypy.conf")
         self.config_path =  local_config if os.path.exists(local_config) else default_config
         self.is_local = True if os.path.exists(local_config) else False

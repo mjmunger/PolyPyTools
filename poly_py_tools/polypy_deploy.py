@@ -15,14 +15,11 @@ Usage: polypy deploy [ -v ... ] [ options ] push <macaddress>
 
 """
 
-from pprint import pprint
 from docopt import docopt
 import sys
 import os
-import json
 
 from poly_py_tools.polypy_config import PolypyConfig
-from poly_py_tools.polypy_config_finder import ConfigFinder
 from poly_py_tools.dialplan import Dialplan
 from poly_py_tools.deploy import Deploy
 

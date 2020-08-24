@@ -37,7 +37,7 @@ config.add_search_path("/etc/polypy")
 if not config.find():
     print("Could not find polypy.conf. Perhaps you need to run set-defaults?")
     print("PolyPyTools has not been configured. Run polypy configure!")
-    exit(1)
+    raise SystemExit
 
 config.load()
 
@@ -55,14 +55,14 @@ if args['set-defaults']:
 
 if args['show']:
     pprint(config.config)
-    sys.exit(0)
+    raise SystemExit
 
 if args['set-path']:
     path_name = args['<name>']
     path_path = args['<path>']
     config.set_path(path_name, path_path)
     print("Don't forget to validate this path before you use it. (polypy configure validate) ")
-    exit(0)
+    raise SystemExit
 
 if args['set-server']:
     server_addr = args['<server_addr>']
@@ -70,7 +70,7 @@ if args['set-server']:
 
 if config.config['paths'] is None:
     print("No paths have been configured. Run polypy configure set-path to resolve.")
-    exit(1)
+    raise SystemExit
 
 if args['validate']:
     config.validate()

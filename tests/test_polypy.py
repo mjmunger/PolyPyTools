@@ -26,6 +26,12 @@ class TestPolypy(unittest.TestCase):
          '-v': 0,
          '<args>': [],
          '<command>': 'provision'}, 'provision/provision.py'),
+        ({'--force': False,
+         '-d': False,
+         '-h': False,
+         '-v': 0,
+         '<args>': [],
+         '<command>': 'configure'}, 'configure/configure.py'),
 
     )
 

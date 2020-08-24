@@ -39,14 +39,9 @@ Usage: polypy site [ options ] setup sntp for <site> --offset=<gmtoffset> [--ser
  
 """
 
-from pprint import pprint
 from docopt import docopt
-import sys
-import os
-import json
-from poly_py_tools.polypy_config_finder import ConfigFinder
+from poly_py_tools.configure.config_finder import ConfigFinder
 from poly_py_tools.site_writer import SiteWriter
-from shutil import copyfile
 
 args = docopt(__doc__)
 

@@ -21,7 +21,6 @@ Commands:
 See polypy help <command> for more information with a specific command.
  
 """
-import subprocess
 import os
 from docopt import docopt
 
@@ -58,8 +57,8 @@ if __name__ == '__main__':
         Versionator.show_version()
 
     if args['<command>'] == 'configure':
-        from poly_py_tools import polypy_configure
-        docopt(polypy_configure.__doc__, argv=argv)
+        from poly_py_tools.configure import configure
+        docopt(configure.__doc__, argv=argv)
 
     if args['<command>'] == 'provision':
         from poly_py_tools.provision import provision
