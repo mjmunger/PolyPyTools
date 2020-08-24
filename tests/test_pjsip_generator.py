@@ -2,12 +2,22 @@ import json
 import os
 import unittest
 from unittest import mock
-from unittest.mock import patch
+from unittest.mock import patch, mock_open
 from unittest_data_provider import data_provider
 from poly_py_tools.pjsip.PJSipGenerator import PJSipGenerator
+from poly_py_tools.polypy_config import PolypyConfig
 
 
 class TestPJSipGenerator(unittest.TestCase):
+
+    def base_config(self):
+        return {"lib_path":"/var/lib/polypy","share_path":"/usr/share/polypy/","config_path":"","package_path":"/usr/local/lib/python3.7/dist-packages/poly_py_tools","server_addr":"pbx.example.org","paths":{"asterisk":"","tftproot":""}}
+
+    def test_use(self):
+        config = "asdfasdf"
+        generator = PJSipGenerator()
+        generator.use(config)
+        self.assertEqual(config, generator.config)
 
     @mock.patch("os.path")
     def test_generate_from_file_exists(self, mock_path):
@@ -29,29 +39,31 @@ class TestPJSipGenerator(unittest.TestCase):
             generator.generate_from(non_existant_file)
 
     provider_test_generator = lambda : (
-        ( 'csv1.csv', 'expected_pjsip_01.conf'),
+        ( 'DialPlanBuilder-ExampleOrg.csv', 'expected_pjsip_01.conf'),
     )
 
-    def test_use(self):
-        config = "asdfasdf"
-        generator = PJSipGenerator()
-        generator.use(config)
-        self.assertEqual(config, generator.config)
-
     @data_provider(provider_test_generator)
+    # @mock.patch("builtins.open", new_callable=mock_open)
     def test_generate(self, csv, expected_conf):
-        base_config_path = os.path.join(os.path.dirname(__file__), 'fixtures/base_config.json')
-
-        fp = open(base_config_path, 'r')
-        config = json.load(fp)
-        fp.close()
-
+        config = self.base_config()
         config['paths']['asterisk'] = '/tmp/'
+        csv_path = os.path.join(os.path.dirname(__file__), "fixtures/pjsip_generator/{}".format(csv))
+        expected_conf_path = os.path.join(os.path.dirname(__file__), "fixtures/pjsip_generator/{}".format(expected_conf))
+
+        config = PolypyConfig()
+        config.add_search_path(os.path.join(os.path.dirname(__file__), "fixtures/pjsip_generator/"))
+        config.load()
+
+        f = open(expected_conf_path, 'r')
+        buffer = f.read()
+        f.close()
+        expected_configs = "".join(buffer)
 
         generator = PJSipGenerator()
+        self.assertRaises(ValueError, generator.generate_from(csv_path))
         generator.use(config)
-        generator.generate_from(csv)
-        self.assertEqual(expected_conf, generator.conf())
+        generator.generate_from(csv_path)
+        self.assertEqual(expected_configs, generator.conf())
 
 
 if __name__ == '__main__':
