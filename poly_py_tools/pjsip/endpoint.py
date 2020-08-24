@@ -275,3 +275,43 @@ class Endpoint(SipResource):
         element = ElementTree.fromstring(self.basic_cfg(meta, tftproot))
         ET = ElementTree.ElementTree(element)
         ET.write(target_file, encoding="us-ascii", method="xml")
+
+    def render(self):
+        buffer = []
+
+        if self.template is None:
+            buffer.append(self.section)
+        else:
+            buffer.append("[{}]({})".format(self.section_name, self.template))
+
+        buffer.append("type=endpoint")
+        buffer.append("context={}".format(self.context))
+        buffer.append("disallow={}".format(self.disallow))
+        buffer.append("allow={}".format(self.allow))
+        buffer.append("transport={}".format(self.transport))
+
+        auths=[]
+        for auth in self.authorizations:
+            auths.append(auth.section_name)
+
+        buffer.append("auth={}".format(",".join(auths)))
+
+        aors=[]
+        for aor in self.addresses:
+            aors.append(aor.section_name)
+
+        buffer.append("aors={}".format(",".join(aors)))
+
+        buffer.append(";mac={}".format(self.mac))
+        buffer.append(";model={}".format(self.model))
+
+        for auth in self.authorizations:
+            buffer.append("")
+            buffer.append(auth.render())
+
+
+        for aor in self.addresses:
+            buffer.append("")
+            buffer.append(aor.render())
+
+        return "\n".join(buffer)

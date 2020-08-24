@@ -458,6 +458,54 @@ class TestEndpoint(unittest.TestCase):
         self.assertEqual("firmware/4.0.15.1009/3111-40000-001.ld", application_node.attrib['APP_FILE_PATH_SSIP7000'])
         self.assertEqual("some-site-template/0004f23a43bf", application_node.attrib['CONFIG_FILES_SSIP7000'])
 
+    def test_render(self):
+
+
+        endpoint = Endpoint("")
+        endpoint.new_section("6001")
+        endpoint.template = "some-site-template"
+        endpoint.context = "default"
+        endpoint.disallow = "all"
+        endpoint.transport = "simpletrans"
+        endpoint.mac = "0004f23a43bf"
+        endpoint.model = "SSIP7000"
+        endpoint.allow = "ulaw"
+
+        aor1 = Aor("")
+        aor1.new_section("6001")
+        aor1.label = "Line 1"
+        aor1.order = 2
+        aor1.max_contacts = 1
+
+        auth1 = Auth("")
+        auth1.new_section("auth6001")
+        auth1.auth_type = "userpass"
+        auth1.password = "2034c37e"
+        auth1.username = "dd341d078cfd"
+
+        aor2 = Aor("")
+        aor2.new_section("6003")
+        aor2.label = "Line 2"
+        aor2.order = 1
+        aor2.max_contacts = 1
+
+        auth2 = Auth("")
+        auth2.new_section("auth6003")
+        auth2.auth_type = "userpass"
+        auth2.password = "d3fb5a6c69ee"
+        auth2.username = "6c6499cf"
+
+        endpoint.authorizations.append(auth1)
+        endpoint.authorizations.append(auth2)
+        endpoint.add_aor(aor1)
+        endpoint.add_aor(aor2)
+
+        f = open(os.path.join(os.path.dirname(__file__), "fixtures/pjsip/expected_rendered_endpoint_6001.conf"))
+        buffer = f.read()
+        f.close()
+
+        expected_sections = "".join(buffer)
+        self.assertEqual(expected_sections, endpoint.render())
 
 if __name__ == '__main__':
     unittest.main()

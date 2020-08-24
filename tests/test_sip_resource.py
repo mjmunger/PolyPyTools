@@ -50,6 +50,12 @@ class TestSipResource(unittest.TestCase):
         resource.set_attributes()
         resource.section = expected_section
 
+    def test_new_section(self):
+        resource = SipResource("None")
+        resource.new_section("6001")
+        self.assertEqual("6001", resource.section_name)
+        self.assertEqual("[6001]", resource.section)
+
 
 
 

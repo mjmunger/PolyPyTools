@@ -39,3 +39,7 @@ class SipResource:
         for attr, value in self.__dict__.items():
             buffer.append("{}: {}".format(attr,value))
         return "\n".join(buffer)
+
+    def new_section(self, section_name):
+        self.section_name = section_name
+        self.section = "[{}]".format(self.section_name)

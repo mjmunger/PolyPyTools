@@ -16,3 +16,12 @@ class Aor(SipResource):
     support_path = None
     label = None
     order = None
+
+    def render(self):
+        section = []
+        section.append(self.section)
+        section.append(";label={}".format(self.label))
+        section.append(";order={}".format(self.order))
+        section.append("type=aor")
+        section.append("max_contacts={}".format(self.max_contacts))
+        return "\n".join(section)

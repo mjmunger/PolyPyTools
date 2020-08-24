@@ -10,3 +10,11 @@ class Auth(SipResource):
     type = None
     username = None
 
+    def render(self):
+        section = []
+        section.append(self.section)
+        section.append("type=auth")
+        section.append("auth_type={}".format(self.auth_type))
+        section.append("password={}".format(self.password))
+        section.append("username={}".format(self.username))
+        return "\n".join(section)
