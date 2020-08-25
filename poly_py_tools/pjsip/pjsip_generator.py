@@ -12,12 +12,16 @@ class PJSipGenerator(object):
 
     source_csv = None
     config = None
+    rpg = None
 
-    def __index__(self):
-        pass
+    def __init__(self):
+        self.rpg = None
 
     def use(self, config):
         self.config = config
+
+    def with_rpg(self, rpg):
+        self.rpg = rpg
 
     def generate_from(self, csv):
         if not os.path.exists(csv):
@@ -56,8 +60,8 @@ class PJSipGenerator(object):
             auth = Auth("[auth{}{}]".format(endpoint.mac, endpoint.extension))
             auth.section_name = "auth{}{}".format(endpoint.mac, endpoint.extension)
             auth.auth_type = "userpass"
-            auth.username = "[{}{}]".format(endpoint.mac, endpoint.extension)
-            auth.password = Rpg("strong", None).generate_password()
+            auth.username = "{}{}".format(endpoint.mac, endpoint.extension)
+            auth.password = self.rpg.generate_password()
 
             endpoint.add_aor(aor)
             endpoint.add_auth(auth)
@@ -83,4 +87,5 @@ class PJSipGenerator(object):
             #     buffer.append("")
             #     buffer.append(auth.render())
 
+        buffer.append("")
         return "\n".join(buffer)

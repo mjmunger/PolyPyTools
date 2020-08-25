@@ -28,4 +28,7 @@ class Aor(SipResource):
 
         section.append("type=aor")
         section.append("max_contacts={}".format(self.max_contacts))
+        if not self.mailboxes is None:
+            section.append("mailboxes={}".format(self.mailboxes))
+
         return "\n".join(section)
