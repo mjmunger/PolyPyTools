@@ -1,4 +1,4 @@
-from poly_py_tools.pjsip.PJSipGenerator import PJSipGenerator
+from poly_py_tools.pjsip.pjsip_generator import PJSipGenerator
 
 
 class PJSipFactory:

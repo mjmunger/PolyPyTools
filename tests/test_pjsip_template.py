@@ -35,6 +35,7 @@ class TestTemplate(unittest.TestCase):
         template = Template()
         template.from_entry(entry)
         self.assertEqual(expected_template, str(template))
+        self.assertEqual("org-example-atl", template.name)
 
 
 

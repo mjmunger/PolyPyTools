@@ -10,6 +10,7 @@ class Template:
     trust_id_outbound = None
     device_state_busy_at = None
     dtmf_mode = None
+    name = None
 
     def __init__(self):
         self.section = None
@@ -19,11 +20,13 @@ class Template:
         self.trust_id_outbound = "yes"
         self.device_state_busy_at = "1"
         self.dtmf_mode = "rfc4733"
+        self.name = None
 
     def from_entry(self, entry: Entry):
         site = str(entry.site).split(".")
         site.reverse()
         site = "-".join(site)
+        self.name = site
         self.section = "[{}](!)".format(site)
         self.context = "{}-local-stations".format(site)
 

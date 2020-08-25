@@ -8,16 +8,18 @@ class TestAuth(unittest.TestCase):
 
     provider_test_init = lambda :(
         #section                                                                                                                                                                                   expected_attributes
-        (["[authtest]", "auth_type = tEyO", "nonce_lifetime = qhY8jc", "md5_cred = YuqmdQ7CBCC0CBe5jew", "password = Z91Eboob", "realm = dYu6eW", "type = ut3DM6iplGwt9F2yC", "username = MO39W"], {"auth_type":"tEyO", "nonce_lifetime":"qhY8jc", "md5_cred":"YuqmdQ7CBCC0CBe5jew", "password":"Z91Eboob", "realm":"dYu6eW", "type":"ut3DM6iplGwt9F2yC", "username":"MO39W"}),
+        (["[authtest]", "auth_type = tEyO", "nonce_lifetime = qhY8jc", "md5_cred = YuqmdQ7CBCC0CBe5jew", "password = Z91Eboob", "realm = dYu6eW", "type = ut3DM6iplGwt9F2yC", "username = MO39W"], {"auth_type":"tEyO", "nonce_lifetime":"qhY8jc", "md5_cred":"YuqmdQ7CBCC0CBe5jew", "password":"Z91Eboob", "realm":"dYu6eW", "type":"ut3DM6iplGwt9F2yC", "username":"MO39W"}, 'authtest'),
     )
 
     @data_provider(provider_test_init)
-    def test_init(self, section, expected_attributes):
+    def test_init(self, section, expected_attributes, expected_section_name):
 
         auth = Auth(section)
         self.assertEqual(section, auth.section)
 
         auth.set_attributes()
+
+        self.assertEqual(expected_section_name, auth.section_name)
 
         for attribute in expected_attributes:
             expected_value = expected_attributes[attribute]

@@ -2,7 +2,7 @@ import unittest
 
 from unittest_data_provider import data_provider
 
-from poly_py_tools.pjsip.PJSipGenerator import PJSipGenerator
+from poly_py_tools.pjsip.pjsip_generator import PJSipGenerator
 from poly_py_tools.pjsip.pjsip_factory import PJSipFactory
 
 

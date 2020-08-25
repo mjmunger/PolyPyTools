@@ -4,8 +4,9 @@ import unittest
 from unittest import mock
 from unittest.mock import patch, mock_open
 from unittest_data_provider import data_provider
-from poly_py_tools.pjsip.PJSipGenerator import PJSipGenerator
+from poly_py_tools.pjsip.pjsip_generator import PJSipGenerator
 from poly_py_tools.polypy_config import PolypyConfig
+from pwgen_secure.rpg import Rpg
 
 
 class TestPJSipGenerator(unittest.TestCase):
@@ -43,8 +44,12 @@ class TestPJSipGenerator(unittest.TestCase):
     )
 
     @data_provider(provider_test_generator)
-    # @mock.patch("builtins.open", new_callable=mock_open)
-    def test_generate(self, csv, expected_conf):
+    @mock.patch("pwgen_secure.rpg", "generate_password")
+    def test_generate(self, csv, expected_conf, mock_rpg):
+        print(mock_rpg)
+        mock_rpg.generate_password.return_value = "QoWTIllrgkVKZR"
+        print(mock_rpg.generate_password)
+
         config = self.base_config()
         config['paths']['asterisk'] = '/tmp/'
         csv_path = os.path.join(os.path.dirname(__file__), "fixtures/pjsip_generator/{}".format(csv))

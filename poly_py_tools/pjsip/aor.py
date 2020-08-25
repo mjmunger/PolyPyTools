@@ -20,8 +20,12 @@ class Aor(SipResource):
     def render(self):
         section = []
         section.append(self.section)
-        section.append(";label={}".format(self.label))
-        section.append(";order={}".format(self.order))
+        if not self.label is None:
+            section.append(";label={}".format(self.label))
+
+        if not self.order is None:
+            section.append(";order={}".format(self.order))
+
         section.append("type=aor")
         section.append("max_contacts={}".format(self.max_contacts))
         return "\n".join(section)

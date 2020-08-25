@@ -507,5 +507,11 @@ class TestEndpoint(unittest.TestCase):
         expected_sections = "".join(buffer)
         self.assertEqual(expected_sections, endpoint.render())
 
+    def test_add_auth(self):
+        endpoint = Endpoint("[test-section]")
+        auth = Auth("[test-auth]")
+        endpoint.add_auth(auth)
+        self.assertEqual(1, len(endpoint.authorizations))
+
 if __name__ == '__main__':
     unittest.main()

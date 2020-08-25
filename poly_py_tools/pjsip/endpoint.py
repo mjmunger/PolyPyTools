@@ -3,6 +3,7 @@ import os
 from xml.dom import minidom
 from xml.etree import ElementTree
 
+from poly_py_tools.pjsip.auth import Auth
 from poly_py_tools.pjsip.resource import SipResource
 from poly_py_tools.provision.model_meta import ModelMeta
 from poly_py_tools.provision.polycom_registration import PolycomRegistration
@@ -102,11 +103,13 @@ class Endpoint(SipResource):
     authorizations = [] # Holds Auth objects for this endpoint.
     addresses = [] # Holds aors (Aor records) for this endpoint.
     sip_proxy = None
+    extension = None
 
     def __init__(self, section):
         self.registrations = []
         self.authorizations = []
         self.addresses = []
+        self.extension = None
         super().__init__(section)
 
     def use_proxy(self, proxy):
@@ -114,6 +117,9 @@ class Endpoint(SipResource):
 
     def add_aor(self, aor):
         self.addresses.append(aor)
+
+    def add_auth(self, auth : Auth):
+        self.authorizations.append(auth)
 
     def add_registration(self, registration: PolycomRegistration):
         self.registrations.append(registration)
@@ -284,11 +290,9 @@ class Endpoint(SipResource):
         else:
             buffer.append("[{}]({})".format(self.section_name, self.template))
 
-        buffer.append("type=endpoint")
-        buffer.append("context={}".format(self.context))
-        buffer.append("disallow={}".format(self.disallow))
-        buffer.append("allow={}".format(self.allow))
-        buffer.append("transport={}".format(self.transport))
+        buffer.append(";mac={}".format(self.mac))
+        buffer.append(";model={}".format(self.model))
+        buffer.append(";extension={}".format(self.extension))
 
         auths=[]
         for auth in self.authorizations:
@@ -302,8 +306,7 @@ class Endpoint(SipResource):
 
         buffer.append("aors={}".format(",".join(aors)))
 
-        buffer.append(";mac={}".format(self.mac))
-        buffer.append(";model={}".format(self.model))
+        buffer.append("callerid={}".format(self.callerid))
 
         for auth in self.authorizations:
             buffer.append("")

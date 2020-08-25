@@ -1,0 +1,86 @@
+import os
+from poly_py_tools.dialplan import Dialplan
+from poly_py_tools.dialplan_entry import Entry
+from poly_py_tools.pjsip.aor import Aor
+from poly_py_tools.pjsip.auth import Auth
+from poly_py_tools.pjsip.endpoint import Endpoint
+from poly_py_tools.pjsip.template import Template
+from pwgen_secure.rpg import Rpg
+
+
+class PJSipGenerator(object):
+
+    source_csv = None
+    config = None
+
+    def __index__(self):
+        pass
+
+    def use(self, config):
+        self.config = config
+
+    def generate_from(self, csv):
+        if not os.path.exists(csv):
+            raise FileNotFoundError("Could not find {}".format(csv))
+
+        self.source_csv = csv
+
+    def conf(self):
+        if self.config is None:
+            raise ValueError("Polypy config (self.config) must be set before attempting to generate conf files. Try: generator.use('someconfig')")
+
+        dialplan = Dialplan(self.source_csv)
+        dialplan.with_config(self.config)
+        dialplan.parse()
+
+        endpoints = []
+        templates = {}
+
+        for entry in dialplan.entries:
+            template = Template()
+            template.from_entry(entry)
+            if not template.section in templates:
+                templates[template.section] = template
+
+            endpoint = Endpoint("[{}]({})".format(entry.mac, template.name))
+            endpoint.mac = entry.mac
+            endpoint.model = entry.endpoint
+            endpoint.extension = entry.exten
+            endpoint.callerid = "{} {}<{}>".format(entry.first, entry.last, entry.cid_number)
+
+            aor = Aor("[{}{}]".format(endpoint.mac, endpoint.extension))
+            aor.section_name = "{}{}".format(endpoint.mac, endpoint.extension)
+            aor.max_contacts = "1"
+            aor.mailboxes = entry.vm
+
+            auth = Auth("[auth{}{}]".format(endpoint.mac, endpoint.extension))
+            auth.section_name = "auth{}{}".format(endpoint.mac, endpoint.extension)
+            auth.auth_type = "userpass"
+            auth.username = "[{}{}]".format(endpoint.mac, endpoint.extension)
+            auth.password = Rpg("strong", None).generate_password()
+
+            endpoint.add_aor(aor)
+            endpoint.add_auth(auth)
+
+            endpoints.append(endpoint)
+
+        buffer = []
+        buffer.append(";Generated with polpypy pjsip generate")
+
+        for t in templates:
+            buffer.append("")
+            buffer.append(str(templates[t]))
+
+        for endpoint in endpoints:
+            buffer.append("")
+            buffer.append(endpoint.render())
+
+            # for aor in endpoint.addresses:
+            #     buffer.append("")
+            #     buffer.append(aor.render())
+            #
+            # for auth in endpoint.authorizations:
+            #     buffer.append("")
+            #     buffer.append(auth.render())
+
+        return "\n".join(buffer)
