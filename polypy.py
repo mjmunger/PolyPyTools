@@ -39,7 +39,6 @@ if __name__ == '__main__':
     config.load()
 
     if args['-d']:
-        t = "{}: {}"
         print("Debug mode enabled")
         print("")
         print("args:")
@@ -47,8 +46,8 @@ if __name__ == '__main__':
         print("configs:")
         print(config)
 
-    args['config'] = config
-    argv = [args['<command>']] + args['<args>']
+    argv = {}
+    argv = [args['<command>']]
 
-    polypy = Polypy(args)
+    polypy = Polypy(argv)
     polypy.run()
