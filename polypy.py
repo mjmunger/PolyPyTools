@@ -31,23 +31,5 @@ from poly_py_tools.polypy import Polypy
 
 if __name__ == '__main__':
 
-    args = docopt(__doc__, options_first=True)
-
-    config = PolypyConfig()
-    config.add_search_path(os.getcwd())
-    config.add_search_path("/etc/polypy")
-    config.load()
-
-    if args['-d']:
-        print("Debug mode enabled")
-        print("")
-        print("args:")
-        print(args)
-        print("configs:")
-        print(config)
-
-    argv = {}
-    argv = [args['<command>']]
-
-    polypy = Polypy(argv)
+    polypy = Polypy(docopt(__doc__, options_first=True))
     polypy.run()

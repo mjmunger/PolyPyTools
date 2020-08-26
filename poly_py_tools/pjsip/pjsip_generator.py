@@ -93,3 +93,6 @@ class PJSipGenerator(object):
             #     buffer.append(auth.render())
 
         return "\n".join(buffer)
+
+    def run(self):
+        pass

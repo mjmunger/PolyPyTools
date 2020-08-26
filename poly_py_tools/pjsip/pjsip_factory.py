@@ -5,5 +5,5 @@ class PJSipFactory:
 
     def get_runner(self, args):
 
-        if args['<args>']:
+        if args['generate']:
             return PJSipGenerator(args)
