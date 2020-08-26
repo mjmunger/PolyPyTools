@@ -10,6 +10,7 @@ options:
 """
 
 from docopt import docopt
+from pwgen_secure.rpg import Rpg
 
 from poly_py_tools.polypy_config import PolypyConfig
 from poly_py_tools.polypy_config_finder import ConfigFinder
@@ -28,10 +29,12 @@ if args['-d']:
     print("--------------------------------------------------")
 
 pconf = PolypyConfig()
-pconf.add_search_path("/etc/polypy")
+pconf.add_search_path("/etc/polypy/")
 pconf.load()
-args['config'] = pconf.configs()
+
+args['config'] = pconf
 args['<args>'] = args
+args['rpg'] = Rpg("strong", None)
 
 factory = PJSipFactory()
 runner = factory.get_runner(args)
