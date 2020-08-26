@@ -13,6 +13,7 @@ class PolypyConfig:
     def __init__(self):
         self.json = {}
         self.search_paths = []
+        self.add_search_path(os.getcwd())
         self.polycom_files = []
 
         self.polycom_files = ['000000000000.cfg', '000000000000-directory~.xml', "Config/applications.cfg",
