@@ -97,7 +97,7 @@ class PJSipGenerator(object):
 
     def run(self):
         self.generate_from(self.args['<file>'])
-        target_file = os.path.join(self.config.configs()['paths']['tftproot'], 'pjsip.conf')
+        target_file = os.path.join(self.config.configs()['paths']['asterisk'], 'pjsip.conf')
         f = open(target_file, 'w')
         f.write(self.conf())
         f.close()
