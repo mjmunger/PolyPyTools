@@ -103,7 +103,7 @@ class TestPJSipGenerator(unittest.TestCase):
         config = PolypyConfig()
         config.add_search_path(os.path.join(os.path.dirname(__file__), "fixtures/pjsip_generator/"))
         config.load()
-        config.config['paths']['tftproot'] = "/tmp/"
+        config.json['paths']['tftproot'] = "/tmp/"
 
         args = {'--force': False,
          '-d': True,

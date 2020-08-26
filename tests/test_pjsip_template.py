@@ -10,8 +10,8 @@ from poly_py_tools.polypy_config import PolypyConfig
 class TestTemplate(unittest.TestCase):
     def test_from_entry(self):
         config = PolypyConfig()
-        config.config = {}
-        config.config['csvmap'] = "none"
+        config.json = {}
+        config.json['csvmap'] = "none"
         config.__init__ = MagicMock(return_value=True)
 
         entry = Entry(config)

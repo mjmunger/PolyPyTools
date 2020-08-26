@@ -131,9 +131,9 @@ class TestDirectory(unittest.TestCase):
             with NamedTemporaryFile() as f:
                 configs = PolypyConfig()
                 configs.set_default_config(f.name)
-                configs.config['paths']['tftproot'] = str(tmpdir)
+                configs.json['paths']['tftproot'] = str(tmpdir)
 
-                directory.save(configs.config)
+                directory.save(configs.json)
 
                 with open(os.path.join(tmpdir, mac_address.replace(":", "").replace("-", "").lower().strip() + "-directory.xml"), 'r') as actual_directory_xml:
                     self.assertEqual(expected_directory_xml, actual_directory_xml.read())

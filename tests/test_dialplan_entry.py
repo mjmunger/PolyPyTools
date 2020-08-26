@@ -18,8 +18,8 @@ class TestDialplan(unittest.TestCase):
 
     def test_init(self):
         configs = PolypyConfig()
-        configs.config = {}
-        configs.config['csvmap'] = self.get_csv_map()
+        configs.json = {}
+        configs.json['csvmap'] = self.get_csv_map()
         entry = Entry(configs)
         self.assertEqual(1, entry.map['first'])
         self.assertEqual(0, entry.map['last'])
@@ -40,8 +40,8 @@ class TestDialplan(unittest.TestCase):
     @data_provider(provider_test_parse)
     def test_parse(self, row, expected_attribute_values):
         configs = PolypyConfig()
-        configs.config = {}
-        configs.config['csvmap'] = self.get_csv_map()
+        configs.json = {}
+        configs.json['csvmap'] = self.get_csv_map()
         entry = Entry(configs)
         entry.parse(row)
 

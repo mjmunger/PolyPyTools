@@ -5,12 +5,13 @@ from shutil import copyfile
 
 
 class PolypyConfig:
-    config = None
+    json = None
     config_path = None
     search_paths = None
     polycom_files = None
 
     def __init__(self):
+        self.json = {}
         self.search_paths = []
         self.polycom_files = []
 
@@ -39,12 +40,12 @@ class PolypyConfig:
             raise FileNotFoundError("Could not find polypy.conf. Perhaps you need to run set-defaults? Or polypy configure?")
 
         with open(self.config_path) as fp:
-            self.config = json.load(fp)
+            self.json = json.load(fp)
 
     def write(self):
         try:
             with open(self.config_path, 'w') as fp:
-                json.dump(self.config, fp)
+                json.dump(self.json, fp)
         except PermissionError:
             print("Could not write config to {}. Perhaps you need to be root?".format(self.config_path))
             raise PermissionError
@@ -88,8 +89,8 @@ class PolypyConfig:
         configs['server_addr'] = "127.0.0.1"
         configs['dictionary'] = csv_header_matching_dictionary
         configs['csvmap'] = {}
-        self.config = configs
-        return self.config
+        self.json = configs
+        return self.json
 
     def set_path(self, path, target_path):
         if target_path is ".":
@@ -98,21 +99,21 @@ class PolypyConfig:
         if not str(target_path).startswith("/"):
             target_path = os.path.join(os.getcwd(), target_path)
 
-        self.config['paths'][path] = target_path
+        self.json['paths'][path] = target_path
         self.write()
 
     def set_server(self, server_addr):
-        self.config['server_addr'] = server_addr
+        self.json['server_addr'] = server_addr
         self.write()
 
     def validate(self):
         state_report = {}
-        state_report[self.config['paths']['asterisk']] = os.path.exists(
-            os.path.join(self.config['paths']['asterisk'], "sip.conf"))
-        state_report[self.config['paths']['tftproot']] = os.path.exists(self.config['paths']['tftproot'])
+        state_report[self.json['paths']['asterisk']] = os.path.exists(
+            os.path.join(self.json['paths']['asterisk'], "sip.conf"))
+        state_report[self.json['paths']['tftproot']] = os.path.exists(self.json['paths']['tftproot'])
 
         for file in self.polycom_files:
-            target_path = os.path.join(self.config['paths']['tftproot'], file)
+            target_path = os.path.join(self.json['paths']['tftproot'], file)
             state_report[target_path] = os.path.exists(target_path)
 
         if False in state_report.values():
@@ -148,7 +149,7 @@ class PolypyConfig:
         # Copy everything over.
 
         target_path = os.path.join(os.getcwd(), 'tftp')
-        target_path = self.config['paths']['tftproot']
+        target_path = self.json['paths']['tftproot']
 
         if not os.path.exists(target_path):
             os.mkdir(target_path)
@@ -164,19 +165,19 @@ class PolypyConfig:
             copyfile(source_file, target_file)
 
     def add_dictionary_alias(self, word, alias):
-        word_list = list(self.config['dictionary'][word])
+        word_list = list(self.json['dictionary'][word])
         word_list.append(alias)
-        self.config['dictionary'][word] = word_list
+        self.json['dictionary'][word] = word_list
         self.write()
 
     def del_dictionary_word(self, word, alias):
-        word_list = list(self.config['dictionary'][word])
+        word_list = list(self.json['dictionary'][word])
         word_list.remove(alias)
-        self.config['dictionary'][word] = word_list
+        self.json['dictionary'][word] = word_list
         self.write()
 
     def set_map(self, map):
-        self.config['csvmap'] = map
+        self.json['csvmap'] = map
         self.write()
 
     def __str__(self):
@@ -184,3 +185,6 @@ class PolypyConfig:
         for attr, value in self.__dict__.items():
             buffer.append("{}: {}".format(attr,value))
         return "\n".join(buffer)
+
+    def configs(self):
+        return self.json

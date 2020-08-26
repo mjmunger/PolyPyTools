@@ -27,8 +27,8 @@ class TestDialplan(unittest.TestCase):
 
     def test_with_config(self):
         config = PolypyConfig()
-        config.config = {}
-        config.config['csvmap'] = self.get_column_config()
+        config.json = {}
+        config.json['csvmap'] = self.get_column_config()
         dialplan = Dialplan(self.get_dialplan_csv())
         dialplan.with_config(config)
         self.assertEqual(dialplan.column_config, self.get_column_config())
@@ -41,8 +41,8 @@ class TestDialplan(unittest.TestCase):
 
     def test_parse(self):
         config = PolypyConfig()
-        config.config = {}
-        config.config['csvmap'] = self.get_column_config()
+        config.json = {}
+        config.json['csvmap'] = self.get_column_config()
         dialplan = Dialplan(self.get_dialplan_csv())
         dialplan.with_config(config)
         dialplan.parse()

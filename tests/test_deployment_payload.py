@@ -34,11 +34,11 @@ class TestPayload(unittest.TestCase):
         with NamedTemporaryFile() as f:
             configs = PolypyConfig()
             configs.set_default_config(f.name)
-            configs.config = {}
-            configs.config['paths'] = {}
-            configs.config['csvmap'] = self.get_column_map()
-            configs.config['paths']['asterisk'] = "/etc/asterisk/"
-            configs.config['paths']['tftproot'] = "/srv/tftp/"
+            configs.json = {}
+            configs.json['paths'] = {}
+            configs.json['csvmap'] = self.get_column_map()
+            configs.json['paths']['asterisk'] = "/etc/asterisk/"
+            configs.json['paths']['tftproot'] = "/srv/tftp/"
 
             entry = Entry(configs)
             entry.parse(row)
@@ -55,9 +55,9 @@ class TestPayload(unittest.TestCase):
         with NamedTemporaryFile() as f:
             configs = PolypyConfig()
             configs.set_default_config(f.name)
-            configs.config['csvmap'] = self.get_column_map()
-            configs.config['paths']['asterisk'] = "/etc/asterisk/"
-            configs.config['paths']['tftproot'] = "/srv/tftp/"
+            configs.json['csvmap'] = self.get_column_map()
+            configs.json['paths']['asterisk'] = "/etc/asterisk/"
+            configs.json['paths']['tftproot'] = "/srv/tftp/"
 
             entry = Entry(configs)
             entry.parse(row)

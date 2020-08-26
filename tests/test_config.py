@@ -103,7 +103,7 @@ class TestConfig(unittest.TestCase):
                     config.add_search_path(path)
                 config.find()
                 config.load()
-                self.assertEqual(expected_config_object, config.config)
+                self.assertEqual(expected_config_object, config.json)
 
     def test_add_search_path(self):
         config = PolypyConfig()
@@ -115,7 +115,7 @@ class TestConfig(unittest.TestCase):
     @data_provider(config_fixtures)
     def test_write_config(self, config_string, check_paths, expected_config_path):
         config = PolypyConfig()
-        config.config = json.loads(config_string)
+        config.json = json.loads(config_string)
 
         f = NamedTemporaryFile(delete=False)
         config.config_path = f.name
@@ -190,10 +190,10 @@ class TestConfig(unittest.TestCase):
         with patch.object(os, 'getcwd', return_value="/current/working/directory") as mock_os:
             config = PolypyConfig()
             config.config_path = f.name
-            config.config = configs
+            config.json = configs
             config.set_path(path, target_path)
 
-            self.assertEqual(expected_path, config.config['paths'][path])
+            self.assertEqual(expected_path, config.json['paths'][path])
 
             os.unlink(f.name)
             self.assertFalse(os.path.exists(f.name))
@@ -204,14 +204,14 @@ class TestConfig(unittest.TestCase):
         f = NamedTemporaryFile(delete=False)
 
         config = PolypyConfig()
-        config.config = configs
+        config.json = configs
         config.config_path = f.name
         config.set_server("test.example.org")
 
         os.unlink(f.name)
         self.assertFalse(os.path.exists(f.name))
 
-        self.assertEqual("test.example.org", config.config['server_addr'])
+        self.assertEqual("test.example.org", config.json['server_addr'])
 
     provider_test_validate = lambda: (
         # sip.conf exists    tftproot exists       missing_file_count  missing_polycom_files
@@ -239,7 +239,7 @@ class TestConfig(unittest.TestCase):
 
         with patch("os.path.exists", MagicMock(side_effect=helper.lookup)) as mock_os_path:
             config = PolypyConfig()
-            config.config = {"lib_path": "/var/lib/polypy", "share_path": "/usr/share/polypy/",
+            config.json = {"lib_path": "/var/lib/polypy", "share_path": "/usr/share/polypy/",
                              "config_path": "/tmp/polypy.conf",
                              "package_path": "/usr/local/lib/python3.7/dist-packages/poly_py_tools",
                              "server_addr": "127.0.0.1",
@@ -301,7 +301,7 @@ class TestConfig(unittest.TestCase):
         config.write_default_config(f.name)
         config.add_dictionary_alias(word, alias)
 
-        self.assertTrue(alias in config.config['dictionary'][word])
+        self.assertTrue(alias in config.json['dictionary'][word])
 
         fp = open(f.name, 'r')
         resultant_config = json.load(fp)
@@ -320,7 +320,7 @@ class TestConfig(unittest.TestCase):
         config.write_default_config(f.name)
         config.add_dictionary_alias(word, alias)
 
-        self.assertTrue(alias in config.config['dictionary'][word])
+        self.assertTrue(alias in config.json['dictionary'][word])
 
         fp = open(f.name, 'r')
         resultant_config = json.load(fp)
@@ -330,7 +330,7 @@ class TestConfig(unittest.TestCase):
 
         config.del_dictionary_word(word, alias)
 
-        self.assertFalse(alias in config.config['dictionary'][word])
+        self.assertFalse(alias in config.json['dictionary'][word])
 
         fp = open(f.name, 'r')
         resultant_config = json.load(fp)
@@ -358,6 +358,11 @@ class TestConfig(unittest.TestCase):
         fp.close()
 
         self.assertEqual(expected_map, saved_configs['csvmap'])
+
+    def test_configs(self):
+        config = PolypyConfig()
+        config.json = "685d69b8-ff2d-40c4-85d9-08f4c453445b"
+        self.assertEqual("685d69b8-ff2d-40c4-85d9-08f4c453445b", config.configs())
 
 
 if __name__ == '__main__':

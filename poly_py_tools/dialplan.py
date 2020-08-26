@@ -20,7 +20,7 @@ class Dialplan:
             raise TypeError("You must pass an object of type PolypyConfig to the Dialplan object.")
 
         self.config = config
-        self.column_config = config.config['csvmap']
+        self.column_config = config.json['csvmap']
 
     def parse(self):
         if self.column_config is None:

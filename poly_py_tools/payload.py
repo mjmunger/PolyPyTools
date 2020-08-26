@@ -23,9 +23,9 @@ class Payload:
         self.build_sources()
 
     def build_sources(self):
-        self.sources.append(os.path.join(str(self.config.config['paths']['tftproot']), self.dialplan_entry.mac))
-        self.sources.append(os.path.join(str(self.config.config['paths']['tftproot']), self.dialplan_entry.mac + ".cfg"))
-        self.sources.append(os.path.join(str(self.config.config['paths']['tftproot']), self.dialplan_entry.mac + "-directory.xml"))
+        self.sources.append(os.path.join(str(self.config.json['paths']['tftproot']), self.dialplan_entry.mac))
+        self.sources.append(os.path.join(str(self.config.json['paths']['tftproot']), self.dialplan_entry.mac + ".cfg"))
+        self.sources.append(os.path.join(str(self.config.json['paths']['tftproot']), self.dialplan_entry.mac + "-directory.xml"))
 
     def __str__(self):
         buffer = []

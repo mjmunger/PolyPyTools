@@ -36,7 +36,7 @@ class Entry:
         #     raise FileNotFoundError
 
         # self.column_map = column_map
-        self.map = configs.config['csvmap']
+        self.map = configs.json['csvmap']
 
     # def load_column_map(self):
     #     fp = open(self.column_map, 'r')
