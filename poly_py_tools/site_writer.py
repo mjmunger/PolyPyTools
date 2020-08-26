@@ -53,8 +53,7 @@ class SiteWriter:
             print("gmtOffset set to: {}".format(self.gmtOffset))
 
     def get_cfg(self, file):
-        return self.dst_paths[file] if os.path.exists(self.dst_paths[file]) else \
-            self.source_paths[file]
+        return self.dst_paths[file] if os.path.exists(self.dst_paths[file]) else self.source_paths[file]
 
     def setup_site_cfg(self):
         root, syslog_node = self.setup_syslog()

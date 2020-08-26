@@ -292,7 +292,8 @@ class Endpoint(SipResource):
 
         buffer.append(";mac={}".format(self.mac))
         buffer.append(";model={}".format(self.model))
-        buffer.append(";extension={}".format(self.extension))
+        if self.extension:
+            buffer.append(";extension={}".format(self.extension))
 
         auths=[]
         for auth in self.authorizations:
@@ -306,7 +307,8 @@ class Endpoint(SipResource):
 
         buffer.append("aors={}".format(",".join(aors)))
 
-        buffer.append("callerid={}".format(self.callerid))
+        if self.callerid:
+            buffer.append("callerid={}".format(self.callerid))
 
         for auth in self.authorizations:
             buffer.append("")
@@ -316,5 +318,7 @@ class Endpoint(SipResource):
         for aor in self.addresses:
             buffer.append("")
             buffer.append(aor.render())
+
+        buffer.append("")
 
         return "\n".join(buffer)

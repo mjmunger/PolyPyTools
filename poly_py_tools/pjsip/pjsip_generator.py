@@ -14,8 +14,13 @@ class PJSipGenerator(object):
     config = None
     rpg = None
 
-    def __init__(self):
-        self.rpg = None
+    def __init__(self, args):
+        self.args = args
+        if 'rpg' in args:
+            self.rpg = args['rpg']
+
+        if 'config' in args:
+            self.config = args['config']
 
     def use(self, config):
         self.config = config
@@ -87,5 +92,4 @@ class PJSipGenerator(object):
             #     buffer.append("")
             #     buffer.append(auth.render())
 
-        buffer.append("")
         return "\n".join(buffer)

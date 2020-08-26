@@ -16,14 +16,14 @@ class TestPJSipGenerator(unittest.TestCase):
 
     def test_use(self):
         config = "asdfasdf"
-        generator = PJSipGenerator()
+        generator = PJSipGenerator({})
         generator.use(config)
         self.assertEqual(config, generator.config)
 
     @mock.patch("os.path")
     def test_generate_from_file_exists(self, mock_path):
 
-        generator = PJSipGenerator()
+        generator = PJSipGenerator({})
         existing_file = "/this/file/exists"
 
         mock_path.exists = lambda path : True
@@ -33,7 +33,7 @@ class TestPJSipGenerator(unittest.TestCase):
     @mock.patch("os.path")
     def test_generate_from_file_not_exists(self, mock_path):
         non_existant_file = "/this/file/does/not/exist"
-        generator = PJSipGenerator()
+        generator = PJSipGenerator({})
 
         mock_path.exists = lambda path: False
         with self.assertRaises(FileNotFoundError):
@@ -62,10 +62,14 @@ class TestPJSipGenerator(unittest.TestCase):
         f.close()
         expected_configs = "".join(buffer)
 
-        generator = PJSipGenerator()
+        args = {}
+        args['config'] = config
+        args['rpg'] = mock_rpg
+
+        generator = PJSipGenerator(args)
         # self.assertRaises(ValueError, generator.generate_from(csv_path))
-        generator.use(config)
-        generator.with_rpg(mock_rpg)
+        # generator.use(config)
+        # generator.with_rpg(mock_rpg)
         generator.generate_from(csv_path)
         self.assertEqual(expected_configs, generator.conf())
 
