@@ -11,6 +11,7 @@ options:
 
 from docopt import docopt
 
+from poly_py_tools.polypy_config import PolypyConfig
 from poly_py_tools.polypy_config_finder import ConfigFinder
 from poly_py_tools.pjsip.pjsip_factory import PJSipFactory
 
@@ -26,9 +27,10 @@ if args['-d']:
     print(args)
     print("--------------------------------------------------")
 
-config_finder = ConfigFinder()
-configs = config_finder.get_configs()
-args['config'] = configs
+pconf = PolypyConfig()
+pconf.add_search_path("/etc/polypy")
+pconf.load()
+args['config'] = pconf.configs()
 args['<args>'] = args
 
 factory = PJSipFactory()
