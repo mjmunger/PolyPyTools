@@ -30,6 +30,7 @@ if args['-d']:
 
 pconf = PolypyConfig()
 pconf.add_search_path("/etc/polypy/")
+pconf.find()
 pconf.load()
 
 args['config'] = pconf
