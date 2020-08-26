@@ -28,5 +28,5 @@ class Polypy():
         elif self.args['<command>'] == 'version':
             Versionator.show_version()
         else:
-            print("Command not recognized. Use polypy --help")
+            print("Command '{}' not recognized. Use polypy --help".format(args['<command>']))
             raise SystemExit
