@@ -24,8 +24,6 @@ See polypy help <command> for more information with a specific command.
 import os
 from docopt import docopt
 
-from poly_py_tools.polypy_config import PolypyConfig
-from poly_py_tools.versionator import Versionator
 from poly_py_tools.polypy import Polypy
 
 

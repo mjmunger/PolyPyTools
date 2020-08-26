@@ -1,5 +1,7 @@
 from docopt import docopt
 
+from poly_py_tools.versionator import Versionator
+
 
 class Polypy():
 
@@ -15,10 +17,16 @@ class Polypy():
             from poly_py_tools.pjsip import pjsip
             docopt(pjsip.__doc__, argv=argv)
 
-        if self.args['<command>'] == 'provision':
+        elif self.args['<command>'] == 'provision':
             from poly_py_tools.provision import provision
             docopt(provision.__doc__, argv=argv)
 
-        if self.args['<command>'] == 'site':
+        elif self.args['<command>'] == 'site':
             from poly_py_tools import polypy_site
             docopt(polypy_site.__doc__, argv=argv)
+
+        elif self.args['<command>'] == 'version':
+            Versionator.show_version()
+        else:
+            print("Command not recognized. Use polypy --help")
+            raise SystemExit
