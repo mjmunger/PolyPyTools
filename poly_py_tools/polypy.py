@@ -16,6 +16,9 @@ class Polypy():
         if self.args['<command>'] == 'pjsip':
             from poly_py_tools.pjsip import pjsip
             docopt(pjsip.__doc__, argv=argv)
+        elif self.args['<command>'] == 'configure':
+            from poly_py_tools import polypy_configure
+            docopt(polypy_configure.__doc__, argv=argv)
 
         elif self.args['<command>'] == 'provision':
             from poly_py_tools.provision import provision
