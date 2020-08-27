@@ -110,7 +110,7 @@ class TestConfig(unittest.TestCase):
         config.add_search_path("/path/to/some/place")
         config.add_search_path("/etc/polypy")
 
-        self.assertEqual(2, len(config.search_paths))
+        self.assertEqual(3, len(config.search_paths))
 
     @data_provider(config_fixtures)
     def test_write_config(self, config_string, check_paths, expected_config_path):

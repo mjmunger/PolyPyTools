@@ -79,7 +79,9 @@ class PjSipSectionParser:
         buffer = list(filter(len, buffer))
         return buffer
 
-    def get_endpoint(self, target_mac) -> Endpoint:
+    def get_endpoint(self, mac) -> Endpoint:
+        target_mac = str(mac).lower().replace(":","").replace("-","")
+        
         for resource in self.resources:
             if resource is None:
                 continue

@@ -1,6 +1,7 @@
 import unittest
 from unittest_data_provider import data_provider
 
+from poly_py_tools.polypy_config import PolypyConfig
 from poly_py_tools.provision.provision_directory import ProvisionDirectory
 from poly_py_tools.provision.provision_lister import ProvisionLister
 from poly_py_tools.provision_factory import ProvisionFactory
@@ -41,6 +42,8 @@ class TestProvisionFactory(unittest.TestCase):
 
     @data_provider(provider_test_factory)
     def test_get_runner(self, args, expected_class):
+        pconf = PolypyConfig()
+        args['config'] = pconf
         factory = ProvisionFactory()
         runner = factory.get_runner(args)
         self.assertTrue(isinstance(runner, expected_class))

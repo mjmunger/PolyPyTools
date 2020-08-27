@@ -100,10 +100,10 @@ class TestPJSipGenerator(unittest.TestCase):
         mock_rpg = Rpg("strong", None)
         mock_rpg.generate_password = MagicMock(return_value="QoWTIllrgkVKZR")
 
-        config = PolypyConfig()
-        config.add_search_path(os.path.join(os.path.dirname(__file__), "fixtures/pjsip_generator/"))
-        config.load()
-        config.json['paths']['tftproot'] = "/tmp/"
+        pconf = PolypyConfig()
+        pconf.add_search_path(os.path.join(os.path.dirname(__file__), "fixtures/pjsip_generator/"))
+        pconf.load()
+        pconf.json['paths']['asterisk'] = "/tmp/"
 
         args = {'--force': False,
          '-d': True,
@@ -123,7 +123,7 @@ class TestPJSipGenerator(unittest.TestCase):
          'with': False}
 
         args['rpg'] = mock_rpg
-        args['config'] = config
+        args['config'] = pconf
 
         csv_path = os.path.join(os.path.dirname(__file__), "fixtures/pjsip_generator/{}".format(csv))
 

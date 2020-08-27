@@ -89,19 +89,22 @@ class TestPjSipSectionParser(unittest.TestCase):
         endpoint.use_proxy("pbx.hph.io")
         self.assertEqual("pbx.hph.io", endpoint.sip_proxy)
 
-    def test_get_endpoint(self):
-
-        target_mac = "0004f23a43bf"
-
+    provider_test_get_endpoint = lambda : (
+        ("0004f23a43bf", "0004f23a43bf"),
+        ("0004F23A43BF", "0004f23a43bf"),
+        ("00:04:F2:3A:43:BF", "0004f23a43bf"),
+        ("00-04-F2-3A-43-BF", "0004f23a43bf"),
+    )
+    @data_provider(provider_test_get_endpoint)
+    def test_get_endpoint(self, target_mac, expected_mac):
 
         factory = SipResourceFactory()
         section_parser = PjSipSectionParser(self.get_conf(), factory)
         section_parser.parse()
         endpoint = section_parser.get_endpoint(target_mac)
 
-
         self.assertIsInstance(endpoint, Endpoint)
-        self.assertEqual(target_mac, endpoint.mac)
+        self.assertEqual(expected_mac, endpoint.mac)
 
 
 if __name__ == '__main__':
