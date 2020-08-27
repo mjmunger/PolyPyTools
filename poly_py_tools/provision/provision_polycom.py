@@ -14,7 +14,8 @@ class ProvisionPolycom:
 
     def __init__(self, args):
         self.args = args
-        self.configs = args['config']
+        pconf = args['config']
+        self.configs = pconf.configs()
 
     def run(self):
         factory = SipResourceFactory()

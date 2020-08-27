@@ -4,17 +4,23 @@ import json
 import shutil
 from unittest.mock import patch, mock_open
 
+from poly_py_tools.polypy_config import PolypyConfig
 from poly_py_tools.provision.provision_polycom import ProvisionPolycom
 
 
 class TestProvisionPolycom(unittest.TestCase):
 
     def get_args(self):
+        pconf = PolypyConfig()
+
         f = open(os.path.join(os.path.dirname(__file__), 'fixtures/base_config.json'))
         configs = json.load(f)
+        f.close()
+
         configs['paths']['tftproot'] = "/tmp/"
         configs['paths']['asterisk'] = os.path.join(os.path.dirname(__file__), "fixtures/pjsip/")
-        f.close()
+
+        pconf.json = configs
 
         args = {'--force': False,
                 '-d': True,
@@ -29,7 +35,7 @@ class TestProvisionPolycom(unittest.TestCase):
                 'provision': True,
                 'using': False}
 
-        args['config'] = configs
+        args['config'] = pconf
 
         return args
 
@@ -39,7 +45,7 @@ class TestProvisionPolycom(unittest.TestCase):
 
         PP = ProvisionPolycom(args)
         self.assertEqual(args, PP.args)
-        self.assertEqual(args['config'], PP.configs)
+        self.assertEqual(args['config'].configs(), PP.configs)
 
 
     def test_run(self):

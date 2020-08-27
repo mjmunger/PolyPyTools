@@ -11,6 +11,8 @@ class ConfigFinder:
     is_local = False
 
     def __init__(self):
+        print("ConfigFinder is deprecated in favor of PolypyConfig(). Please update this code.")
+        raise SystemExit
         config_dir = "/etc/polypy/"
         local_config = os.path.join(os.getcwd(),"polypy.conf")
         default_config = os.path.join(config_dir, "polypy.conf")
