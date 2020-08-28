@@ -92,6 +92,9 @@ class PjSipSectionParser:
         target_mac = str(mac).lower().replace(":","").replace("-","")
         
         for resource in self.resources:
+            print("-------------------------")
+            print("Checking resource:")
+            print(resource)
             if resource is None:
                 continue
 
