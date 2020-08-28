@@ -157,7 +157,12 @@ class Endpoint(SipResource):
             if not resource.type == 'aor':
                 continue
 
+            order = 0
             if resource.section_name in my_aor_list:
+                if resource.order == None:
+                    order = order + 1
+                    resource.order = order
+
                 resource.order = int(resource.order)
                 unsorted_aors.append(resource)
 

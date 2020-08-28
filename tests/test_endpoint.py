@@ -221,6 +221,9 @@ class TestEndpoint(unittest.TestCase):
         ([{"section": "Section 1", "order": "33", "label": "Line 1"},
           {"section": "Section 2", "order": "10", "label": "Line 2"},
           {"section": "Section 3", "order": "27", "label": "Line 3"}], ["Section 2", "Section 3", "Section 1"],),
+        ([{"section": "Section 1", "label": "Line 1"},
+          {"section": "Section 2", "label": "Line 2"},
+          {"section": "Section 3", "label": "Line 3"}], ["Section 1", "Section 2", "Section 3"],),
     )
 
     @data_provider(provider_test_load_aor)
@@ -235,11 +238,13 @@ class TestEndpoint(unittest.TestCase):
             buffer = []
             buffer.append("[{}]".format(a['section']))
             buffer.append("label={}".format(a['label']))
-            buffer.append("order={}".format(a['order']))
+            if "order" in a:
+                buffer.append("order={}".format(a['order']))
 
             aor = Aor(buffer)
             aor.label = a['label']
-            aor.order = a['order']
+            if "order" in a:
+                aor.order = a['order']
             aor.type = 'aor'
             aor.set_attributes()
             resources.append(aor)
