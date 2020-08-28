@@ -249,6 +249,7 @@ class Endpoint(SipResource):
             attribs[tag] = reg.label
 
         reg_node = root.find("reg")
+        self.log("Root registration node: {}".format(reg_node), 5)
         reg_node.attrib = attribs
 
         return ElementTree.tostring(root)
