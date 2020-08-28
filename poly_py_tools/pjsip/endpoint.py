@@ -227,6 +227,9 @@ class Endpoint(SipResource):
         xml.parse(self.basic_cfg_path(meta, tftproot))
         root = xml.getroot()
 
+        if root is None:
+            raise ValueError("Could not get root element for {}".format(self.basic_cfg_path(meta, tftproot)))
+
         counter = 0
         attribs = {}
 
