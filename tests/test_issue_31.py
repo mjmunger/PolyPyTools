@@ -1,6 +1,7 @@
 import unittest
 import os
 from shutil import copy
+from shutil import rmtree
 from unittest.mock import MagicMock
 
 from unittest_data_provider import data_provider
@@ -35,6 +36,8 @@ class TestIssue31(unittest.TestCase):
                 target_file = os.path.join(target_directory, f)
                 if not os.path.isdir(target_file):
                     os.remove(target_file)
+
+        rmtree(os.path.join(prep_directories['tftproot'], "com-l-3-office"))
 
     def get_prep_directories(self):
         prep_directories = {}
