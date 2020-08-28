@@ -250,7 +250,7 @@ class Endpoint(SipResource):
             attribs[tag] = reg.auth.username
 
             tag = "reg.{}.label".format(counter)
-            attribs[tag] = reg.label
+            attribs[tag] = reg.label if not reg.label is None else ""
 
         print(attribs)
         reg_node = root.find("reg")
