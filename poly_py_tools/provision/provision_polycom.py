@@ -20,6 +20,9 @@ class ProvisionPolycom(Loggable):
 
     def run(self):
         factory = SipResourceFactory()
+        if self.args['-d']:
+            factory.set_debug()
+
         meta = ModelMeta()
         parser = PjSipSectionParser(os.path.join(self.configs['paths']['asterisk'], "pjsip.conf"), factory)
         if self.args['-d']:
