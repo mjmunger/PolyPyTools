@@ -4,7 +4,10 @@ import shutil
 
 from unittest_data_provider import data_provider
 
+from poly_py_tools.pjsip.resource_factory import SipResourceFactory
+from poly_py_tools.pjsip.section_parser import PjSipSectionParser
 from poly_py_tools.polypy_config import PolypyConfig
+from poly_py_tools.provision.model_meta import ModelMeta
 from poly_py_tools.provision_factory import ProvisionFactory
 
 class TestIssue30(unittest.TestCase):
@@ -67,7 +70,24 @@ class TestIssue30(unittest.TestCase):
         args['config'] = pconf
         args['<args>'] = args
 
+        meta = ModelMeta()
+        meta.use_configs(pconf)
+        args['meta'] = meta
+
         factory = ProvisionFactory()
+        args['factory'] = factory
+
+        sip_factory = SipResourceFactory()
+        if args['-d']:
+            sip_factory.set_debug()
+
+        parser = PjSipSectionParser()
+        parser.use_config(pconf)
+        parser.use_factory(sip_factory)
+
+        args['pjsipsectionparser'] = parser
+        args['pconf'] = pconf
+
         runner = factory.get_runner(args)
         runner.run()
 

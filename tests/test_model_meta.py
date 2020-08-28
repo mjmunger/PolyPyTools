@@ -1,7 +1,10 @@
 import unittest
 import sys
 import io
+import os
+from unittest.mock import MagicMock
 
+from poly_py_tools.polypy_config import PolypyConfig
 from poly_py_tools.provision.model_meta import ModelMeta
 
 from unittest_data_provider import data_provider
@@ -118,6 +121,28 @@ class TestModelMeta(unittest.TestCase):
         version = meta.get_firmware_version(model)
         self.assertEqual(expected_firmware_version, version,
                          "For model {} we are expecting {}, but we got {}".format(model, expected_firmware_version, version))
+
+    def test_use_configs(self):
+        pconf = PolypyConfig()
+
+        meta = ModelMeta()
+        meta.use_configs(pconf)
+        self.assertEqual(pconf, meta.pconf)
+
+
+    def test_firmware_base_dir(self):
+        pconf = PolypyConfig()
+        pconf.add_search_path(os.path.join(os.path.dirname(__file__), "fixtures/issue_31"))
+        pconf.find()
+        pconf.load()
+        pconf.json['paths']['tftproot'] = "b3f2bf18-0f6f-4069-9ef0-44b30de2b477"
+        meta = ModelMeta()
+        meta.use_configs(pconf)
+
+        self.assertEqual("b3f2bf18-0f6f-4069-9ef0-44b30de2b477/firmware", meta.get_firmware_base_dir())
+        meta.get_firmware_base_dir = MagicMock(return_value="a8d3392d-0f5c-4804-920b-a04fa1edf1bd/firmware")
+        self.assertEqual("a8d3392d-0f5c-4804-920b-a04fa1edf1bd/firmware", meta.get_firmware_base_dir())
+
 
 if __name__ == '__main__':
     unittest.main()

@@ -223,16 +223,17 @@ class Endpoint(SipResource):
             reg.hydrate()
             self.registrations.append(reg)
 
-    def basic_cfg_path(self, meta: ModelMeta, tftproot):
-        return os.path.join(tftproot, "firmware/{}/Config/reg-basic.cfg".format(meta.get_firmware_version(self.model)))
+    def basic_cfg_path(self, meta: ModelMeta):
+        model_firmware_dir = meta.get_firmware_dir(self.model)
+        return os.path.join(model_firmware_dir, "Config/reg-basic.cfg")
 
-    def basic_cfg(self, meta: ModelMeta, tftproot):
+    def basic_cfg(self, meta: ModelMeta):
         xml = ElementTree.ElementTree()
-        xml.parse(self.basic_cfg_path(meta, tftproot))
+        xml.parse(self.basic_cfg_path(meta))
         root = xml.getroot()
 
-        if root is None:
-            raise ValueError("Could not get root element for {}".format(self.basic_cfg_path(meta, tftproot)))
+        # if root is None:
+        #     raise ValueError("Could not get root element for {}".format(self.basic_cfg_path(meta)))
 
         counter = 0
         attribs = {}
@@ -257,12 +258,12 @@ class Endpoint(SipResource):
 
         return ElementTree.tostring(root)
 
-    def bootstrap_cfg_path(self, meta: ModelMeta, tftproot):
-        return os.path.join(tftproot, "firmware/{}/000000000000.cfg".format(meta.get_firmware_version(self.model)))
+    def bootstrap_cfg_path(self, meta: ModelMeta):
+        return os.path.join(meta.get_firmware_dir(self.model), "000000000000.cfg")
 
-    def bootstrap_cfg(self, meta: ModelMeta, tftproot):
+    def bootstrap_cfg(self, meta: ModelMeta):
         xml = ElementTree.ElementTree()
-        xml.parse(self.bootstrap_cfg_path(meta, tftproot))
+        xml.parse(self.bootstrap_cfg_path(meta))
         root = xml.getroot()
         target_node = "APPLICATION_{}".format(self.model)
         node = root.find(target_node)
@@ -280,7 +281,7 @@ class Endpoint(SipResource):
 
     def write_bootstrap(self, meta: ModelMeta, tftproot):
         target_file = os.path.join(tftproot, "{}.cfg".format(self.mac))
-        element = ElementTree.fromstring(self.bootstrap_cfg(meta, tftproot))
+        element = ElementTree.fromstring(self.bootstrap_cfg(meta))
         ET = ElementTree.ElementTree(element)
         ET.write(target_file, encoding="us-ascii", method="xml")
         self.log("Bootstrap file for {} written to: {}".format(self.mac, target_file), 1)
@@ -291,7 +292,7 @@ class Endpoint(SipResource):
             os.makedirs(target_directory)
 
         target_file = os.path.join(target_directory, self.mac)
-        element = ElementTree.fromstring(self.basic_cfg(meta, tftproot))
+        element = ElementTree.fromstring(self.basic_cfg(meta))
         ET = ElementTree.ElementTree(element)
         ET.write(target_file, encoding="us-ascii", method="xml")
         self.log("Config file for {} written to: {}".format(self.mac, target_file),1)

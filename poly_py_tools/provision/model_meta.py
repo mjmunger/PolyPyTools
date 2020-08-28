@@ -1,8 +1,10 @@
-from pprint import pprint
-import sys
-
+from poly_py_tools.polypy_config import PolypyConfig
+import os
 
 class ModelMeta(object):
+    pconf = None
+
+
     polycom_dict = {
         "SPIP320": {"part": "2345-12200-002", "current_firmware_version": "3.3.5.0247"},
         "SPIP321": {"part": "2345-12360-001", "current_firmware_version": "4.0.15.1009"},
@@ -40,6 +42,9 @@ class ModelMeta(object):
         "VVXD60": {"part": "3111-17823-001", "current_firmware_version": "6.3.0.14929"},
     }
 
+    def use_configs(self, pconf: PolypyConfig):
+        self.pconf = pconf
+
     def get_requested_model(self, requested_model):
         for model in self.polycom_dict:
             if model == requested_model:
@@ -61,3 +66,15 @@ class ModelMeta(object):
 
     def get_firmware_version(self, requested_model):
         return self.get_meta(requested_model, 'current_firmware_version')
+
+    def get_firmware_base_dir(self):
+        """
+        This is here so we can mock.patch it and redirect for tests.
+        :return:
+        """
+        return os.path.join(self.pconf.tftproot_path(), "firmware")
+
+    def get_firmware_dir(self, requested_model):
+        return os.path.join(self.get_firmware_base_dir(), self.get_firmware_version(requested_model))
+
+

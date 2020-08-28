@@ -1,28 +1,37 @@
+import os
+
 from poly_py_tools.loggable import Loggable
 from poly_py_tools.pjsip.endpoint import Endpoint
 from poly_py_tools.pjsip.resource_factory import SipResourceFactory
+from poly_py_tools.polypy_config import PolypyConfig
 
 
 class PjSipSectionParser(Loggable):
 
-    conf_file = None
+    pjsip_conf_file = None
     sections = None
     resources = None
     factory = None
     templates = None
     verbosity = None
+    pconf = None
 
 
-    def __init__(self, conf_file, factory: SipResourceFactory):
-        self.factory = factory
+    def __init__(self):
         self.sections = []
         self.resources = []
-        self.conf_file = conf_file
         self.templates = []
         super().__init__()
 
+    def use_config(self, pconf: PolypyConfig):
+        self.pconf = pconf
+        self.pjsip_conf_file = os.path.join(pconf.asterisk_path(), "pjsip.conf")
+
+    def use_factory(self, factory : SipResourceFactory):
+        self.factory = factory
+
     def parse(self):
-        f = open(self.conf_file, 'r')
+        f = open(self.pconf.pjsip_path(), 'r')
         buffer = f.readlines()
         f.close()
 

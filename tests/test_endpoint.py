@@ -2,6 +2,8 @@ import unittest
 import os
 import json
 import shutil
+from unittest.mock import MagicMock
+
 from xml.dom import minidom
 from xml.etree import ElementTree
 from unittest_data_provider import data_provider
@@ -11,6 +13,7 @@ from poly_py_tools.pjsip.auth import Auth
 from poly_py_tools.pjsip.resource_factory import SipResourceFactory
 from poly_py_tools.pjsip.section_parser import PjSipSectionParser
 from poly_py_tools.pjsip.endpoint import Endpoint
+from poly_py_tools.polypy_config import PolypyConfig
 from poly_py_tools.provision.model_meta import ModelMeta
 
 
@@ -168,14 +171,21 @@ class TestEndpoint(unittest.TestCase):
         endpoint.set_attributes()
         self.assertEqual(expected_template, endpoint.template)
 
-    def get_conf(self):
-        return os.path.join(os.path.dirname(__file__), "fixtures/pjsip/pjsip.conf")
+    def get_pconf(self):
+        pconf = PolypyConfig()
+        pconf.add_search_path(os.path.join(os.path.dirname(__file__), "fixtures/test_endpoint"))
+        pconf.find()
+        pconf.load()
+        pconf.update_paths('asterisk', os.path.join(os.path.dirname(__file__), "fixtures/pjsip/"))
+        return pconf
 
     def test_add_registrations(self):
         target_endpoint = None
         target_mac = "0004f23a43bf"
         factory = SipResourceFactory()
-        parser = PjSipSectionParser(self.get_conf(), factory)
+        parser = PjSipSectionParser()
+        parser.use_config(self.get_pconf())
+        parser.use_factory(factory)
         parser.parse()
         target_endpoint = parser.get_endpoint(target_mac)
 
@@ -263,7 +273,9 @@ class TestEndpoint(unittest.TestCase):
         resources = []
         target_mac = "0004f23a43bf"
         factory = SipResourceFactory()
-        parser = PjSipSectionParser(self.get_conf(), factory)
+        parser = PjSipSectionParser()
+        parser.use_config(self.get_pconf())
+        parser.use_factory(factory)
         parser.parse()
         target_endpoint = parser.get_endpoint(target_mac)
         target_endpoint.load_aors(parser.resources)
@@ -283,8 +295,11 @@ class TestEndpoint(unittest.TestCase):
     @data_provider(provider_test_basic_cfg)
     def test_basic_cfg(self, version):
         factory = SipResourceFactory()
-        parser = PjSipSectionParser(
-            os.path.join(os.path.dirname(__file__), "fixtures/pjsip/pjsip-multiple-registrations.conf"), factory)
+        parser = PjSipSectionParser()
+        pconf = self.get_pconf()
+        pconf.pjsip_path = MagicMock(return_value=os.path.join(os.path.dirname(__file__), "fixtures/pjsip/pjsip-multiple-registrations.conf"))
+        parser.use_config(pconf)
+        parser.use_factory(factory)
         parser.parse()
 
         target_mac = "0004f23a626f"
@@ -353,6 +368,7 @@ class TestEndpoint(unittest.TestCase):
         endpoint = parser.get_endpoint(target_mac)
         self.assertIsInstance(endpoint, Endpoint)
         self.assertEqual(target_mac, endpoint.mac)
+        self.assertEqual("SPIP670", endpoint.model)
 
         endpoint.set_attributes()
         endpoint.load_aors(parser.resources)
@@ -381,7 +397,8 @@ class TestEndpoint(unittest.TestCase):
 
         tftproot = reg_basic_cfg_file = os.path.join(os.path.dirname(__file__), "fixtures/fs/")
         meta = ModelMeta()
-        actual_basic_cfg_xml = endpoint.basic_cfg(meta, tftproot)
+        meta.use_configs(pconf)
+        actual_basic_cfg_xml = endpoint.basic_cfg(meta)
         actual_basic_cfg_node = ElementTree.fromstring(actual_basic_cfg_xml)
 
         for reg in registrations:
@@ -391,17 +408,19 @@ class TestEndpoint(unittest.TestCase):
 
     def test_basic_cfg_path(self):
 
-        f = open(os.path.join(os.path.dirname(__file__), 'fixtures/base_config.json'))
-        configs = json.load(f)
-        configs['paths']['tftproot'] = "/tmp/"
-        configs['paths']['asterisk'] = os.path.join(os.path.dirname(__file__), "fixtures/pjsip/")
-        f.close()
+        pconf = self.get_pconf()
+        pconf.update_paths("tftproot", "/tmp/")
+        pconf.update_paths("asterisk", os.path.join(os.path.dirname(__file__), "fixtures/pjsip/"))
 
         factory = SipResourceFactory()
         meta = ModelMeta()
+        meta.use_configs(pconf)
 
-        parser = PjSipSectionParser(
-            os.path.join(os.path.dirname(__file__), "fixtures/pjsip/pjsip.conf"), factory)
+        # meta.get_firmware_base_dir = MagicMock(return_value=os.path.join(os.path.dirname(__file__), "fixtures/fs/firmware"))
+
+        parser = PjSipSectionParser()
+        parser.use_config(pconf)
+        parser.use_factory(factory)
         parser.parse()
 
         target_mac = "0004f23a43bf"
@@ -412,27 +431,31 @@ class TestEndpoint(unittest.TestCase):
         ep.load_auths(parser.resources)
         ep.hydrate_registrations()
 
-        expected_firmware_path = os.path.join(configs['paths']['tftproot'], "firmware/4.0.15.1009/Config/reg-basic.cfg")
-        self.assertEqual(expected_firmware_path, ep.basic_cfg_path(meta, configs['paths']['tftproot']))
+        expected_firmware_path = os.path.join(meta.get_firmware_dir(ep.model) , "Config/reg-basic.cfg")
+        self.assertEqual(expected_firmware_path, ep.basic_cfg_path(meta))
 
     def test_bootstrap_cfg(self):
-        f = open(os.path.join(os.path.dirname(__file__), 'fixtures/base_config.json'))
-        configs = json.load(f)
-        configs['paths']['tftproot'] = "/tmp/"
-        configs['paths']['asterisk'] = os.path.join(os.path.dirname(__file__), "fixtures/pjsip/")
-        f.close()
 
         factory = SipResourceFactory()
-        meta = ModelMeta()
 
-        parser = PjSipSectionParser(
-            os.path.join(os.path.dirname(__file__), "fixtures/pjsip/pjsip.conf"), factory)
+        pconf = PolypyConfig()
+        pconf.add_search_path(os.path.join(os.path.dirname(__file__), 'fixtures/test_endpoint'))
+        pconf.load()
+        pconf.json['paths']['asterisk'] = os.path.join(os.path.dirname(__file__), "fixtures/pjsip/")
+
+        meta = ModelMeta()
+        meta.use_configs(pconf)
+
+        parser = PjSipSectionParser()
+        parser.use_config(pconf)
+        parser.use_factory(factory)
         parser.parse()
 
         target_mac = "0004f23a43bf"
 
         ep = parser.get_endpoint(target_mac)
         ep.set_attributes()
+        ep.model = "SSIP7000"
         ep.load_aors(parser.resources)
         ep.load_auths(parser.resources)
         ep.hydrate_registrations()
@@ -454,7 +477,9 @@ class TestEndpoint(unittest.TestCase):
             original_source = os.path.join(os.path.dirname(__file__), "fixtures/fs/firmware/4.0.15.1009/000000000000.cfg")
             shutil.copyfile(original_source, src_bootstrap_cfg)
 
-        actual_bootstrap_cfg_xml = ElementTree.fromstring(ep.bootstrap_cfg(meta, configs['paths']['tftproot']))
+        self.assertTrue(os.path.exists(src_bootstrap_cfg))
+        meta.get_firmware_base_dir = MagicMock(return_value=os.path.join(os.path.dirname(__file__), "fixtures/fs/firmware/"))
+        actual_bootstrap_cfg_xml = ElementTree.fromstring(ep.bootstrap_cfg(meta))
         target_node = "APPLICATION_SSIP7000"
         application_node = actual_bootstrap_cfg_xml.find(target_node)
 

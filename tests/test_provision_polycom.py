@@ -2,9 +2,12 @@ import unittest
 import os
 import json
 import shutil
-from unittest.mock import patch, mock_open
+from unittest.mock import patch, mock_open, MagicMock
 
+from poly_py_tools.pjsip.resource_factory import SipResourceFactory
+from poly_py_tools.pjsip.section_parser import PjSipSectionParser
 from poly_py_tools.polypy_config import PolypyConfig
+from poly_py_tools.provision.model_meta import ModelMeta
 from poly_py_tools.provision.provision_polycom import ProvisionPolycom
 
 
@@ -35,17 +38,21 @@ class TestProvisionPolycom(unittest.TestCase):
                 'provision': True,
                 'using': False}
 
-        args['config'] = pconf
+        args['pconf'] = pconf
 
         return args
 
     def test_init(self):
 
         args = self.get_args()
+        meta = ModelMeta()
+        meta.get_firmware_base_dir = MagicMock(return_value=os.path.join(os.path.dirname(__file__), "fixtures/fs/firmware"))
+        args['meta'] = meta
+        args['sip_factory'] = SipResourceFactory()
 
         PP = ProvisionPolycom(args)
         self.assertEqual(args, PP.args)
-        self.assertEqual(args['config'].configs(), PP.configs)
+        self.assertEqual(args['pconf'].configs(), PP.configs)
 
 
     def test_run(self):
@@ -60,6 +67,22 @@ class TestProvisionPolycom(unittest.TestCase):
         """
 
         args = self.get_args()
+        meta = ModelMeta()
+        meta.get_firmware_base_dir = MagicMock(return_value=os.path.join(os.path.dirname(__file__), "fixtures/fs/firmware"))
+        args['meta'] = meta
+        args['sip_factory'] = SipResourceFactory()
+
+        sip_factory = SipResourceFactory()
+        if args['-d']:
+            sip_factory.set_debug()
+
+        parser = PjSipSectionParser()
+        parser.use_config(args['pconf'])
+        parser.use_factory(sip_factory)
+
+        args['pjsipsectionparser'] = parser
+
+
         PP = ProvisionPolycom(args)
 
         target_files = ["/tmp/some-site-template/0004f23a43bf", "/tmp/0004f23a43bf.cfg"]

@@ -1,15 +1,19 @@
 import unittest
 import os
-from copy import copy
+from shutil import copy
+from unittest.mock import MagicMock
 
 from unittest_data_provider import data_provider
 
+from poly_py_tools.pjsip.resource_factory import SipResourceFactory
+from poly_py_tools.pjsip.section_parser import PjSipSectionParser
 from poly_py_tools.polypy import Polypy
 from poly_py_tools.polypy_config import PolypyConfig
+from poly_py_tools.provision.model_meta import ModelMeta
 from poly_py_tools.provision_factory import ProvisionFactory
 
 
-class TestIssue30(unittest.TestCase):
+class TestIssue31(unittest.TestCase):
 
     def setUp(self) -> None:
 
@@ -22,9 +26,13 @@ class TestIssue30(unittest.TestCase):
     def clean_files(self):
         prep_directories = self.get_prep_directories()
 
-        for target_directory in prep_directories:
-            for f in target_directory:
-                os.remove(f)
+        for dir in prep_directories:
+            target_directory = os.path.join(self.issue_base(), dir)
+            print("Target directory: {}".format(target_directory))
+            for f in os.listdir(target_directory):
+                target_file = os.path.join(target_directory, f)
+                if not os.path.isdir(target_file):
+                    os.remove(target_file)
 
     def get_prep_directories(self):
         prep_directories = {}
@@ -59,17 +67,26 @@ class TestIssue30(unittest.TestCase):
         pconf.find()
         pconf.load()
 
+        self.assertTrue(os.path.exists(pconf.pjsip_path()))
+
         # Redirect output, etc... to issue_31 tmp directory
-        pconf.json['paths']['asterisk'] = os.path.join(issue_base, "asterisk")
-        pconf.json['paths']['tftproot'] = os.path.join(issue_base, "tftproot")
+        pconf.update_paths("asterisk", os.path.join(issue_base, "asterisk"))
+        pconf.update_paths("tftproot", os.path.join(issue_base, "tftproot"))
 
-        # Patch the generator to redirect firmware lookup to the fixture directory.
-
-
-        args['config'] = pconf
+        args['pconf'] = pconf
         args['<args>'] = args
 
+        # Patch the generator to redirect firmware lookup to the fixture directory.
+        meta = ModelMeta()
+        meta.get_firmware_base_dir = MagicMock(return_value=os.path.join(os.path.dirname(__file__), "fixtures/fs/firmware"))
+        args['meta'] = meta
+
+        sip_resource_factory = SipResourceFactory()
         factory = ProvisionFactory()
+        parser = PjSipSectionParser()
+        parser.use_config(pconf)
+        parser.use_factory(sip_resource_factory)
+        args['pjsipsectionparser'] = parser
         runner = factory.get_runner(args)
         runner.run()
 

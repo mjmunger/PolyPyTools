@@ -1,9 +1,10 @@
+from poly_py_tools.loggable import Loggable
 from poly_py_tools.provision.provision_directory import ProvisionDirectory
 from poly_py_tools.provision.provision_polycom import ProvisionPolycom
 from poly_py_tools.provision.provision_lister import ProvisionLister
 
 
-class ProvisionFactory:
+class ProvisionFactory(Loggable):
 
     def __init__(self):
         pass

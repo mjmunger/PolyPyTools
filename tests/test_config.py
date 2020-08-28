@@ -364,6 +364,46 @@ class TestConfig(unittest.TestCase):
         config.json = "685d69b8-ff2d-40c4-85d9-08f4c453445b"
         self.assertEqual("685d69b8-ff2d-40c4-85d9-08f4c453445b", config.configs())
 
+    def test_asterisk_path(self):
+        config = PolypyConfig()
+        config.json = {}
+        config.json['paths'] = {}
+        config.json['paths']['asterisk'] = "72de147f-f46c-4286-a443-b9b4d8abbf37"
+        self.assertEqual("72de147f-f46c-4286-a443-b9b4d8abbf37", config.asterisk_path())
+
+    def test_tftproot_path(self):
+        config = PolypyConfig()
+        config.json = {}
+        config.json['paths'] = {}
+        config.json['paths']['tftproot'] = "f3ab756c-a431-4c8f-92db-701906483121"
+        self.assertEqual("f3ab756c-a431-4c8f-92db-701906483121", config.tftproot_path())
+
+    def test_update_paths(self):
+        config = PolypyConfig()
+        config.json = {}
+        config.json['paths'] = {}
+        config.json['paths']['asterisk'] = "3253989b-a86e-415f-8f0f-99f0117c1f28"
+        config.json['paths']['tftproot'] = "f646d882-8887-4639-a4b2-ca4930a4f4e2"
+
+        self.assertEqual("3253989b-a86e-415f-8f0f-99f0117c1f28", config.asterisk_path())
+        self.assertEqual("f646d882-8887-4639-a4b2-ca4930a4f4e2", config.tftproot_path())
+
+        config.update_paths('asterisk', "1b9a1167-e01f-458c-a992-708dd71c2a4a")
+        self.assertEqual("1b9a1167-e01f-458c-a992-708dd71c2a4a", config.asterisk_path())
+
+        config.update_paths('tftproot', "f174c720-1aea-4feb-b949-79dc953d77f8")
+        self.assertEqual("f174c720-1aea-4feb-b949-79dc953d77f8", config.tftproot_path())
+
+    def test_pjsip_path(self):
+        config = PolypyConfig()
+        config.json = {}
+        config.json['paths'] = {}
+        config.json['paths']['asterisk'] = "a7707f61-2dd9-4653-8ea5-4cbad0402007"
+        self.assertEqual("a7707f61-2dd9-4653-8ea5-4cbad0402007/pjsip.conf", config.pjsip_path())
+
+        config.pjsip_path = MagicMock(return_value="aa7e7971-d515-49a4-8ded-38a04b0694d8")
+        self.assertEqual("aa7e7971-d515-49a4-8ded-38a04b0694d8", config.pjsip_path())
+
 
 if __name__ == '__main__':
     unittest.main()

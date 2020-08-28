@@ -1,7 +1,12 @@
+import os
 import unittest
+from unittest.mock import MagicMock
+
 from unittest_data_provider import data_provider
 
+from poly_py_tools.pjsip.resource_factory import SipResourceFactory
 from poly_py_tools.polypy_config import PolypyConfig
+from poly_py_tools.provision.model_meta import ModelMeta
 from poly_py_tools.provision.provision_directory import ProvisionDirectory
 from poly_py_tools.provision.provision_lister import ProvisionLister
 from poly_py_tools.provision_factory import ProvisionFactory
@@ -42,9 +47,13 @@ class TestProvisionFactory(unittest.TestCase):
 
     @data_provider(provider_test_factory)
     def test_get_runner(self, args, expected_class):
+        meta = ModelMeta()
+        # meta.get_firmware_base_dir = MagicMock(return_value=os.path.join(os.path.dirname(__file__), "fixtures/fs/firmware"))
+        args['meta'] = meta
+        args['sip_factory'] = SipResourceFactory()
         pconf = PolypyConfig()
-        args['config'] = pconf
-        factory = ProvisionFactory()
-        runner = factory.get_runner(args)
+        args['pconf'] = pconf
+        provision_factory = ProvisionFactory()
+        runner = provision_factory.get_runner(args)
         self.assertTrue(isinstance(runner, expected_class))
 

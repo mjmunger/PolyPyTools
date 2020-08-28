@@ -189,3 +189,19 @@ class PolypyConfig:
 
     def configs(self):
         return self.json
+
+    def pjsip_path(self) -> str:
+        """
+        This facade is here so we can mock.patch it.
+        :return:
+        """
+        return os.path.join(self.asterisk_path(), "pjsip.conf")
+
+    def asterisk_path(self) -> str:
+        return self.json['paths']['asterisk']
+
+    def tftproot_path(self):
+        return self.json['paths']['tftproot']
+
+    def update_paths(self, path, value):
+        self.json['paths'][path] = value

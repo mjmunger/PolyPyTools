@@ -5,17 +5,42 @@ from unittest_data_provider import data_provider
 from poly_py_tools.pjsip.endpoint import Endpoint
 from poly_py_tools.pjsip.resource_factory import SipResourceFactory
 from poly_py_tools.pjsip.section_parser import PjSipSectionParser
+from poly_py_tools.polypy_config import PolypyConfig
 
 
 class TestPjSipSectionParser(unittest.TestCase):
 
-    def get_conf(self):
-        return os.path.join(os.path.dirname(__file__), "fixtures/pjsip/pjsip.conf")
+    def get_pconf(self):
+
+        pconf = PolypyConfig()
+        pconf.add_search_path(os.path.join(os.path.dirname(__file__), "fixtures/test_pjsip_parser/"))
+        pconf.load()
+        pconf.update_paths("asterisk", os.path.join(os.path.dirname(__file__), "fixtures/pjsip/"))
+        return pconf
+
+    def test_use(self):
+        pconf = self.get_pconf()
+        section_parser = PjSipSectionParser()
+        section_parser.use_config(pconf)
+        self.assertEqual(pconf, section_parser.pconf)
+
+    def test_use_factory(self):
+        factory = SipResourceFactory()
+        section_parser = PjSipSectionParser()
+        section_parser.use_factory(factory)
+        self.assertEqual(factory, section_parser.factory)
+
+    def test_use_factory(self):
+        factory = SipResourceFactory()
+        section_parser = PjSipSectionParser()
+        section_parser.use_factory(factory)
+        self.assertEqual(factory, section_parser.factory)
 
     def test_init(self):
-        factory = SipResourceFactory()
-        section_parser = PjSipSectionParser(self.get_conf(), factory)
-        self.assertEqual(self.get_conf(), section_parser.conf_file)
+        pconf = self.get_pconf()
+        section_parser = PjSipSectionParser()
+        section_parser.use_config(pconf)
+        self.assertEqual(pconf, section_parser.pconf)
 
     provider_test_sanitize_line = lambda: (
         # line                                          expected_resultant_line
@@ -24,14 +49,15 @@ class TestPjSipSectionParser(unittest.TestCase):
 
     @data_provider(provider_test_sanitize_line)
     def test_sanitize_line(self, line, expectant_resultant_line):
-        factory = SipResourceFactory()
-        section_parser = PjSipSectionParser(None, factory)
+        section_parser = PjSipSectionParser()
         self.assertEqual(expectant_resultant_line, section_parser.sanitize_line(line))
 
     def test_parse_sections(self):
 
         factory = SipResourceFactory()
-        section_parser = PjSipSectionParser(self.get_conf(), factory)
+        section_parser = PjSipSectionParser()
+        section_parser.use_config(self.get_pconf())
+        section_parser.use_factory(factory)
         section_parser.parse()
         self.assertEqual(20, len(section_parser.sections))
         self.assertEqual(17, len(section_parser.resources))
@@ -67,7 +93,9 @@ class TestPjSipSectionParser(unittest.TestCase):
     @data_provider(provider_section_meta)
     def test_parse_sections_complete(self, section_number, expected_lines, expected_name):
         factory = SipResourceFactory()
-        section_parser = PjSipSectionParser(self.get_conf(), factory)
+        section_parser = PjSipSectionParser()
+        section_parser.use_config(self.get_pconf())
+        section_parser.use_factory(factory)
         section_parser.parse()
 
         section = section_parser.sections[section_number]
@@ -83,7 +111,9 @@ class TestPjSipSectionParser(unittest.TestCase):
         target_mac = "0004f23a43bf"
 
         factory = SipResourceFactory()
-        section_parser = PjSipSectionParser(self.get_conf(), factory)
+        section_parser = PjSipSectionParser()
+        section_parser.use_config(self.get_pconf())
+        section_parser.use_factory(factory)
         section_parser.parse()
         endpoint = section_parser.get_endpoint(target_mac)
         endpoint.use_proxy("pbx.hph.io")
@@ -99,7 +129,9 @@ class TestPjSipSectionParser(unittest.TestCase):
     def test_get_endpoint(self, target_mac, expected_mac):
 
         factory = SipResourceFactory()
-        section_parser = PjSipSectionParser(self.get_conf(), factory)
+        section_parser = PjSipSectionParser()
+        section_parser.use_config(self.get_pconf())
+        section_parser.use_factory(factory)
         section_parser.parse()
         endpoint = section_parser.get_endpoint(target_mac)
 
@@ -108,8 +140,11 @@ class TestPjSipSectionParser(unittest.TestCase):
 
     def test_get_templates(self):
         factory = SipResourceFactory()
-        conf = os.path.join(os.path.dirname(__file__), "fixtures/issue_30/pjsip.conf")
-        section_parser = PjSipSectionParser(conf, factory)
+        pconf = self.get_pconf()
+        pconf.update_paths("asterisk", os.path.join(os.path.dirname(__file__), "fixtures/issue_30/"))
+        section_parser = PjSipSectionParser()
+        section_parser.use_config(pconf)
+        section_parser.use_factory(factory)
         section_parser.parse()
 
         self.assertEqual(3, len(section_parser.get_templates()))
