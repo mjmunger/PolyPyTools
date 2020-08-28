@@ -56,7 +56,7 @@ class PjSipSectionParser(Loggable):
         self.flush(section_buffer)
 
         for section in self.sections:
-            self.log("Checking to see if {} is a template...".format(section[0]),5)
+            self.log("Checking to see if {} is a template...".format(section[0][0]),5)
             object = self.factory.create_template(section)
             if object is None:
                 self.log("Nope.", 5)
