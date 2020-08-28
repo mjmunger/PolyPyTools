@@ -42,6 +42,7 @@ pconf.find()
 pconf.load()
 
 meta = ModelMeta()
+meta.use_configs(pconf)
 args['meta'] = meta
 
 sip_resource_factory = SipResourceFactory()
