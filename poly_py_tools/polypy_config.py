@@ -205,3 +205,6 @@ class PolypyConfig:
 
     def update_paths(self, path, value):
         self.json['paths'][path] = value
+
+    def sip_proxy(self):
+        return self.json['server_addr']

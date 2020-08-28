@@ -38,6 +38,7 @@ class ProvisionPolycom(Loggable):
         parser.parse()
         ep = parser.get_endpoint(self.args['<macaddress>'])
         ep.set_attributes()
+        ep.use_proxy(self.args['pconf'].sip_proxy())
         ep.load_aors(parser.resources)
         ep.load_auths(parser.resources)
         ep.hydrate_registrations()

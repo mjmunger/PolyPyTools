@@ -11,6 +11,8 @@ from poly_py_tools.polypy import Polypy
 from poly_py_tools.polypy_config import PolypyConfig
 from poly_py_tools.provision.model_meta import ModelMeta
 from poly_py_tools.provision_factory import ProvisionFactory
+from xml.etree import ElementTree as ET
+
 
 
 class TestIssue31(unittest.TestCase):
@@ -28,7 +30,7 @@ class TestIssue31(unittest.TestCase):
 
         for dir in prep_directories:
             target_directory = os.path.join(self.issue_base(), dir)
-            print("Target directory: {}".format(target_directory))
+            # print("Target directory: {}".format(target_directory))
             for f in os.listdir(target_directory):
                 target_file = os.path.join(target_directory, f)
                 if not os.path.isdir(target_file):
@@ -48,7 +50,7 @@ class TestIssue31(unittest.TestCase):
 
     def test_issue_31(self):
         args = {'--force': False,
-                 '-d': True,
+                 '-d': False,
                  '-v': 0,
                  '<csvfile>': [],
                  '<macaddress>': '0004F2E62AA4',
@@ -67,11 +69,11 @@ class TestIssue31(unittest.TestCase):
         pconf.find()
         pconf.load()
 
-        self.assertTrue(os.path.exists(pconf.pjsip_path()))
-
         # Redirect output, etc... to issue_31 tmp directory
         pconf.update_paths("asterisk", os.path.join(issue_base, "asterisk"))
         pconf.update_paths("tftproot", os.path.join(issue_base, "tftproot"))
+
+        self.assertTrue(os.path.exists(pconf.pjsip_path()))
 
         args['pconf'] = pconf
         args['<args>'] = args
@@ -86,9 +88,20 @@ class TestIssue31(unittest.TestCase):
         parser = PjSipSectionParser()
         parser.use_config(pconf)
         parser.use_factory(sip_resource_factory)
+
         args['pjsipsectionparser'] = parser
         runner = factory.get_runner(args)
         runner.run()
+
+        tree = ET.parse(os.path.join(pconf.tftproot_path(), "com-l-3-office/0004f2e62aa4"))
+        root = tree.getroot()
+
+        self.assertEqual("polycomConfig", root.tag)
+
+        reg = root.find("reg")
+        addr = reg.attrib['reg.1.address']
+        buffer = addr.split("@")
+        self.assertEqual(buffer[1], "pbx.example.org", "reg.1.address should have pbx.hph.io as the server, found '{}' instead.".format(buffer[1]))
 
     def issue_base(self):
         return os.path.join(os.path.dirname(__file__), "fixtures/issue_31")
