@@ -18,6 +18,7 @@ class SipResource(Loggable):
         self.type = None
         if len(section) > 0:
             self.is_template = True if "(!)" in section[0] else False
+        super().__init__()
 
     def set_attributes(self):
         for line in self.section:
