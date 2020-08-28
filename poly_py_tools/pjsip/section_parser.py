@@ -19,6 +19,7 @@ class PjSipSectionParser(Loggable):
         self.resources = []
         self.conf_file = conf_file
         self.templates = []
+        super().__init__()
 
     def parse(self):
         f = open(self.conf_file, 'r')

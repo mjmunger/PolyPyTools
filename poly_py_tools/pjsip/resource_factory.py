@@ -17,6 +17,7 @@ class SipResourceFactory(Loggable):
 
     def __init__(self):
         self.templates = []
+        super().__init__()
 
     def create(self, section):
         if not len(section) > 0:
