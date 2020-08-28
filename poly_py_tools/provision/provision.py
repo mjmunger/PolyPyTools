@@ -17,8 +17,11 @@ import sys
 import os
 import json
 
+from poly_py_tools.pjsip.resource_factory import SipResourceFactory
+from poly_py_tools.pjsip.section_parser import PjSipSectionParser
 from poly_py_tools.polypy_config import PolypyConfig
 from poly_py_tools.polypy_config_finder import ConfigFinder
+from poly_py_tools.provision.model_meta import ModelMeta
 from poly_py_tools.provision_factory import ProvisionFactory
 
 args = docopt(__doc__)
@@ -31,13 +34,24 @@ if args['-d']:
     print(args)
     print("--------------------------------------------------")
 
+args['<args>'] = args
+
 pconf = PolypyConfig()
 pconf.add_search_path("/etc/polypy/")
 pconf.find()
 pconf.load()
 
-args['config'] = pconf
-args['<args>'] = args
+meta = ModelMeta()
+args['meta'] = meta
+
+sip_resource_factory = SipResourceFactory()
+factory = ProvisionFactory()
+parser = PjSipSectionParser()
+parser.use_config(pconf)
+parser.use_factory(sip_resource_factory)
+
+args['pjsipsectionparser'] = parser
+args['pconf'] = pconf
 
 factory = ProvisionFactory()
 runner = factory.get_runner(args)
