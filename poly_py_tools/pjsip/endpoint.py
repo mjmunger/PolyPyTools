@@ -249,6 +249,7 @@ class Endpoint(SipResource):
             tag = "reg.{}.label".format(counter)
             attribs[tag] = reg.label
 
+        print(attribs)
         reg_node = root.find("reg")
         reg_node.attrib = attribs
 
