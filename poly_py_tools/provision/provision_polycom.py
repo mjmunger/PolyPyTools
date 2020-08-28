@@ -1,5 +1,6 @@
 import os
 
+from poly_py_tools.loggable import Loggable
 from poly_py_tools.pjsip.aor import Aor
 from poly_py_tools.pjsip.endpoint import Endpoint
 from poly_py_tools.pjsip.resource_factory import SipResourceFactory
@@ -8,7 +9,7 @@ from poly_py_tools.provision.model_meta import ModelMeta
 from poly_py_tools.provision.polycom_config_writer import PolycomConfigWriter
 
 
-class ProvisionPolycom:
+class ProvisionPolycom(Loggable):
     args = None
     configs = None
 

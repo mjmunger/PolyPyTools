@@ -1,5 +1,6 @@
 from copy import deepcopy
 
+from poly_py_tools.loggable import Loggable
 from poly_py_tools.pjsip.endpoint import Endpoint
 from poly_py_tools.pjsip.transport import Transport
 from poly_py_tools.pjsip.auth import Auth
@@ -10,7 +11,7 @@ from poly_py_tools.pjsip.acl import Acl
 from poly_py_tools.pjsip.contact import Contact
 import re
 
-class SipResourceFactory:
+class SipResourceFactory(Loggable):
 
     templates = None
 
@@ -23,9 +24,14 @@ class SipResourceFactory:
         template = self.get_template_for_section(section[0])
 
         if template is not None:
+            self.log("Endpoint uses template.", 5)
+            self.log("Initial section lines:", 5)
+            self.log(section)
             section_lines = deepcopy(template.section)
             section_lines.pop(0)
             section = section + section_lines
+            self.log("Resultant section lines:")
+            self.log(section)
 
         type = self.extract_type(section)
 
@@ -61,6 +67,7 @@ class SipResourceFactory:
             return None
 
         type = self.extract_type(section)
+        self.log("{} template found: {}".format(type, section[0]))
 
         if type is None:
             raise ValueError("A template must have a type to be generated with polypy.")
