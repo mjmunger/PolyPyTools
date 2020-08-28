@@ -33,7 +33,11 @@ class ProvisionPolycom(Loggable):
         ep.load_aors(parser.resources)
         ep.load_auths(parser.resources)
         ep.hydrate_registrations()
+        if self.args['-d']:
+            self.log("{} aors loaded.".format(len(ep.addresses)),1)
+            self.log("{} auths loaded.".format(len(ep.authorizations)), 1)
         ep.write_bootstrap(meta, self.configs['paths']['tftproot'])
         ep.write_configs(meta, self.configs['paths']['tftproot'])
+        print("Complete.")
 
 

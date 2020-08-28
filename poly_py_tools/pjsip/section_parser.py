@@ -70,6 +70,8 @@ class PjSipSectionParser(Loggable):
             if object is None:
                 continue
             object.set_attributes()
+            if self.debug_mode:
+                object.set_debug()
             self.resources.append(object)
 
     def flush(self, buffer):

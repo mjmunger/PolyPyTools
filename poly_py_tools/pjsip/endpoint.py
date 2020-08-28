@@ -252,7 +252,6 @@ class Endpoint(SipResource):
             tag = "reg.{}.label".format(counter)
             attribs[tag] = reg.label if not reg.label is None else ""
 
-        print(attribs)
         reg_node = root.find("reg")
         reg_node.attrib = attribs
 
@@ -284,6 +283,7 @@ class Endpoint(SipResource):
         element = ElementTree.fromstring(self.bootstrap_cfg(meta, tftproot))
         ET = ElementTree.ElementTree(element)
         ET.write(target_file, encoding="us-ascii", method="xml")
+        self.log("Bootstrap file for {} written to: {}".format(self.mac, target_file), 1)
 
     def write_configs(self, meta: ModelMeta, tftproot):
         target_directory = os.path.join(tftproot, self.template)
@@ -294,6 +294,7 @@ class Endpoint(SipResource):
         element = ElementTree.fromstring(self.basic_cfg(meta, tftproot))
         ET = ElementTree.ElementTree(element)
         ET.write(target_file, encoding="us-ascii", method="xml")
+        self.log("Config file for {} written to: {}".format(self.mac, target_file),1)
 
     def render(self):
         buffer = []
