@@ -54,7 +54,7 @@ if args['set-defaults']:
     print("Defaults written to: {}".format(config_path))
 
 if args['show']:
-    pprint(config.config)
+    pprint(config.json)
     sys.exit(0)
 
 if args['set-path']:
