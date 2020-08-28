@@ -123,6 +123,9 @@ class Endpoint(SipResource):
         self.authorizations.append(auth)
 
     def add_registration(self, registration: PolycomRegistration):
+        if registration.label is None:
+            registration.label = ""
+
         self.registrations.append(registration)
         
     def set_attributes(self):
