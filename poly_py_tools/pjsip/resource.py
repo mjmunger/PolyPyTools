@@ -3,6 +3,7 @@ class SipResource:
     section = None
     section_name = None
     type = None
+    is_template = None
 
     # These are for testing only.
     attr1 = None
@@ -12,6 +13,8 @@ class SipResource:
         self.section = section
         self.section_name = None
         self.type = None
+        if len(section) > 0:
+            self.is_template = True if "(!)" in section[0] else False
 
     def set_attributes(self):
         for line in self.section:

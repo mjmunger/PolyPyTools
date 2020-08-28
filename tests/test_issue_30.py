@@ -72,6 +72,5 @@ class TestIssue30(unittest.TestCase):
         runner.run()
 
 
-
 if __name__ == '__main__':
     unittest.main()

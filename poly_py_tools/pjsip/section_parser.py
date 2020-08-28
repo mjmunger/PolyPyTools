@@ -8,12 +8,14 @@ class PjSipSectionParser:
     sections = None
     resources = None
     factory = None
+    templates = None
 
     def __init__(self, conf_file, factory: SipResourceFactory):
         self.factory = factory
         self.sections = []
         self.resources = []
         self.conf_file = conf_file
+        self.templates = []
 
     def parse(self):
         f = open(self.conf_file, 'r')
@@ -48,6 +50,13 @@ class PjSipSectionParser:
             section_buffer.append(line)
 
         self.flush(section_buffer)
+
+        for section in self.sections:
+            object = self.factory.create_template(section)
+            if object is None:
+                continue
+            object.set_attributes()
+            self.templates.append(object)
 
         for section in self.sections:
             object = self.factory.create(section)
@@ -91,3 +100,16 @@ class PjSipSectionParser:
 
             if resource.type == 'endpoint' and resource.mac == target_mac:
                 return resource
+
+    def get_templates(self):
+        templates = []
+
+        for resource in self.resources:
+
+            if resource is None:
+                continue
+
+            if resource.is_template:
+                templates.append(resource)
+
+        return templates

@@ -40,7 +40,7 @@ class TestSipResource(unittest.TestCase):
     def test_str(self, section, expected_attributes, expected_section_name):
         resource = SipResource(section)
         resource.set_attributes()
-        expected_str = "section: ['[1234]', 'attr1=value1', 'attr2=value2', 'type=typevalue']\nsection_name: 1234\ntype: typevalue\nattr1: value1\nattr2: value2"
+        expected_str = "section: ['[1234]', 'attr1=value1', 'attr2=value2', 'type=typevalue']\nsection_name: 1234\ntype: typevalue\nis_template: False\nattr1: value1\nattr2: value2"
         self.assertEqual(expected_str, resource.__str__())
 
     @data_provider(provider_test_init)

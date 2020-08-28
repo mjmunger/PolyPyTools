@@ -106,6 +106,13 @@ class TestPjSipSectionParser(unittest.TestCase):
         self.assertIsInstance(endpoint, Endpoint)
         self.assertEqual(expected_mac, endpoint.mac)
 
+    def test_get_templates(self):
+        factory = SipResourceFactory()
+        conf = os.path.join(os.path.dirname(__file__), "fixtures/issue_30/pjsip.conf")
+        section_parser = PjSipSectionParser(conf, factory)
+        section_parser.parse()
+
+        self.assertEqual(3, len(section_parser.get_templates()))
 
 if __name__ == '__main__':
     unittest.main()
