@@ -22,7 +22,10 @@ class PolycomRegistration:
         self.userId = None
 
     def set_label(self, label):
-        self.label = label
+        if label is None:
+            self.label = ""
+        else:
+            self.label = label
 
     def set_aor(self, aor:Aor):
         self.aor = aor
