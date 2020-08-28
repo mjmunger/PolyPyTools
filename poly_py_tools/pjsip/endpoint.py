@@ -1,4 +1,5 @@
 import os
+from pprint import pprint
 
 from xml.dom import minidom
 from xml.etree import ElementTree
@@ -249,6 +250,7 @@ class Endpoint(SipResource):
             attribs[tag] = reg.label
 
         reg_node = root.find("reg")
+        pprint(reg_node)
         self.log("Root registration node: {}".format(reg_node), 5)
         reg_node.attrib = attribs
 
@@ -287,7 +289,6 @@ class Endpoint(SipResource):
             os.makedirs(target_directory)
 
         target_file = os.path.join(target_directory, self.mac)
-        print(self.basic_cfg(meta, tftproot))
         element = ElementTree.fromstring(self.basic_cfg(meta, tftproot))
         ET = ElementTree.ElementTree(element)
         ET.write(target_file, encoding="us-ascii", method="xml")
