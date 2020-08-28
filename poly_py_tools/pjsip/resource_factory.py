@@ -67,7 +67,7 @@ class SipResourceFactory(Loggable):
             return None
 
         type = self.extract_type(section)
-        self.log("{} template found: {}".format(type, section[0]))
+        self.log("{} template found: {}".format(type, section[0]), 1)
 
         if type is None:
             raise ValueError("A template must have a type to be generated with polypy.")
