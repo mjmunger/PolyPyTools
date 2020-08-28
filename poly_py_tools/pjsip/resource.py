@@ -1,4 +1,7 @@
-class SipResource:
+from poly_py_tools.loggable import Loggable
+
+
+class SipResource(Loggable):
 
     section = None
     section_name = None
