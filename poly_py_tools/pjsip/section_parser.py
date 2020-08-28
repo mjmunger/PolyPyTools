@@ -1,14 +1,17 @@
+from poly_py_tools.loggable import Loggable
 from poly_py_tools.pjsip.endpoint import Endpoint
 from poly_py_tools.pjsip.resource_factory import SipResourceFactory
 
 
-class PjSipSectionParser:
+class PjSipSectionParser(Loggable):
 
     conf_file = None
     sections = None
     resources = None
     factory = None
     templates = None
+    verbosity = None
+
 
     def __init__(self, conf_file, factory: SipResourceFactory):
         self.factory = factory
@@ -90,18 +93,20 @@ class PjSipSectionParser:
 
     def get_endpoint(self, mac) -> Endpoint:
         target_mac = str(mac).lower().replace(":","").replace("-","")
+
+        self.log("Target endpoint with mac address: {}".format(target_mac), 3)
         
         for resource in self.resources:
-            print("-------------------------")
-            print("Checking resource:")
-            print(resource)
             if resource is None:
+                self.log("Skipping a 'None' resource", 5)
                 continue
 
             if not resource.type == 'endpoint':
+                self.log("Skipping a non-endpoint resource: {}".format(resource.type), 5)
                 continue
 
             if resource.type == 'endpoint' and resource.mac == target_mac:
+                self.log("Found endpoint with mac: {}".format(resource.mac), 1)
                 return resource
 
     def get_templates(self):

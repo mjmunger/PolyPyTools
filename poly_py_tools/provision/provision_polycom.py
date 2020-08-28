@@ -21,8 +21,9 @@ class ProvisionPolycom:
         factory = SipResourceFactory()
         meta = ModelMeta()
         parser = PjSipSectionParser(os.path.join(self.configs['paths']['asterisk'], "pjsip.conf"), factory)
+        if self.args['-d']:
+            parser.set_debug()
         parser.parse()
-        print("Looking for endpoint: {}".format(self.args['<macaddress>']))
         ep = parser.get_endpoint(self.args['<macaddress>'])
         ep.set_attributes()
         ep.load_aors(parser.resources)
