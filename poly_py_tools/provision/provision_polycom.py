@@ -17,6 +17,7 @@ class ProvisionPolycom(Loggable):
         self.args = args
         pconf = args['config']
         self.configs = pconf.configs()
+        super().__init__()
 
     def run(self):
         factory = SipResourceFactory()
