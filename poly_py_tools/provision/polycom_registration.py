@@ -18,7 +18,7 @@ class PolycomRegistration:
         self.registration_address = None
         self.sip_server = None
         self.password = None
-        self.label = None
+        self.label = ""
         self.userId = None
 
     def set_label(self, label):
