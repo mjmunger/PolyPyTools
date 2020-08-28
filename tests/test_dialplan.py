@@ -63,7 +63,7 @@ class TestDialplan(unittest.TestCase):
                 self.assertEqual(row[5], entry.did, "Failure for entry.{} for index: {}".format("did", index))
                 self.assertEqual(row[6], entry.group_dial, "Failure for entry.{} for index: {}".format("group_dial", index))
                 self.assertEqual(row[7], entry.endpoint, "Failure for entry.{} for index: {}".format("endpoint", index))
-                self.assertEqual(row[8], entry.mac, "Failure for entry.{} for index: {}".format("mac", index))
+                self.assertEqual(row[8].lower(), entry.mac, "Failure for entry.{} for index: {}".format("mac", index))
                 self.assertEqual(row[9], entry.email, "Failure for entry.{} for index: {}".format("email", index))
                 self.assertEqual(row[10], entry.site, "Failure for entry.{} for index: {}".format("site", index))
                 self.assertEqual(row[11], entry.cid_number, "Failure for entry.{} for index: {}".format("cid_number", index))

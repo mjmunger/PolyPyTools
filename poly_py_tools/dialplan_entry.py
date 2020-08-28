@@ -53,6 +53,8 @@ class Entry:
                 continue
 
             setattr(self, key, row[int(self.map[key])])
+            if key == "mac":
+                self.mac = self.mac.lower()
 
     def __str__(self):
         buffer = []
