@@ -287,6 +287,7 @@ class Endpoint(SipResource):
             os.makedirs(target_directory)
 
         target_file = os.path.join(target_directory, self.mac)
+        print(self.basic_cfg(meta, tftproot))
         element = ElementTree.fromstring(self.basic_cfg(meta, tftproot))
         ET = ElementTree.ElementTree(element)
         ET.write(target_file, encoding="us-ascii", method="xml")
