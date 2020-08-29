@@ -1,0 +1,22 @@
+Last name,First Name,Title,Extension ,Voicemail ,Direct Phone,Simul-ring,Device,MAC,Email,site,callerid,label,priority
+John,Levine,,101,101@l3vm,,,SPIP670,0004f23a626f,john@l-3.com,office.l-3.com,101,101,1
+Rich,Lussier,,102,102@l3vm,,,SPIP670,0004f23a3f53,rich@l-3.com,eastern.l-3.com,102,102,1
+Ava,Maguire,,103,103@l3vm,,,SPIP670,0004f23a5515,ava@l-3.com,eastern.l-3.com,103,103,1
+Craig,McLean,,104,104@l3vm,,,SPIP670,0004f23a3801,craig@l-3.com,office.l-3.com,104,104,1
+Doris,Sherill,,105,105@l3vm,,,SPIP670,0004f23a43bf,doris@l-3.com,office.l-3.com,105,105,1
+Fax,,,106,106@l3vm,,,SPIP670,0004f265ee1c,,office.l-3.com,106,106,1
+Conference Alt,,,108,108@l3vm,,,SPIP670,0004f243f141,,central.l-3.com,108,108,1
+Kitchen,,,109,109@l3vm,,,SPIP670,0004f265ec84,,office.l-3.com,109,109,1
+Training Room,,,110,110@l3vm,,,SPIP670,0004f23a380e,,office.l-3.com,110,110,1
+Conference Phone,,,111,111@l3vm,,,SSIP7000,0004F2E62AA4,,office.l-3.com,111,111,1
+Michael,McClellan,,114,114@l3vm,,,SPIP670,0004f2687c95,mcclellan@l-3.com,office.l-3.com,114,114,1
+Melody,Davis,,115,115@l3vm,,,SPIP670,0004f24dc8ed,melody@l-3.com,eastern.l-3.com,115,115,1
+Carlin,Boswell,,116,116@l3vm,,,SPIP670,0004f2327f13,carlin@l-3.com,eastern.l-3.com,116,116,1
+Michael,Kahn,,117,117@l3vm,,,SPIP670,0004f262f600,kahn@l-3.com,office.l-3.com,117,117,1
+Adam,Norrell,,118,118@l3vm,,,SPIP670,0004f25fb5c3,adam@l-3.com,central.l-3.com,118,118,1
+Billy,Sanders,,107,107@l3vm,,,SPIP670,0004f23a611f,billy@l-3.com,central.l-3.com,107,107,1
+John,Levine,,121,101@l3vm,,,SPIP670,0004f24dc88f,john@l-3.com,eastern.l-3.com,121,121,1
+Rich,Lussier,,152,152@ppc,,,SPIP670,0004f23a3f53,rich@l-3.com,office.l-3.com,152,152,2
+Ava,Maguire,,153,153@ppc,,,SPIP670,0004f23a5515,ava@l-3.com,office.l-3.com,153,153,2
+Doris,Sherill,,155,155@ppc,,,SPIP670,0004f23a43bf,doris@l-3.com,office.l-3.com,155,155,2
+Test,Phone,,119,119@147982 ,,,550,0004f23ec301,administrator@l-3.com,office.l-3.com,119,119,
