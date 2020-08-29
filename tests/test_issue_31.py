@@ -19,8 +19,16 @@ from xml.etree import ElementTree as ET
 class TestIssue31(unittest.TestCase):
 
     def setUp(self) -> None:
+        prep_directories = self.get_prep_directories()
 
-        self.clean_files()
+
+        if not os.path.exists(prep_directories['asterisk']):
+            os.mkdir(prep_directories['asterisk'])
+
+        if not os.path.exists(prep_directories['tftproot']):
+            os.mkdir(prep_directories['tftproot'])
+
+        # self.clean_files()
         prep_directories = self.get_prep_directories()
         pjsip_src = os.path.join(self.issue_base(), "pjsip.conf")
         pjsip_dst = os.path.join(prep_directories['asterisk'], "pjsip.conf")
@@ -37,7 +45,8 @@ class TestIssue31(unittest.TestCase):
                 if not os.path.isdir(target_file):
                     os.remove(target_file)
 
-        rmtree(os.path.join(prep_directories['tftproot'], "com-l-3-office"))
+        rmtree(prep_directories['tftproot'])
+        rmtree(prep_directories['asterisk'])
 
     def get_prep_directories(self):
         prep_directories = {}

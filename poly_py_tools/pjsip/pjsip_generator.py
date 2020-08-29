@@ -43,7 +43,7 @@ class PJSipGenerator(object):
         dialplan.with_config(self.config)
         dialplan.parse()
 
-        endpoints = []
+        endpoints = {}
         templates = {}
 
         for entry in dialplan.entries:
@@ -51,6 +51,7 @@ class PJSipGenerator(object):
             template.from_entry(entry)
             if not template.section in templates:
                 templates[template.section] = template
+
 
             endpoint = Endpoint("[{}]({})".format(entry.mac, template.name))
             endpoint.mac = entry.mac
@@ -72,7 +73,15 @@ class PJSipGenerator(object):
             endpoint.add_aor(aor)
             endpoint.add_auth(auth)
 
-            endpoints.append(endpoint)
+            if entry.mac in endpoints:
+                target_endpoint = endpoints[entry.mac]
+                for address_of_record in endpoint.addresses:
+                    target_endpoint.add_aor(address_of_record)
+                for authorization in endpoint.authorizations:
+                    target_endpoint.add_auth(authorization)
+                endpoints[entry.mac] = target_endpoint
+            else:
+                endpoints[entry.mac] = endpoint
 
         buffer = []
         buffer.append(";Generated with polpypy pjsip generate")
@@ -83,7 +92,7 @@ class PJSipGenerator(object):
 
         for endpoint in endpoints:
             buffer.append("")
-            buffer.append(endpoint.render())
+            buffer.append(endpoints[endpoint].render())
 
             # for aor in endpoint.addresses:
             #     buffer.append("")

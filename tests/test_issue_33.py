@@ -25,9 +25,9 @@ class TestIssue33(unittest.TestCase):
         if not os.path.exists(TestIssue33.asterisk_dir()):
             os.mkdir(TestIssue33.asterisk_dir())
 
-    def tearDown(self) -> None:
-        if os.path.exists(TestIssue33.asterisk_dir()):
-            shutil.rmtree(TestIssue33.asterisk_dir())
+    # def tearDown(self) -> None:
+    #     if os.path.exists(TestIssue33.asterisk_dir()):
+    #         shutil.rmtree(TestIssue33.asterisk_dir())
 
     def test_issue_33(self):
 
@@ -82,6 +82,24 @@ class TestIssue33(unittest.TestCase):
 
         for section in sections:
             self.assertEqual(1, sections[section], "Section {} is duplicated, and will break asterisk".format(section))
+
+        endpoint_count = 0
+        for resource in parser.resources:
+            if resource.type == 'endpoint':
+                endpoint_count = endpoint_count + 1
+
+        self.assertEqual(21, endpoint_count)
+
+        ppc_phones = []
+        rich = parser.get_endpoint("0004f23a3f53")
+        ava = parser.get_endpoint("0004f23a5515")
+        doris = parser.get_endpoint("0004f23a43bf")
+
+        for phone in ppc_phones:
+            self.assertEqual(2, len(phone.auth.split(",")))
+            self.assertEqual(2, len(phone.aors.split(",")))
+
+
 
 
 

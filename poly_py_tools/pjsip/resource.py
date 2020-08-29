@@ -16,6 +16,12 @@ class SipResource(Loggable):
         self.section = section
         self.section_name = None
         self.type = None
+
+        if "[" in section and "]" in section:
+            start = str(section).find("[") + 1
+            end = str(section).find("]")
+            self.section_name = section[start:end]
+
         if len(section) > 0:
             self.is_template = True if "(!)" in section[0] else False
         super().__init__()
