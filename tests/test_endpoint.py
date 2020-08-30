@@ -485,7 +485,7 @@ class TestEndpoint(unittest.TestCase):
 
         self.assertFalse(application_node is None)
         self.assertTrue(application_node.tag, "APPLICATION_SSIP7000")
-        self.assertEqual("firmware/4.0.15.1009/3111-40000-001.ld", application_node.attrib['APP_FILE_PATH_SSIP7000'])
+        self.assertEqual("firmware/4.0.15.1009/3111-40000-001.sip.ld", application_node.attrib['APP_FILE_PATH_SSIP7000'])
         self.assertEqual("some-site-template/0004f23a43bf", application_node.attrib['CONFIG_FILES_SSIP7000'])
 
     def test_render(self):

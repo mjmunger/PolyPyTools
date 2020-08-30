@@ -273,7 +273,7 @@ class Endpoint(SipResource):
             root.append(app_node)
 
         attribs = {}
-        attribs["APP_FILE_PATH_{}".format(self.model)] = "firmware/{}/{}.ld".format(meta.get_firmware_version(self.model), meta.get_part(self.model))
+        attribs["APP_FILE_PATH_{}".format(self.model)] = "firmware/{}/{}.sip.ld".format(meta.get_firmware_version(self.model), meta.get_part(self.model))
         attribs["CONFIG_FILES_{}".format(self.model)] = "{}/{}".format(self.template, self.mac)
         app_node.attrib = attribs
 

@@ -20,7 +20,7 @@ class TestIssue31(unittest.TestCase):
 
     def setUp(self) -> None:
 
-        self.clean_files()
+        # self.clean_files()
         prep_directories = self.get_prep_directories()
         pjsip_src = os.path.join(self.issue_base(), "pjsip.conf")
         pjsip_dst = os.path.join(prep_directories['asterisk'], "pjsip.conf")
