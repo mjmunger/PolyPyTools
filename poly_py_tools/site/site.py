@@ -1,16 +1,17 @@
 #!/usr/bin/env python3
 """
-Usage: polypy site [ options ] setup sntp for <site> --offset=<gmtoffset> [--server=<ntp_server> ]
-       polypy site [ options ] setup syslog for <site> [ --server=<syslog_server> ]
-       polypy site [ options ] setup nat for <site> --keepalive=<interval> [--ip=<ip>] [ --mediaPortStart=<mediaPortStart> --signalPort=<signalPort> ]
-       polypy site [ options ] setup password for <site> to <password>
-       polypy site [ options ] setup digitmap for <site> add <pattern>
-       polypy site [ options ] setup digitmap for <site> del <pattern>
-       polypy site [ options ] setup voipprot for <site> --address=<address> [ --port=<port> ]
-       polypy site [ options ] setup vlan for <site> [enable | disable ]
-       polypy site [ options ] disable nat for <site>
-       polypy site [ options ] configs flush
-       polypy site [ options ] configs fill
+Usage: polypy [ options ] site init <site>
+       polypy [ options ] site flush configs
+       polypy [ options ] site setup sntp for <site> --offset=<gmtoffset> [--server=<ntp_server> ]
+       polypy [ options ] site setup syslog for <site> [ --server=<syslog_server> ]
+       polypy [ options ] site setup nat for <site> --keepalive=<interval> [--ip=<ip>] [ --mediaPortStart=<mediaPortStart> --signalPort=<signalPort> ]
+       polypy [ options ] site setup password for <site> to <password>
+       polypy [ options ] site setup digitmap for <site> add <pattern>
+       polypy [ options ] site setup digitmap for <site> del <pattern>
+       polypy [ options ] site setup voipprot for <site> --address=<address> [ --port=<port> ]
+       polypy [ options ] site setup vlan for <site> [enable | disable ]
+       polypy [ options ] site disable nat for <site>
+
 
   Commands:
       setup        Setup a site with basic settings.
@@ -41,6 +42,8 @@ Usage: polypy site [ options ] setup sntp for <site> --offset=<gmtoffset> [--ser
 import sys
 
 from docopt import docopt
+from poly_py_tools.site.site_factory import SiteFactory
+
 
 class Site:
 
@@ -53,11 +56,14 @@ class Site:
         return self.container['pconf']
 
     def run(self):
-        pass
+        factory = SiteFactory(self.container)
+        runner = factory.create(self.container)
+        runner.run()
 
 
-container = {}
-args = docopt(__doc__)
-container['<args>'] = args
-site = Site(container)
-site.run()
+if __name__ == '__main__':
+    container = {}
+    args = docopt(__doc__)
+    container['<args>'] = args
+    site = Site(container)
+    site.run()
