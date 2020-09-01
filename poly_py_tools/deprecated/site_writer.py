@@ -1,8 +1,6 @@
 import xml
 import xml.dom.minidom
 import os
-import sys
-from pprint import pprint
 from shutil import copy
 
 

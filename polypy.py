@@ -22,6 +22,8 @@ See polypy help <command> for more information with a specific command.
  
 """
 import os
+import sys
+
 from docopt import docopt
 
 from poly_py_tools.polypy import Polypy

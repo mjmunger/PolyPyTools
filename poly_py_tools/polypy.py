@@ -25,8 +25,8 @@ class Polypy():
             docopt(provision.__doc__, argv=argv)
 
         elif self.args['<command>'] == 'site':
-            from poly_py_tools import polypy_site
-            docopt(polypy_site.__doc__, argv=argv)
+            from poly_py_tools.site import site
+            docopt(site.__doc__, argv=argv)
 
         elif self.args['<command>'] == 'version':
             Versionator.show_version()
