@@ -391,5 +391,62 @@ class TestSite(unittest.TestCase):
 
         self.assertEqual(expected_output, output)
 
+    provider_test_add_digitmap = lambda : (
+        ("polypy site setup digitmap for example.org add 1xx", "1xx", "3", "1xx added to digit map for example.org.\n"),
+    )
+
+    @data_provider(provider_test_add_digitmap)
+    def test_add_digitmap(self, command: str, expected_digitmap: str, expected_timeouts: str, expected_output : str):
+        """
+        :param self:
+        :param command: cli command
+        :param expected_digitmap: should be the last element in the list.
+        :param expected_timeouts: should also be the last element in the list.
+        :return:
+        """
+        argv = command.split(" ")
+        sys.argv = argv
+
+        container, out, pconf, siteroot = self.setup_setup()
+
+        # Should match site.py's script. Mocking should go before here.
+        import poly_py_tools.site.site
+        args = docopt(poly_py_tools.site.site.__doc__)
+        container['<args>'] = args
+        container['meta'] = ModelMeta()
+        container['meta'].get_firmware_base_dir = MagicMock(
+            return_value=os.path.join(os.path.dirname(__file__), "fixtures/issue_35"))
+        container['meta'].use_configs(pconf)
+
+        site = Site(container)
+
+        # Do assertions for setup prior to run here
+        self.assertTrue(isinstance(site.pconf(), PolypyConfig))
+        default_maps = "[2-9]11|0T|011xxx.T|[0-1][2-9]xxxxxxxxx|[2-9]xxxxxxxxx|[2-9]xxxT|**x.T".split("|")
+        default_timeouts = "3|3|3|3|3|3|3".split("|")
+
+        #  End pre-run assertions
+
+        site.run()
+
+        # Post run assertions
+        output = out.getvalue()
+
+        config_file = os.path.join(siteroot, "site.cfg")
+        self.assertTrue(os.path.exists(config_file))
+        tree = ET.parse(config_file)
+        root = tree.getroot()
+        dialplan_node = root.find("dialplan")
+
+        digitmaps = dialplan_node.attrib['dialplan.digitmap'].split("|")
+        self.assertEqual(digitmaps[len(digitmaps) -1], expected_digitmap)
+
+        digitmap_node = dialplan_node.find("dialplan.digitmap")
+        timeouts = digitmap_node.attrib['dialplan.digitmap.timeOut'].split("|")
+        self.assertEqual(len(digitmaps), len(timeouts))
+        self.assertEqual(expected_digitmap, digitmaps[len(digitmaps) -1])
+
+        self.assertEqual(expected_output, output)
+
 if __name__ == '__main__':
     unittest.main()

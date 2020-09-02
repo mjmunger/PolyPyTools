@@ -2,6 +2,7 @@ import unittest
 
 from unittest_data_provider import data_provider
 
+from poly_py_tools.site.digitmap_setup import DigitMapSetup
 from poly_py_tools.site.nat_setup import NatSetup
 from poly_py_tools.site.password_setup import PasswordSetup
 from poly_py_tools.site.site_configurator import SiteConfigurator
@@ -18,6 +19,7 @@ class TestSiteFactory(unittest.TestCase):
         ({'<args>': {'site' :True, 'setup': True, 'syslog': True, '<site>': 'example.org'}}, SyslogSetup),
         ({'<args>': {'site' :True, 'setup': True, 'nat': True, '<site>': 'example.org'}}, NatSetup),
         ({'<args>': {'site' :True, 'setup': True, 'password': True, '<site>': 'example.org'}}, PasswordSetup),
+        ({'<args>': {'site' :True, 'setup': True, 'digitmap': True, '<site>': 'example.org'}}, DigitMapSetup),
     )
 
     @data_provider(provider_test_site_factory)
