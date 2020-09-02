@@ -345,6 +345,51 @@ class TestSite(unittest.TestCase):
         expected_output = "NAT configured for example.org.\n"
         self.assertEqual(expected_output, output)
 
+    provider_test_setup_password = lambda : (
+        ("polypy site setup password for example.org to 8675309", "8675309", "Phone password for example.org set to 8675309\n"),
+    )
+
+    @data_provider(provider_test_setup_password)
+    def test_setup_password(self, command : str, expected_password : str, expected_output : str):
+        argv = command.split(" ")
+        sys.argv = argv
+
+        container, out, pconf, siteroot = self.setup_setup()
+
+        # Should match site.py's script. Mocking should go before here.
+        import poly_py_tools.site.site
+        args = docopt(poly_py_tools.site.site.__doc__)
+        container['<args>'] = args
+        container['meta'] = ModelMeta()
+        container['meta'].get_firmware_base_dir = MagicMock(
+            return_value=os.path.join(os.path.dirname(__file__), "fixtures/issue_35"))
+        container['meta'].use_configs(pconf)
+
+        site = Site(container)
+
+        # Do assertions for setup prior to run here
+        self.assertTrue(isinstance(site.pconf(), PolypyConfig))
+        #  End pre-run assertions
+
+        site.run()
+
+        # Post run assertions
+        output = out.getvalue()
+
+
+
+        config_file = os.path.join(siteroot, "site.cfg")
+        self.assertTrue(os.path.exists(config_file))
+        tree = ET.parse(config_file)
+        root = tree.getroot()
+        node = root.find("device")
+        node = node.find("device.auth")
+        self.assertEqual(node.attrib['device.auth.localAdminPassword'], expected_password)
+
+        tmp_node = node.find("device.auth.localAdminPassword")
+        self.assertEqual("1", tmp_node.attrib['device.auth.localAdminPassword.set'])
+
+        self.assertEqual(expected_output, output)
 
 if __name__ == '__main__':
     unittest.main()
