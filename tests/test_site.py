@@ -4,6 +4,8 @@ import unittest
 import os
 import io
 from unittest.mock import MagicMock
+import xml.etree.ElementTree as ET
+
 
 from docopt import docopt
 from unittest_data_provider import data_provider
@@ -24,10 +26,10 @@ class TestSite(unittest.TestCase):
         if not os.path.exists(TestSite.issue_tftproot()):
             os.mkdir(TestSite.issue_tftproot())
 
-    def tearDown(self) -> None:
-        tftproot = os.path.join(TestSite.issue_root(), 'tftproot')
-        if os.path.exists(tftproot):
-            shutil.rmtree(tftproot)
+    # def tearDown(self) -> None:
+    #     tftproot = os.path.join(TestSite.issue_root(), 'tftproot')
+    #     if os.path.exists(tftproot):
+    #         shutil.rmtree(tftproot)
 
     @staticmethod
     def issue_root():
@@ -99,7 +101,29 @@ class TestSite(unittest.TestCase):
         f.close()
 
         self.assertEqual("".join(buffer.strip()), expected_firmware_version)
-
+    def setup_setup(self):
+        # Container is reset in site.py. This is so we can mock things.
+        container = {}
+        pconf = PolypyConfig()
+        pconf.add_search_path(TestSite.issue_root())
+        pconf.find()
+        pconf.load()
+        pconf.json['paths']['tftproot'] = os.path.join(TestSite.issue_root(), 'tftproot')
+        container['pconf'] = pconf
+        saved_stdout = sys.stdout
+        out = io.StringIO()
+        sys.stdout = out
+        # Setup the files that we need to flush.
+        siteroot = os.path.join(pconf.json['paths']['tftproot'], "org-example")
+        if not os.path.exists(siteroot):
+            os.mkdir(siteroot)
+        source_dir = os.path.join(TestSite.issue_root(), "4.0.15.1009/Config")
+        src_cfg = os.path.join(source_dir, "site.cfg")
+        dst_cfg = os.path.join(siteroot, "site.cfg")
+        shutil.copy(src_cfg, dst_cfg)
+        self.assertTrue(os.path.exists(dst_cfg))
+        # End file setup.
+        return container, out, pconf, siteroot
     provider_test_site_flush = lambda : (
         ("polypy site flush configs for example.org", "Configs flushed for /Users/michael/py/PolyPyTools/tests/fixtures/issue_35/tftproot/org-example\n", "4.0.15.1009"),
         ("polypy site flush configs for example.org", "Configs flushed for /Users/michael/py/PolyPyTools/tests/fixtures/issue_35/tftproot/org-example\n", "6.3.0.14929"),
@@ -177,9 +201,149 @@ class TestSite(unittest.TestCase):
             target_file = os.path.join(siteroot, file)
             self.assertFalse(os.path.exists(target_file), "{} should not exist, but does.")
 
+    provider_test_site_sntp = lambda : (
+        ("polypy site setup sntp for example.org --offset=-18000", "-18000", "0.north-america.pool.ntp.org", "NTP Server for example.org set to -18000 using 0.north-america.pool.ntp.org\n"),
+        ("polypy site setup sntp for example.org --offset=-24000 --server=some.ntp.server.org", "-24000", "some.ntp.server.org", "NTP Server for example.org set to -24000 using some.ntp.server.org\n"),
+    )
+
+    @data_provider(provider_test_site_sntp)
+    def test_site_sntp(self, command, expected_offset, expected_server, expected_output):
+        argv = command.split(" ")
+        sys.argv = argv
+
+        container, out, pconf, siteroot = self.setup_setup()
+
+        # Should match site.py's script. Mocking should go before here.
+        import poly_py_tools.site.site
+        args = docopt(poly_py_tools.site.site.__doc__)
+        container['<args>'] = args
+        container['meta'] = ModelMeta()
+        container['meta'].get_firmware_base_dir = MagicMock(
+            return_value=os.path.join(os.path.dirname(__file__), "fixtures/issue_35"))
+        container['meta'].use_configs(pconf)
+
+        site = Site(container)
+
+        # Do assertions for setup prior to run here
+        self.assertTrue(isinstance(site.pconf(), PolypyConfig))
+        #  End pre-run assertions
+
+        site.run()
+
+        # Post run assertions
+        output = out.getvalue()
+        # self.assertEqual(expected_output, output)
+
+        site_cfg = os.path.join(siteroot, "site.cfg")
+        self.assertTrue(os.path.exists(site_cfg))
+        tree = ET.parse(site_cfg)
+        root = tree.getroot()
+        node = root.find("device")
+        node = node.find("device.sntp")
+        self.assertEqual(node.attrib['device.sntp.gmtOffset'], expected_offset)
+        self.assertEqual(node.attrib['device.sntp.serverName'], expected_server)
+
+    provider_test_site_syslog = lambda : (
+        ("polypy site setup syslog for example.org", "pbx.hph.io", "Syslog server set to pbx.hph.io for example.org.\n"),
+        ("polypy site setup syslog for example.org --server=some.other.ntp.server", "some.other.ntp.server", "Syslog server set to some.other.ntp.server for example.org.\n"),
+    )
+    @data_provider(provider_test_site_syslog)
+    def test_setup_syslog(self, command : str, expected_syslog_server, expected_output):
+        argv = command.split(" ")
+        sys.argv = argv
+
+        container, out, pconf, siteroot = self.setup_setup()
+
+        # Should match site.py's script. Mocking should go before here.
+        import poly_py_tools.site.site
+        args = docopt(poly_py_tools.site.site.__doc__)
+        container['<args>'] = args
+        container['meta'] = ModelMeta()
+        container['meta'].get_firmware_base_dir = MagicMock(
+            return_value=os.path.join(os.path.dirname(__file__), "fixtures/issue_35"))
+        container['meta'].use_configs(pconf)
+
+        site = Site(container)
+
+        # Do assertions for setup prior to run here
+        self.assertTrue(isinstance(site.pconf(), PolypyConfig))
+        #  End pre-run assertions
+
+        site.run()
+
+        # Post run assertions
+        output = out.getvalue()
+        self.assertEqual(expected_output, output)
+
+        site_cfg = os.path.join(siteroot, "site.cfg")
+        self.assertTrue(os.path.exists(site_cfg))
+        tree = ET.parse(site_cfg)
+        root = tree.getroot()
+        node = root.find("device")
+        node = node.find("device.syslog")
+        self.assertEqual(node.attrib['device.syslog.prependMac'], "1")
+        self.assertEqual(node.attrib['device.syslog.serverName'], expected_syslog_server)
+        self.assertEqual(node.attrib['device.syslog.transport'], "UDP")
+
+        tmp_node = node.find("device.syslog.prependMac")
+        self.assertEqual("1", tmp_node.attrib['device.syslog.prependMac.set'])
+
+        tmp_node = node.find("device.syslog.serverName")
+        self.assertEqual("1", tmp_node.attrib['device.syslog.serverName.set'])
+
+        tmp_node = node.find("device.syslog.transport")
+        self.assertEqual("1", tmp_node.attrib['device.syslog.transport.set'])
+
+    provider_test_setup_nat = lambda : (
+        ("polypy site setup nat for example.org --keepalive=30", "30", "", "0", "0"),
+        ("polypy site setup nat for example.org --keepalive=45 --ip=1.2.3.4", "45", "1.2.3.4", "0", "0"),
+        ("polypy site setup nat for example.org --keepalive=60 --ip=1.2.3.4 --mediaPortStart=5061", "60", "1.2.3.4", "5061", "0"),
+        ("polypy site setup nat for example.org --keepalive=15 --ip=1.2.3.4 --mediaPortStart=5061 --signalPort=1234", "15", "1.2.3.4", "5061", "1234"),
+    )
+
+    @data_provider(provider_test_setup_nat)
+    def test_setup_nat(self, command : str, expected_keep_alive : str, expected_ip : str, expected_media_start_port : str, expected_signal_port : str):
+        argv = command.split(" ")
+        sys.argv = argv
+
+        container, out, pconf, siteroot = self.setup_setup()
+
+        # Should match site.py's script. Mocking should go before here.
+        import poly_py_tools.site.site
+        args = docopt(poly_py_tools.site.site.__doc__)
+        container['<args>'] = args
+        container['meta'] = ModelMeta()
+        container['meta'].get_firmware_base_dir = MagicMock(
+            return_value=os.path.join(os.path.dirname(__file__), "fixtures/issue_35"))
+        container['meta'].use_configs(pconf)
+
+        site = Site(container)
+
+        # Do assertions for setup prior to run here
+        self.assertTrue(isinstance(site.pconf(), PolypyConfig))
+        #  End pre-run assertions
+
+        site.run()
+
+        # Post run assertions
+        output = out.getvalue()
 
 
 
+        config_file = os.path.join(siteroot, "sip-interop.cfg")
+        self.assertTrue(os.path.exists(config_file))
+        tree = ET.parse(config_file)
+        root = tree.getroot()
+        node = root.find("nat")
+        self.assertEqual(node.attrib['nat.ip'], expected_ip)
+        self.assertEqual(node.attrib['nat.mediaPortStart'], expected_media_start_port)
+        self.assertEqual(node.attrib['nat.signalPort'], expected_signal_port)
+
+        tmp_node = node.find("nat.keepalive")
+        self.assertEqual(expected_keep_alive, tmp_node.attrib['nat.keepalive.interval'])
+
+        expected_output = "NAT configured for example.org.\n"
+        self.assertEqual(expected_output, output)
 
 
 if __name__ == '__main__':

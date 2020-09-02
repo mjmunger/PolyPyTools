@@ -6,16 +6,6 @@ from poly_py_tools.site.site_runner import SiteRunner
 
 class SiteConfigurator(SiteRunner):
 
-    container = None
-
-    def __init__(self, container):
-        self.container = container
-
-    def siteroot(self):
-        domain = list(self.container['<args>']['<site>'].split("."))
-        domain.reverse()
-        return  os.path.join(self.container['pconf'].tftproot_path(), "-".join(domain))
-
     def get_config_source(self):
         if self.container['<args>']['<model>']:
             return os.path.join(self.container['meta'].get_firmware_dir(self.container['<args>']['<model>']), "Config")
