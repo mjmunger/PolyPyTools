@@ -1,6 +1,6 @@
 #!/usr/bin/env python3
 """
-Usage: polypy [ options ] site init <site>
+Usage: polypy [ options ] site init <site> [<model>]
        polypy [ options ] site flush configs
        polypy [ options ] site setup sntp for <site> --offset=<gmtoffset> [--server=<ntp_server> ]
        polypy [ options ] site setup syslog for <site> [ --server=<syslog_server> ]
@@ -56,7 +56,7 @@ class Site:
         return self.container['pconf']
 
     def run(self):
-        factory = SiteFactory(self.container)
+        factory = SiteFactory()
         runner = factory.create(self.container)
         runner.run()
 
