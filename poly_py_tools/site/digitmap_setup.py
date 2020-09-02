@@ -12,7 +12,23 @@ class DigitMapSetup(SiteRunner):
         return os.path.join(self.siteroot(), "sip-interop.cfg")
 
     def del_digitmap(self):
-        pass
+        tree = ET.parse(self.site_cfg())
+        root = tree.getroot()
+        dialplan_node = root.find("dialplan")
+        digitmaps = dialplan_node.attrib['dialplan.digitmap'].split("|")
+        target_index = digitmaps.index(self.container['<args>']['<pattern>'])
+        digitmaps.remove(digitmaps[target_index])
+        dialplan_node.attrib['dialplan.digitmap'] = "|".join(digitmaps)
+
+        digitmap_node = dialplan_node.find("dialplan.digitmap")
+        timeouts = digitmap_node.attrib['dialplan.digitmap.timeOut'].split("|")
+        timeouts.remove(timeouts[target_index])
+        digitmap_node.attrib['dialplan.digitmap.timeOut'] = "|".join(timeouts)
+
+        tree.write(self.site_cfg())
+
+        print("{} removed from digit map for {}.".format(self.container['<args>']['<pattern>'],
+                                                 self.container['<args>']['<site>']))
 
     def add_digitmap(self):
         tree = ET.parse(self.site_cfg())
