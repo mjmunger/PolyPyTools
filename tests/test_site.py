@@ -91,12 +91,22 @@ class TestSite(unittest.TestCase):
             target_source_file = os.path.join(self.issue_root(), "{}/Config".format(expected_firmware_version))
             self.assertTrue(os.path.exists(target_source_file))
 
+        sip_ver_file = os.path.join(siteroot, "sip.ver")
+        self.assertTrue(os.path.exists(sip_ver_file))
+
+        f = open(sip_ver_file, 'r')
+        buffer = f.read()
+        f.close()
+
+        self.assertEqual("".join(buffer.strip()), expected_firmware_version)
+
     provider_test_site_flush = lambda : (
-        "polypy site flush configs for example.org", "Configs flushed for /Users/michael/py/PolyPyTools/tests/fixtures/issue_35/tftproot/org-example"
+        ("polypy site flush configs for example.org", "Configs flushed for /Users/michael/py/PolyPyTools/tests/fixtures/issue_35/tftproot/org-example\n", "4.0.15.1009"),
+        ("polypy site flush configs for example.org", "Configs flushed for /Users/michael/py/PolyPyTools/tests/fixtures/issue_35/tftproot/org-example\n", "6.3.0.14929"),
     )
 
     @data_provider(provider_test_site_flush)
-    def test_site_flush(self, command : str, expected_output : str):
+    def test_site_flush(self, command : str, expected_output : str, expected_firmware_version : str):
 
         argv = command.split(" ")
         sys.argv = argv
@@ -114,6 +124,31 @@ class TestSite(unittest.TestCase):
         saved_stdout = sys.stdout
         out = io.StringIO()
         sys.stdout = out
+
+        #Setup the files that we need to flush.
+        siteroot = os.path.join(pconf.json['paths']['tftproot'], "org-example")
+        if not os.path.exists(siteroot):
+            os.mkdir(siteroot)
+
+        source_dir = os.path.join(TestSite.issue_root(), expected_firmware_version)
+        source_config = os.path.join(source_dir, "Config")
+        files = os.listdir(source_config)
+        for file in files:
+            src = os.path.join(source_config, file)
+            dst = os.path.join(siteroot, file)
+            shutil.copy(src, dst)
+
+        src = os.path.join(source_dir, "sip.ver")
+        dst = os.path.join(siteroot, "sip.ver")
+        shutil.copy(src, dst)
+
+        self.assertTrue(os.path.exists(dst))
+
+        for file in files:
+            target_file = os.path.exists(os.path.join(siteroot, file))
+            self.assertTrue(target_file)
+
+        # End file setup.
 
         # Should match site.py's script. Mocking should go before here.
         import poly_py_tools.site.site
@@ -135,6 +170,12 @@ class TestSite(unittest.TestCase):
         # Post run assertions
         output = out.getvalue()
         self.assertEqual(expected_output, output)
+
+        self.assertTrue(os.path.exists(siteroot))
+
+        for file in files:
+            target_file = os.path.join(siteroot, file)
+            self.assertFalse(os.path.exists(target_file), "{} should not exist, but does.")
 
 
 
