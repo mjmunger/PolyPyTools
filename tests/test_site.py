@@ -37,10 +37,10 @@ class TestSite(unittest.TestCase):
             dst = os.path.join(siteroot, file)
             shutil.copy(src, dst)
 
-    def tearDown(self) -> None:
-        tftproot = os.path.join(TestSite.issue_root(), 'tftproot')
-        if os.path.exists(tftproot):
-            shutil.rmtree(tftproot)
+    # def tearDown(self) -> None:
+    #     tftproot = os.path.join(TestSite.issue_root(), 'tftproot')
+    #     if os.path.exists(tftproot):
+    #         shutil.rmtree(tftproot)
 
     @staticmethod
     def issue_root():
@@ -622,6 +622,69 @@ class TestSite(unittest.TestCase):
             tmp_node = net_node.find("device.net.{}".format(n))
             tmp_node.attrib["device.net.{}.set".format(n)] = expected_set_value
 
+
+        self.assertEqual(expected_output, output)
+
+    provider_test_disable_nat = lambda: (
+        ("polypy site disable nat for example.org", "example.org", "NAT configured for example.org.\n" ),
+    )
+
+    @data_provider(provider_test_disable_nat)
+    def test_disable_nat(self, command: str,
+                        site: str,
+                        expected_output: str):
+
+        argv = command.split(" ")
+        sys.argv = argv
+
+        container, out, pconf, siteroot = self.setup_setup()
+
+        # Should match site.py's script. Mocking should go before here.
+        import poly_py_tools.site.site
+        args = docopt(poly_py_tools.site.site.__doc__)
+        container['<args>'] = args
+        container['meta'] = ModelMeta()
+        container['meta'].get_firmware_base_dir = MagicMock(
+            return_value=os.path.join(os.path.dirname(__file__), "fixtures/issue_35"))
+        container['meta'].use_configs(pconf)
+
+        site = Site(container)
+
+        sip_interop_cfg = os.path.join(TestSite.issue_tftproot(), "org-example/sip-interop.cfg")
+        tree = ET.parse(sip_interop_cfg)
+        root = tree.getroot()
+        nat_node = root.find("nat")
+        nat_node.attrib['nat.ip'] = "8.8.8.8"
+        nat_node.attrib['nat.mediaPortStart'] = "10000"
+        nat_node.attrib['nat.signalPort'] = "5060"
+
+        keepalive_node = nat_node.find("nat.keepalive")
+        keepalive_node.attrib['nat.keepalive.interval'] = "30"
+        tree.write(sip_interop_cfg)
+
+        tree = None
+
+
+        # Do assertions for setup prior to run here
+        self.assertTrue(isinstance(site.pconf(), PolypyConfig))
+        #  End pre-run assertions
+
+        site.run()
+
+        # Post run assertions
+        output = out.getvalue()
+
+        self.assertTrue(os.path.exists(sip_interop_cfg))
+
+        tree = ET.parse(sip_interop_cfg)
+        root = tree.getroot()
+        nat_node = root.find("nat")
+        self.assertEqual("", nat_node.attrib['nat.ip'])
+        self.assertEqual("0", nat_node.attrib['nat.mediaPortStart'])
+        self.assertEqual("0", nat_node.attrib['nat.signalPort'])
+
+        keepalive_node = nat_node.find("nat.keepalive")
+        self.assertEqual(keepalive_node.attrib['nat.keepalive.interval'], "0")
 
         self.assertEqual(expected_output, output)
 

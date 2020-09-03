@@ -3,6 +3,7 @@ import unittest
 from unittest_data_provider import data_provider
 
 from poly_py_tools.site.digitmap_setup import DigitMapSetup
+from poly_py_tools.site.disable_nat import DisableNat
 from poly_py_tools.site.nat_setup import NatSetup
 from poly_py_tools.site.password_setup import PasswordSetup
 from poly_py_tools.site.setup_vlan import SetupVlan
@@ -24,6 +25,7 @@ class TestSiteFactory(unittest.TestCase):
         ({'<args>': {'site' :True, 'setup': True, 'digitmap': True, '<site>': 'example.org'}}, DigitMapSetup),
         ({'<args>': {'site' :True, 'setup': True, 'voipprot': True, '<site>': 'example.org'}}, SetupVoipProt),
         ({'<args>': {'site' :True, 'setup': True, 'vlan': True, '<site>': 'example.org'}}, SetupVlan),
+        ({'<args>': {'site' :True, 'disable': True, 'nat': True, '<site>': 'example.org'}}, DisableNat),
     )
 
     @data_provider(provider_test_site_factory)
