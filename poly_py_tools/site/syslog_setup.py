@@ -34,4 +34,5 @@ class SyslogSetup(SiteRunner):
 
     def run(self):
         self.setup_syslog()
-        print("Syslog Server for {} set to {}".format(self.container['<args>']['<site>'], self.container['<args>']['--server'] ))
+
+        print("Syslog server set to {} for {}.".format(self.container['<args>']['--server'], self.container['<args>']['<site>'] ))

@@ -26,10 +26,21 @@ class TestSite(unittest.TestCase):
         if not os.path.exists(TestSite.issue_tftproot()):
             os.mkdir(TestSite.issue_tftproot())
 
-    # def tearDown(self) -> None:
-    #     tftproot = os.path.join(TestSite.issue_root(), 'tftproot')
-    #     if os.path.exists(tftproot):
-    #         shutil.rmtree(tftproot)
+        siteroot = os.path.join(TestSite.issue_tftproot(), "org-example")
+        if not os.path.exists(siteroot):
+            os.mkdir(siteroot)
+
+        config_src = os.path.join(TestSite.issue_root(), "6.3.0.14929/Config")
+
+        for file in os.listdir(config_src):
+            src = os.path.join(config_src, file)
+            dst = os.path.join(siteroot, file)
+            shutil.copy(src, dst)
+
+    def tearDown(self) -> None:
+        tftproot = os.path.join(TestSite.issue_root(), 'tftproot')
+        if os.path.exists(tftproot):
+            shutil.rmtree(tftproot)
 
     @staticmethod
     def issue_root():
@@ -506,5 +517,113 @@ class TestSite(unittest.TestCase):
         self.assertEqual(len(expected_digitmap), len(timeouts))
 
         self.assertEqual(expected_output, output)
+
+    provider_setup_voipprot = lambda : (
+        ("polypy site setup voipprot for example.org --address=192.168.250.1", "example.org", "192.168.250.1", "0", "Registration server for example.org has been set to 192.168.250.1.\n"),
+        ("polypy site setup voipprot for example.org --address=192.168.250.1 --port=1234", "example.org", "192.168.250.1", "1234", "Registration server for example.org has been set to 192.168.250.1.\n"),
+    )
+
+    @data_provider(provider_setup_voipprot)
+    def test_setup_voipprot(self, command: str, site: str, expected_address: str, expected_port : str, expected_output: str):
+        argv = command.split(" ")
+        sys.argv = argv
+
+        container, out, pconf, siteroot = self.setup_setup()
+
+        # Should match site.py's script. Mocking should go before here.
+        import poly_py_tools.site.site
+        args = docopt(poly_py_tools.site.site.__doc__)
+        container['<args>'] = args
+        container['meta'] = ModelMeta()
+        container['meta'].get_firmware_base_dir = MagicMock(
+            return_value=os.path.join(os.path.dirname(__file__), "fixtures/issue_35"))
+        container['meta'].use_configs(pconf)
+
+        site = Site(container)
+
+        # Do assertions for setup prior to run here
+        self.assertTrue(isinstance(site.pconf(), PolypyConfig))
+        #  End pre-run assertions
+
+        site.run()
+
+        # Post run assertions
+        output = out.getvalue()
+
+        config_file = os.path.join(siteroot, "sip-basic.cfg")
+        self.assertTrue(os.path.exists(config_file))
+        tree = ET.parse(config_file)
+        root = tree.getroot()
+        voipprot_node = root.find("voIpProt")
+        server_node = voipprot_node.find("voIpProt.server")
+
+        self.assertEqual(expected_address, server_node.attrib['voIpProt.server.1.address'])
+        self.assertEqual(expected_port, server_node.attrib['voIpProt.server.1.port'])
+
+        self.assertEqual(expected_output, output)
+
+    provider_setup_vlan = lambda: (
+        ("polypy site setup vlan for example.org enable",  "example.org", "fixed", "1", "1", "1", "VLAN for example.org has been enabled.\n" ),
+        ("polypy site setup vlan for example.org disable", "example.org", "disabled", "0", "0", "0", "VLAN for example.org has been disabled.\n" ),
+    )
+
+    @data_provider(provider_setup_vlan)
+    def test_setup_vlan(self, command: str,
+                        site: str,
+                        expected_state: str,
+                        expected_lldpenabled: str,
+                        expected_cdpenabled : str,
+                        expected_set_value : str,
+                        expected_output: str):
+
+        argv = command.split(" ")
+        sys.argv = argv
+
+        container, out, pconf, siteroot = self.setup_setup()
+
+        # Should match site.py's script. Mocking should go before here.
+        import poly_py_tools.site.site
+        args = docopt(poly_py_tools.site.site.__doc__)
+        container['<args>'] = args
+        container['meta'] = ModelMeta()
+        container['meta'].get_firmware_base_dir = MagicMock(
+            return_value=os.path.join(os.path.dirname(__file__), "fixtures/issue_35"))
+        container['meta'].use_configs(pconf)
+
+        site = Site(container)
+
+        # Do assertions for setup prior to run here
+        self.assertTrue(isinstance(site.pconf(), PolypyConfig))
+        #  End pre-run assertions
+
+        site.run()
+
+        # Post run assertions
+        output = out.getvalue()
+
+        config_file = os.path.join(siteroot, "site.cfg")
+        self.assertTrue(os.path.exists(config_file))
+        tree = ET.parse(config_file)
+        root = tree.getroot()
+        device_node = root.find("device")
+        net_node = device_node.find("device.net")
+        dhcp_node = device_node.find("device.dhcp")
+
+        self.assertEqual(expected_state, dhcp_node.attrib['device.dhcp.dhcpVlanDiscUseOpt'])
+
+        set_dhcp_vlan_disc_node = dhcp_node.find("device.dhcp.dhcpVlanDiscUseOpt")
+        set_dhcp_vlan_disc_node.attrib['device.dhcp.dhcpVlanDiscUseOpt.set'] = expected_set_value
+
+        self.assertEqual(net_node.attrib['lldpEnabled'], expected_lldpenabled)
+        self.assertEqual(net_node.attrib['cdpEnabled'], expected_cdpenabled)
+
+        set_nodes = [ 'lldpEnabled', 'cdpEnabled']
+        for n in set_nodes:
+            tmp_node = net_node.find("device.net.{}".format(n))
+            tmp_node.attrib["device.net.{}.set".format(n)] = expected_set_value
+
+
+        self.assertEqual(expected_output, output)
+
 if __name__ == '__main__':
     unittest.main()

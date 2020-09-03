@@ -17,6 +17,8 @@ class SiteFactory(object):
         self.cmd_callbacks['site setup nat'] = ["poly_py_tools.site.nat_setup", "NatSetup"]
         self.cmd_callbacks['site setup password'] = ["poly_py_tools.site.password_setup", "PasswordSetup"]
         self.cmd_callbacks['site setup digitmap'] = ["poly_py_tools.site.digitmap_setup", "DigitMapSetup"]
+        self.cmd_callbacks['site setup voipprot'] = ["poly_py_tools.site.setup_voipprot", "SetupVoipProt"]
+        self.cmd_callbacks['site setup vlan'] = ["poly_py_tools.site.setup_vlan", "SetupVlan"]
 
     def create(self, container : Dict):
         args = container['<args>']
