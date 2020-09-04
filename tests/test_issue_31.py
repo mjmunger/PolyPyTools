@@ -22,6 +22,17 @@ class TestIssue31(unittest.TestCase):
 
         # self.clean_files()
         prep_directories = self.get_prep_directories()
+        if not os.path.exists(self.issue_base()):
+            os.mkdir(self.issue_base())
+
+        asterisk = os.path.join(self.issue_base(), "asterisk")
+        if not os.path.exists(asterisk):
+            os.mkdir(asterisk)
+
+        tftproot = os.path.join(self.issue_base(), 'tftproot')
+        if not os.path.exists(tftproot):
+            os.mkdir(tftproot)
+
         pjsip_src = os.path.join(self.issue_base(), "pjsip.conf")
         pjsip_dst = os.path.join(prep_directories['asterisk'], "pjsip.conf")
         copy(pjsip_src, pjsip_dst)
