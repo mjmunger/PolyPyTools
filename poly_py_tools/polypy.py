@@ -28,8 +28,7 @@ class Polypy():
 
         elif self.args['<command>'] == 'site':
             from poly_py_tools.site import site
-            # container['<args>'] = docopt(site.__doc__, argv=argv)
-            container['<args>'] = self.args['<args>']
+            container['<args>'] = docopt(site.__doc__, argv=argv)
             site = Site(container)
             site.run()
 
