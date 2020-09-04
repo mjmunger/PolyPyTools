@@ -1,5 +1,6 @@
 from docopt import docopt
 
+from poly_py_tools.site.site import Site
 from poly_py_tools.versionator import Versionator
 
 
@@ -27,6 +28,10 @@ class Polypy():
         elif self.args['<command>'] == 'site':
             from poly_py_tools.site import site
             docopt(site.__doc__, argv=argv)
+            container = {}
+            container['<args>'] = self.args
+            site = Site(container)
+            site.run()
 
         elif self.args['<command>'] == 'version':
             Versionator.show_version()

@@ -59,11 +59,3 @@ class Site:
         factory = SiteFactory()
         runner = factory.create(self.container)
         runner.run()
-
-
-if __name__ == '__main__':
-    container = {}
-    args = docopt(__doc__)
-    container['<args>'] = args
-    site = Site(container)
-    site.run()
