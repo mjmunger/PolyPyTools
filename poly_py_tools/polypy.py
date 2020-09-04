@@ -29,7 +29,7 @@ class Polypy():
             from poly_py_tools.site import site
             docopt(site.__doc__, argv=argv)
             container = {}
-            container['<args>'] = self.args
+            container['<args>'] = argv
             site = Site(container)
             site.run()
 
