@@ -13,6 +13,7 @@ class Polypy():
 
     def run(self):
         argv = [self.args['<command>']] + self.args['<args>']
+        container = {}
 
         if self.args['<command>'] == 'pjsip':
             from poly_py_tools.pjsip import pjsip
@@ -27,8 +28,8 @@ class Polypy():
 
         elif self.args['<command>'] == 'site':
             from poly_py_tools.site import site
-            container = {}
-            container['<args>'] = docopt(site.__doc__, argv=argv)
+            # container['<args>'] = docopt(site.__doc__, argv=argv)
+            container['<args>'] = self.args['<args>']
             site = Site(container)
             site.run()
 
