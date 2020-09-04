@@ -1,5 +1,6 @@
 from docopt import docopt
 
+from poly_py_tools.polypy_config import PolypyConfig
 from poly_py_tools.site.site import Site
 from poly_py_tools.versionator import Versionator
 
@@ -14,6 +15,13 @@ class Polypy():
     def run(self):
         argv = [self.args['<command>']] + self.args['<args>']
         container = {}
+
+        container = {}
+        pconf = PolypyConfig()
+        pconf.add_search_path("/etc/polypy/")
+        pconf.find()
+        pconf.load()
+        container['pconf'] = pconf
 
         if self.args['<command>'] == 'pjsip':
             from poly_py_tools.pjsip import pjsip
