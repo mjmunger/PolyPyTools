@@ -272,9 +272,14 @@ class Endpoint(SipResource):
             app_node = ElementTree.Element(target_node)
             root.append(app_node)
 
+        files = ["site.cfg", "sip-interop.cfg", "features.cfg", "sip-basic.cfg", "reg-advanced.cfg"]
+        files.append(self.mac)
+
+        config_files = [ "{}/{}".format(self.template, file) for file in files ]
+
         attribs = {}
         attribs["APP_FILE_PATH_{}".format(self.model)] = "firmware/{}/{}.sip.ld".format(meta.get_firmware_version(self.model), meta.get_part(self.model))
-        attribs["CONFIG_FILES_{}".format(self.model)] = "{}/{}".format(self.template, self.mac)
+        attribs["CONFIG_FILES_{}".format(self.model)] = ", ".join(config_files)
         app_node.attrib = attribs
 
         return ElementTree.tostring(root, encoding="unicode", method='xml')
