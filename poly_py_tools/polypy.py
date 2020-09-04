@@ -1,6 +1,7 @@
 from docopt import docopt
 
 from poly_py_tools.polypy_config import PolypyConfig
+from poly_py_tools.provision.model_meta import ModelMeta
 from poly_py_tools.site.site import Site
 from poly_py_tools.versionator import Versionator
 
@@ -22,6 +23,9 @@ class Polypy():
         pconf.find()
         pconf.load()
         container['pconf'] = pconf
+
+        container['meta'] = ModelMeta()
+        container['meta'].use_configs(pconf)
 
         if self.args['<command>'] == 'pjsip':
             from poly_py_tools.pjsip import pjsip
