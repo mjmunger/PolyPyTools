@@ -209,8 +209,8 @@ class Endpoint(SipResource):
                     self.authorizations.append(resource)
 
     def hydrate_registrations(self):
-        if len(self.authorizations) != len(self.addresses):
-            raise ValueError("Authorization count and address count must be the same.")
+        # if len(self.authorizations) != len(self.addresses):
+        #     raise ValueError("Authorization count and address count must be the same.")
 
         for x in range(0, len(self.authorizations)):
             auth = self.authorizations[x]
