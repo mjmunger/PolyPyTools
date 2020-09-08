@@ -58,8 +58,8 @@ class PJSipGenerator(object):
             endpoint.extension = entry.exten
             endpoint.callerid = "{} {}<{}>".format(entry.first, entry.last, entry.cid_number)
 
-            aor = Aor("[{}{}]".format(endpoint.mac, endpoint.extension))
-            aor.section_name = "{}{}".format(endpoint.mac, endpoint.extension)
+            aor = Aor("[{}]".format(endpoint.mac))
+            aor.section_name = "{}".format(endpoint.mac)
             aor.max_contacts = "1"
             aor.mailboxes = entry.vm
 
