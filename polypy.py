@@ -12,8 +12,8 @@ Options:
 Commands:
 
   configure  Configure PolyPyTools.
-  provision  Creates provisioning files for Polycom phones from asterisk's sip.conf.
-  sip        Manage sip.conf
+  provision  Creates provisioning files for Polycom phones from asterisk's pjsip.conf.
+  pjsip      Manage pjsip.conf
   site       Manage site files
   version    Show the version of this package
   deploy     Deploy files rendered to tftproot

@@ -1,6 +1,7 @@
 #!/usr/bin/env python3
 """
 usage: polypy [ -v ... ] [options] pjsip generate <extension> from <file> ([assign <template>] | [ use template column <column> ]) [with voicemail]
+       polypy [ -v ... ] [options] pjsip guess columns from <file> [ --startrow=<startrow> ] [ --save ]
 
 options:
   -d  --debug    Debug mode

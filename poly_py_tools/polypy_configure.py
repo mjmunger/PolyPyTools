@@ -68,10 +68,6 @@ if args['set-server']:
     server_addr = args['<server_addr>']
     config.set_server(server_addr)
 
-if config.config['paths'] is None:
-    print("No paths have been configured. Run polypy configure set-path to resolve.")
-    exit(1)
-
 if args['validate']:
     config.validate()
 
