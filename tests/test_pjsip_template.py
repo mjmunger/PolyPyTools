@@ -30,7 +30,7 @@ class TestTemplate(unittest.TestCase):
         entry.label = "1001"
         entry.priority = "1"
 
-        expected_template = "[org-example-atl](!)\ntype = endpoint\ncontext = org-example-atl-local-stations\nallow = !all,g722,ulaw\ndirect_media = no\ntrust_id_outbound = yes\ndevice_state_busy_at = 1\ndtmf_mode = rfc4733"
+        expected_template = "[org-example-atl](!)\ntype = endpoint\ncontext = org-example-atl-local-stations\nallow = !all,g722,ulaw\ndirect_media = no\ntrust_id_outbound = yes\ndevice_state_busy_at = 1\ndtmf_mode = rfc4733\nforce_rport = yes\nrewrite_contact = yes"
 
         template = Template()
         template.from_entry(entry)

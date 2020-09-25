@@ -10,6 +10,8 @@ class Template:
     trust_id_outbound = None
     device_state_busy_at = None
     dtmf_mode = None
+    force_rport = None
+    rewrite_contact = None
     name = None
 
     def __init__(self):
@@ -20,6 +22,8 @@ class Template:
         self.trust_id_outbound = "yes"
         self.device_state_busy_at = "1"
         self.dtmf_mode = "rfc4733"
+        self.force_rport = "yes"
+        self.rewrite_contact = "yes"
         self.name = None
 
     def from_entry(self, entry: Entry):
@@ -40,5 +44,7 @@ class Template:
         buffer.append("trust_id_outbound = {}".format(self.trust_id_outbound))
         buffer.append("device_state_busy_at = {}".format(self.device_state_busy_at))
         buffer.append("dtmf_mode = {}".format(self.dtmf_mode))
+        buffer.append("force_rport = {}".format(self.force_rport))
+        buffer.append("rewrite_contact = {}".format(self.rewrite_contact))
         return "\n".join(buffer)
 
