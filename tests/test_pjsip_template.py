@@ -2,6 +2,7 @@ import unittest
 from unittest import mock
 from unittest.mock import Mock, MagicMock
 
+from poly_py_tools.pjsip.endpoint import Endpoint
 from poly_py_tools.pjsip.template import Template
 from poly_py_tools.dialplan_entry import Entry
 from poly_py_tools.polypy_config import PolypyConfig
@@ -36,6 +37,25 @@ class TestTemplate(unittest.TestCase):
         template.from_entry(entry)
         self.assertEqual(expected_template, str(template))
         self.assertEqual("org-example-atl", template.name)
+
+    def test_from_endpoint(self):
+        section = "[org-example-atl](!)\ntype = endpoint\ncontext = org-example-atl-local-stations\nallow = !all,g722,ulaw\ndirect_media = no\ntrust_id_outbound = yes\ndevice_state_busy_at = 1\ndtmf_mode = rfc4733\nforce_rport = yes\nrewrite_contact = yes".split("\n")
+        endpoint = Endpoint(section)
+        endpoint.set_attributes()
+        self.assertIsInstance(endpoint, Endpoint)
+        self.assertEqual("org-example-atl", endpoint.section_name)
+        self.assertTrue(endpoint.is_template)
+
+        template = Template()
+        template.from_endpoint(endpoint)
+
+        self.assertEqual("[org-example-atl](!)", template.section)
+        self.assertEqual(endpoint.context, template.context)
+        self.assertEqual("org-example-atl", template.name)
+        # Other values for a template are using the default from Template::__init__()
+
+
+
 
 
 

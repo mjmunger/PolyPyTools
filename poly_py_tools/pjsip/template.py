@@ -1,4 +1,6 @@
 from poly_py_tools.dialplan_entry import Entry
+from poly_py_tools.pjsip.endpoint import Endpoint
+
 
 class Template:
 
@@ -33,6 +35,11 @@ class Template:
         self.name = site
         self.section = "[{}](!)".format(site)
         self.context = "{}-local-stations".format(site)
+
+    def from_endpoint(self, endpoint: Endpoint):
+        self.section = "[{}](!)".format(endpoint.section_name)
+        self.context = endpoint.context
+        self.name = endpoint.section_name
 
     def __str__(self):
         buffer = []

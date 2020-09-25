@@ -4,6 +4,8 @@ usage: polypy [ -v ... ] [options] pjsip generate <extension> from <file> ([assi
        polypy [ -v ... ] [options] pjsip guess columns from <file> [ --startrow=<startrow> ] [ --save ]
 
 options:
+  -a             Append generated records to the output file.
+  -r             Re-write the generated pjsip file, and append generated entries to it.
   -d  --debug    Debug mode
   -f, --force    Force the setting.
   -v             Be verbose

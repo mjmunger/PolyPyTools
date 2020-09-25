@@ -2,12 +2,16 @@ import sys
 import os
 import io
 import unittest
-from shutil import rmtree
+from shutil import rmtree, copy
 from docopt import docopt
 from unittest import mock
 from unittest.mock import patch, mock_open, MagicMock
 from unittest_data_provider import data_provider
+
+from poly_py_tools.dialplan import Dialplan
 from poly_py_tools.pjsip.pjsip_generator import PJSipGenerator
+from poly_py_tools.pjsip.resource_factory import SipResourceFactory
+from poly_py_tools.pjsip.section_parser import PjSipSectionParser
 from poly_py_tools.polypy_config import PolypyConfig
 from pwgen_secure.rpg import Rpg
 
@@ -48,12 +52,12 @@ class TestPJSipGenerator(unittest.TestCase):
         if not os.path.exists(self.issue_tftproot()):
             os.mkdir(self.issue_tftproot())
 
-    def tearDown(self) -> None:
-        if os.path.exists(self.issue_tftproot()):
-            rmtree(self.issue_tftproot())
-
-        if os.path.exists(self.issue_asterisk()):
-            rmtree(self.issue_asterisk())
+    # def tearDown(self) -> None:
+    #     if os.path.exists(self.issue_tftproot()):
+    #         rmtree(self.issue_tftproot())
+    #
+    #     if os.path.exists(self.issue_asterisk()):
+    #         rmtree(self.issue_asterisk())
 
     def test_init(self):
         container = {}
@@ -134,12 +138,17 @@ class TestPJSipGenerator(unittest.TestCase):
         container['rpg'] = mock_rpg
         container['args'] = {'<extension>': "1001"}
 
+        dialplan = Dialplan(csv_path)
+        dialplan.with_config(config)
+        dialplan.parse()
+
         generator = PJSipGenerator(container)
         # self.assertRaises(ValueError, generator.generate_from(csv_path))
         # generator.use(config)
         # generator.with_rpg(mock_rpg)
         generator.generate_from(csv_path)
-        self.assertEqual(expected_configs, generator.conf())
+        generator.parse_dialplan(dialplan)
+        self.assertEqual(expected_configs, generator.render_conf())
 
     provider_test_generator = lambda: (
         ( 'DialPlanBuilder-ExampleOrg.csv', 'expected_pjsip_01.conf'),
@@ -209,6 +218,81 @@ class TestPJSipGenerator(unittest.TestCase):
         self.assertEqual(expected_configs, "".join(buffer))
         # </assertions>
 
+    def test_append(self):
+        csv = "DialPlanBuilder-ExampleOrg.csv"
+        expected_conf = "expected_pjsip_02.conf"
+        # <setup command and args>
 
+        argv = "polypy -a pjsip generate 1002 from {} with voicemail".format(
+            os.path.join(self.issue_root(), "DialPlanBuilder-ExampleOrg.csv")).split(" ")
+        sys.argv = argv
+        from poly_py_tools.pjsip import pjsip
+        args = docopt(pjsip.__doc__)
+
+        # </setup command and args>
+
+        # <setup files>
+        src = os.path.join(self.issue_root(),"expected_pjsip_01.conf")
+        dst = os.path.join(self.issue_asterisk(), "pjsip.conf")
+        copy(src, dst)
+        # </setup files>
+
+        # <setup container>
+        container = {}
+
+        container['args'] = args
+        mock_rpg = Rpg("strong", None)
+        mock_rpg.generate_password = MagicMock(return_value="QoWTIllrgkVKZR")
+        container['rpg'] = mock_rpg
+
+        pconf = PolypyConfig()
+        pconf.add_search_path(os.path.join(os.path.dirname(__file__), "fixtures/pjsip_generator/"))
+        pconf.load()
+        pconf.set_path("asterisk", self.issue_asterisk())
+
+        container['pconf'] = pconf
+
+        factory = SipResourceFactory()
+        parser = PjSipSectionParser()
+        parser.use_config(pconf)
+        parser.use_factory(factory)
+        container['pjsipparser'] = parser
+
+        # </setup container>
+
+        # <setup stdio>
+        saved_stdout = sys.stdout
+        out = io.StringIO()
+        sys.stdout = out
+        # <setup stdio>
+
+        # <run>
+
+        generator = PJSipGenerator(container)
+        generator.run()
+        output = out.getvalue()
+
+        # </run>
+
+        # <assertions>
+        expected_conf_path = os.path.join(self.issue_root(), "expected_pjsip_02.conf")
+
+        f = open(expected_conf_path, 'r')
+        buffer = f.read()
+        f.close()
+        expected_configs = "".join(buffer)
+
+        target_output_file = os.path.join(self.issue_asterisk(), "pjsip.conf")
+        self.assertTrue(os.path.exists(target_output_file))
+
+        self.assertEqual("Saved to: {}\n".format(target_output_file), output)
+        self.assertTrue(os.path.exists(target_output_file))
+
+        f = open(target_output_file, 'r')
+        buffer = f.read()
+        f.close()
+
+        self.assertEqual(expected_configs, "".join(buffer))
+        # </assertions>
 if __name__ == '__main__':
     unittest.main()

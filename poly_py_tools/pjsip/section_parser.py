@@ -40,7 +40,7 @@ class PjSipSectionParser(Loggable):
 
         for line in buffer:
 
-            hidden_attributes = [";mac", ";model", ";label", ";order"]
+            hidden_attributes = [";mac", ";model", ";label", ";order", ";extension"]
             for attribute in hidden_attributes:
                 if line.startswith(attribute):
                     line = line[1:]

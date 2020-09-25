@@ -14,7 +14,7 @@ class Auth(SipResource):
 
     def render(self):
         section = []
-        section.append(self.section)
+        section.append("[{}]".format(self.section_name))
         if not self.label is None:
             section.append(";label={}".format(self.label))
 

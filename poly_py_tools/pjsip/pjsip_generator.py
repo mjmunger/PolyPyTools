@@ -15,9 +15,13 @@ class PJSipGenerator(object):
     config = None
     rpg = None
     pconf = None
+    endpoints = None
+    templates = None
 
     def __init__(self, container):
         self.use(container)
+        self.endpoints = []
+        self.templates = {}
 
     def use(self, container):
         self.container = container
@@ -37,16 +41,9 @@ class PJSipGenerator(object):
 
         self.source_csv = csv
 
-    def conf(self):
+    def parse_dialplan(self, dialplan: Dialplan):
         if self.pconf is None:
             raise ValueError("Polypy config (self.config) must be set before attempting to generate conf files. Try: generator.use('someconfig')")
-
-        dialplan = Dialplan(self.source_csv)
-        dialplan.with_config(self.pconf)
-        dialplan.parse()
-
-        endpoints = []
-        templates = {}
 
         extension = self.container['args']['<extension>']
 
@@ -57,8 +54,8 @@ class PJSipGenerator(object):
 
             template = Template()
             template.from_entry(entry)
-            if not template.section in templates:
-                templates[template.section] = template
+            if not template.section in self.templates:
+                self.templates[template.section] = template
 
             endpoint = Endpoint("[{}{}]({})".format(entry.mac, entry.exten, template.name))
             endpoint.mac = entry.mac
@@ -80,16 +77,15 @@ class PJSipGenerator(object):
             endpoint.add_aor(aor)
             endpoint.add_auth(auth)
 
-            endpoints.append(endpoint)
+            self.endpoints.append(endpoint)
 
+    def render_conf(self):
         buffer = []
         buffer.append(";Generated with polpypy pjsip generate")
-
-        for t in templates:
+        for t in self.templates:
             buffer.append("")
-            buffer.append(str(templates[t]))
-
-        for endpoint in endpoints:
+            buffer.append(str(self.templates[t]))
+        for endpoint in self.endpoints:
             buffer.append("")
             buffer.append(endpoint.render())
 
@@ -100,15 +96,56 @@ class PJSipGenerator(object):
             # for auth in endpoint.authorizations:
             #     buffer.append("")
             #     buffer.append(auth.render())
-
         return "\n".join(buffer)
 
     def run(self):
 
         self.generate_from(self.container['args']['<file>'])
+        dialplan = Dialplan(self.source_csv)
+        dialplan.with_config(self.pconf)
+        dialplan.parse()
 
+        if self.container['args']['-a']:
+            self.append_conf(dialplan)
+        else:
+            self.write_clean_conf(dialplan)
+
+    def append_conf(self, dialplan: Dialplan):
+
+        # Add in all the stuff that's already there.
+        target_file = os.path.join(self.pconf.pjsip_path())
+        parser = self.container['pjsipparser']
+        parser.parse()
+
+        # Get the templates
+        for resource in parser.resources:
+            if resource.type == "endpoint":
+                if resource.is_template:
+                    template = Template()
+                    template.from_endpoint(resource)
+                    self.templates[template.section] = template
+
+        # Get the endpoints.
+        for resource in parser.resources:
+            if resource.type == "endpoint":
+                if not resource.is_template:
+                    resource.load_aors(parser.resources)
+                    resource.load_auths(parser.resources)
+                    self.endpoints.append(resource)
+
+        # Get the things we want to append.
+        self.parse_dialplan(dialplan)
+
+        self.write_pjsip_conf()
+
+    def write_clean_conf(self, dialplan: Dialplan):
+
+        self.parse_dialplan(dialplan)
+        self.write_pjsip_conf()
+
+    def write_pjsip_conf(self):
         target_file = os.path.join(self.pconf.pjsip_path())
         f = open(target_file, 'w')
-        f.write(self.conf())
+        f.write(self.render_conf())
         f.close()
         print("Saved to: {}".format(target_file))

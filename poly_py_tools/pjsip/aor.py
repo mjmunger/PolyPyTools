@@ -17,7 +17,7 @@ class Aor(SipResource):
 
     def render(self):
         section = []
-        section.append(self.section)
+        section.append("[{}]".format(self.section_name))
         section.append("type=aor")
         section.append("max_contacts={}".format(self.max_contacts))
         section.append("remove_existing=yes")

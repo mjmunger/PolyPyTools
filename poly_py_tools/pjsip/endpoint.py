@@ -120,7 +120,8 @@ class Endpoint(SipResource):
         self.addresses.append(aor)
 
     def add_auth(self, auth : Auth):
-        self.authorizations.append(auth)
+        if not auth in self.authorizations:
+            self.authorizations.append(auth)
 
     def add_registration(self, registration: PolycomRegistration):
         if registration.label is None:
@@ -153,15 +154,21 @@ class Endpoint(SipResource):
             self.section = [x.replace(exception, exceptions[exception]) for x in self.section]
 
     def load_aors(self, resources):
-        my_aor_list = self.aors.split(",")
+        if "," in self.aors:
+            my_aor_list = self.aors.split(",")
+        else:
+            my_aor_list = [self.aors]
+
         my_aor_list = [s.strip() for s in my_aor_list]
-        unsorted_aors = []
 
         for resource in resources:
             if not resource.type == 'aor':
                 continue
 
-            self.addresses.append(resource)
+            if not resource.section_name in my_aor_list:
+                continue
+
+            self.add_aor(resource)
 
         #     order = 0
         #     if resource.section_name in my_aor_list:
@@ -190,7 +197,11 @@ class Endpoint(SipResource):
 
 
     def load_auths(self, resources):
-        my_auth_list = self.auth.split(",")
+        if "," in self.auth:
+            my_auth_list = self.auth.split(",")
+        else:
+            my_auth_list = [ self.auth ]
+
         my_auth_list = [s.strip() for s in my_auth_list]
 
         for resource in resources:
@@ -198,17 +209,17 @@ class Endpoint(SipResource):
                 continue
 
             if resource.section_name in my_auth_list:
-                self.authorizations.append(resource)
+                self.add_auth(resource)
 
-        if len(self.addresses) == 0:
-            raise ValueError("No addresses (AORs) registered for endpoint. Be sure to run load_aors() first.")
-
-        for aor in self.addresses:
-            for resource in resources:
-                if not resource.type == 'auth':
-                    continue
-                if resource.section_name == "auth{}".format(aor.section_name):
-                    self.authorizations.append(resource)
+        # if len(self.addresses) == 0:
+        #     raise ValueError("No addresses (AORs) registered for endpoint. Be sure to run load_aors() first.")
+        #
+        # for aor in self.addresses:
+        #     for resource in resources:
+        #         if not resource.type == 'auth':
+        #             continue
+        #         if resource.section_name == "auth{}".format(aor.section_name):
+        #             self.authorizations.append(resource)
 
     def hydrate_registrations(self):
         # if len(self.authorizations) != len(self.addresses):
@@ -262,7 +273,7 @@ class Endpoint(SipResource):
             buffer.append("")
             buffer.append(aor.render())
 
-        buffer.append("")
+        # buffer.append("")
 
         return "\n".join(buffer)
 
