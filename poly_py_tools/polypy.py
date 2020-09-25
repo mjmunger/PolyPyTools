@@ -1,5 +1,7 @@
 from docopt import docopt
+from pwgen_secure.rpg import Rpg
 
+from poly_py_tools.pjsip.pjsip import PJSip
 from poly_py_tools.pjsip.resource_factory import SipResourceFactory
 from poly_py_tools.pjsip.section_parser import PjSipSectionParser
 from poly_py_tools.polypy_config import PolypyConfig
@@ -26,6 +28,8 @@ class Polypy():
         pconf.load()
         container['pconf'] = pconf
 
+        container['rpg'] = Rpg("strong", None)
+
         container['meta'] = ModelMeta()
         container['meta'].use_configs(pconf)
 
@@ -41,7 +45,9 @@ class Polypy():
 
         if self.args['<command>'] == 'pjsip':
             from poly_py_tools.pjsip import pjsip
-            docopt(pjsip.__doc__, argv=argv)
+            container['args'] = docopt(pjsip.__doc__, argv=argv)
+            pjsip = PJSip(container)
+            pjsip.run()
 
         elif self.args['<command>'] == 'configure':
             from poly_py_tools import polypy_configure
