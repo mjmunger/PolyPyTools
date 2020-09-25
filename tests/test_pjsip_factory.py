@@ -29,8 +29,10 @@ class TestPJSipFactory(unittest.TestCase):
 
     @data_provider(provider_test_get_runner)
     def test_get_runner(self, args, expected_class):
+        container = {}
+        container['args'] = args
         factory = PJSipFactory()
-        runner = factory.get_runner(args)
+        runner = factory.get_runner(container)
         self.assertTrue(isinstance(runner, expected_class))
 
 

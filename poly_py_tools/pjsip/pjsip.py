@@ -17,27 +17,31 @@ from poly_py_tools.polypy_config import PolypyConfig
 from poly_py_tools.polypy_config_finder import ConfigFinder
 from poly_py_tools.pjsip.pjsip_factory import PJSipFactory
 
-args = docopt(__doc__, options_first=True)
-debug_mode = False
 
-if args['-d']:
-    debug_mode = True
-    print("--------------------------------------------------")
-    print("Debug mode on.")
-    print("Debugging {}".format(__file__))
-    print("--------------------------------------------------")
-    print(args)
-    print("--------------------------------------------------")
+# pconf = PolypyConfig()
+# pconf.add_search_path("/etc/polypy/")
+# pconf.find()
+# pconf.load()
+#
+# args['config'] = pconf
+# args['<args>'] = args
+# args['rpg'] = Rpg("strong", None)
+#
+# factory = PJSipFactory()
+# runner = factory.get_runner(args)
+# runner.run()
 
-pconf = PolypyConfig()
-pconf.add_search_path("/etc/polypy/")
-pconf.find()
-pconf.load()
+class PJSip:
 
-args['config'] = pconf
-args['<args>'] = args
-args['rpg'] = Rpg("strong", None)
+    container = None
 
-factory = PJSipFactory()
-runner = factory.get_runner(args)
-runner.run()
+    def __init__(self, container):
+        self.container = container
+
+    def pconf(self):
+        return self.container['pconf']
+
+    def run(self):
+        factory = PJSipFactory()
+        runner = factory.get_runner(self.container)
+        runner.run()

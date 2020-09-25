@@ -2,16 +2,21 @@ from poly_py_tools.column_mapper import ColumnMapper
 import csv
 import json
 
-class PjSipColumnMapper():
 
+class PjSipColumnMapper:
+    # TODO: This class needs tests!
+    container = None
     source_csv = None
     config = None
+    pconf = None
 
-    def __init__(self, args):
-        self.args = args
+    def __init__(self, container):
 
-        if 'config' in args:
-            self.config = args['config']
+        self.container = container
+        self.args = container['args']
+
+        if 'pconf' in container:
+            self.pconf = container['pconf']
 
     def map_columns(self, source_file):
         with open(source_file) as csvfile:
@@ -20,14 +25,13 @@ class PjSipColumnMapper():
 
         mapper = ColumnMapper(self.config)
         mapper.match_columns(column_headers)
-        self.config.json['csvmap'] = mapper.map
+        self.pconf.json['csvmap'] = mapper.map
 
         buffer = json.dumps(self.config.json)
 
         fp = open('polypy.conf', 'w')
         fp.write(buffer)
         fp.close()
-
 
     def run(self):
         self.map_columns(self.args['<file>'])
