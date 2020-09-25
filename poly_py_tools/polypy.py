@@ -1,7 +1,10 @@
 from docopt import docopt
 
+from poly_py_tools.pjsip.resource_factory import SipResourceFactory
+from poly_py_tools.pjsip.section_parser import PjSipSectionParser
 from poly_py_tools.polypy_config import PolypyConfig
 from poly_py_tools.provision.model_meta import ModelMeta
+from poly_py_tools.provision.provision import Provision
 from poly_py_tools.site.site import Site
 from poly_py_tools.versionator import Versionator
 
@@ -25,6 +28,16 @@ class Polypy():
 
         container['meta'] = ModelMeta()
         container['meta'].use_configs(pconf)
+
+        container['sip_factory'] = SipResourceFactory()
+
+        sip_factory = SipResourceFactory()
+
+        parser = PjSipSectionParser()
+        parser.use_config(container['pconf'])
+        parser.use_factory(sip_factory)
+
+        container['pjsipsectionparser'] = parser
 
         if self.args['<command>'] == 'pjsip':
             from poly_py_tools.pjsip import pjsip
