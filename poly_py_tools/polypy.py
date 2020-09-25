@@ -14,9 +14,8 @@ class Polypy():
         self.args = args
 
     def run(self):
-        argv = [self.args['<command>']] + self.args['<args>']
-        container = {}
 
+        argv = [self.args['<command>']] + self.args['<args>']
         container = {}
         pconf = PolypyConfig()
         pconf.add_search_path("/etc/polypy/")
@@ -30,6 +29,7 @@ class Polypy():
         if self.args['<command>'] == 'pjsip':
             from poly_py_tools.pjsip import pjsip
             docopt(pjsip.__doc__, argv=argv)
+
         elif self.args['<command>'] == 'configure':
             from poly_py_tools import polypy_configure
             docopt(polypy_configure.__doc__, argv=argv)

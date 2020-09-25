@@ -1,8 +1,8 @@
 #!/usr/bin/env python3
 """
-Usage: polypy provision [ -v ... ] [options] polycom <macaddress>
-       polypy provision [ -v ... ] [options] list endpoints
-       polypy provision [ -v ... ] [options] directory for <macaddress> using <csvfile>...
+Usage: polypy provision polycom <macaddress>
+       polypy provision list endpoints
+       polypy provision directory for <macaddress> using <csvfile>...
 
 options:
   -d  --debug    Debug mode
