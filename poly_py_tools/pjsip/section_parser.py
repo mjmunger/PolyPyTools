@@ -25,7 +25,7 @@ class PjSipSectionParser(Loggable):
 
     def use_config(self, pconf: PolypyConfig):
         self.pconf = pconf
-        self.pjsip_conf_file = os.path.join(pconf.asterisk_path(), "pjsip.conf")
+        self.pjsip_conf_file = pconf.pjsip_path()
 
     def use_factory(self, factory : SipResourceFactory):
         self.factory = factory
