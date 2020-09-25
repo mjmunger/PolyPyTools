@@ -1,0 +1,6 @@
+<polycomConfig xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:noNamespaceSchemaLocation="polycomConfig.xsd">
+  <call call.callsPerLineKey="24">
+  </call>
+  <reg reg.1.address="0004f2e62aa4111@pbx.hph.io" reg.1.auth.password="DuolOou9ioFzYM6J" reg.1.auth.userId="0004f2e62aa4111" reg.1.label="Line 1" reg.2.address="0004f2e62aa4104@pbx.hph.io" reg.2.auth.password="Sc7mUrBUeFZO890I" reg.2.auth.userId="0004f2e62aa4104" reg.2.label="Line 2">
+  </reg>
+</polycomConfig>

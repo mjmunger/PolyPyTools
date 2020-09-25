@@ -14,21 +14,13 @@ class Aor(SipResource):
     authenticate_qualify = None
     outbound_proxy = None
     support_path = None
-    label = None
-    order = None
 
     def render(self):
         section = []
         section.append(self.section)
-        if not self.label is None:
-            section.append(";label={}".format(self.label))
-
-        if not self.order is None:
-            section.append(";order={}".format(self.order))
-
         section.append("type=aor")
         section.append("max_contacts={}".format(self.max_contacts))
+        section.append("remove_existing=yes")
         if not self.mailboxes is None:
             section.append("mailboxes={}".format(self.mailboxes))
-
         return "\n".join(section)

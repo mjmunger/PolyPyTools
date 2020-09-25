@@ -161,42 +161,44 @@ class Endpoint(SipResource):
             if not resource.type == 'aor':
                 continue
 
-            order = 0
-            if resource.section_name in my_aor_list:
-                if resource.order == None:
-                    order = order + 1
-                    resource.order = order
+            self.addresses.append(resource)
 
-                resource.order = int(resource.order)
-                unsorted_aors.append(resource)
+        #     order = 0
+        #     if resource.section_name in my_aor_list:
+        #         if resource.order == None:
+        #             order = order + 1
+        #             resource.order = order
+        #
+        #         resource.order = int(resource.order)
+        #         unsorted_aors.append(resource)
+        #
+        # max_index = 0
 
-        max_index = 0
-
-        for aor in unsorted_aors:
-            if aor.order > max_index:
-                max_index = aor.order
-
-        first_index = max_index
-        for aor in unsorted_aors:
-            if aor.order < first_index:
-                first_index = aor.order
-
-        for i in range(first_index, max_index+1):
-            for aor in unsorted_aors:
-                if aor.order == i:
-                    self.addresses.append(aor)
+        # for aor in unsorted_aors:
+        #     if aor.order > max_index:
+        #         max_index = aor.order
+        #
+        # first_index = max_index
+        # for aor in unsorted_aors:
+        #     if aor.order < first_index:
+        #         first_index = aor.order
+        #
+        # for i in range(first_index, max_index+1):
+        #     for aor in unsorted_aors:
+        #         if aor.order == i:
+        #             self.addresses.append(aor)
 
 
     def load_auths(self, resources):
-        # my_auth_list = self.auth.split(",")
-        # my_auth_list = [s.strip() for s in my_auth_list]
-        #
-        # for resource in resources:
-        #     if not resource.type == 'auth':
-        #         continue
-        #
-        #     if resource.section_name in my_auth_list:
-        #         self.authorizations.append(resource)
+        my_auth_list = self.auth.split(",")
+        my_auth_list = [s.strip() for s in my_auth_list]
+
+        for resource in resources:
+            if not resource.type == 'auth':
+                continue
+
+            if resource.section_name in my_auth_list:
+                self.authorizations.append(resource)
 
         if len(self.addresses) == 0:
             raise ValueError("No addresses (AORs) registered for endpoint. Be sure to run load_aors() first.")
@@ -222,85 +224,6 @@ class Endpoint(SipResource):
             reg.set_auth(auth)
             reg.hydrate()
             self.registrations.append(reg)
-
-    def basic_cfg_path(self, meta: ModelMeta):
-        model_firmware_dir = meta.get_firmware_dir(self.model)
-        return os.path.join(model_firmware_dir, "Config/reg-basic.cfg")
-
-    def basic_cfg(self, meta: ModelMeta):
-        xml = ElementTree.ElementTree()
-        xml.parse(self.basic_cfg_path(meta))
-        root = xml.getroot()
-
-        # if root is None:
-        #     raise ValueError("Could not get root element for {}".format(self.basic_cfg_path(meta)))
-
-        counter = 0
-        attribs = {}
-
-        for reg in self.registrations:
-            counter = counter + 1
-
-            tag = "reg.{}.address".format(counter)
-            attribs[tag] = reg.registration_address
-
-            tag = "reg.{}.auth.password".format(counter)
-            attribs[tag] = reg.password
-
-            tag = "reg.{}.auth.userId".format(counter)
-            attribs[tag] = reg.auth.username
-
-            tag = "reg.{}.label".format(counter)
-            attribs[tag] = reg.label if not reg.label is None else ""
-
-        reg_node = root.find("reg")
-        reg_node.attrib = attribs
-
-        return ElementTree.tostring(root)
-
-    def bootstrap_cfg_path(self, meta: ModelMeta):
-        return os.path.join(meta.get_firmware_dir(self.model), "000000000000.cfg")
-
-    def bootstrap_cfg(self, meta: ModelMeta):
-        xml = ElementTree.ElementTree()
-        xml.parse(self.bootstrap_cfg_path(meta))
-        root = xml.getroot()
-        target_node = "APPLICATION_{}".format(self.model)
-        node = root.find(target_node)
-
-        if node is None:
-            app_node = ElementTree.Element(target_node)
-            root.append(app_node)
-
-        files = ["site.cfg", "sip-interop.cfg", "features.cfg", "sip-basic.cfg", "reg-advanced.cfg"]
-        files.append(self.mac)
-
-        config_files = [ "{}/{}".format(self.template, file) for file in files ]
-
-        attribs = {}
-        attribs["APP_FILE_PATH_{}".format(self.model)] = "firmware/{}/{}.sip.ld".format(meta.get_firmware_version(self.model), meta.get_part(self.model))
-        attribs["CONFIG_FILES_{}".format(self.model)] = ", ".join(config_files)
-        app_node.attrib = attribs
-
-        return ElementTree.tostring(root, encoding="unicode", method='xml')
-
-    def write_bootstrap(self, meta: ModelMeta, tftproot):
-        target_file = os.path.join(tftproot, "{}.cfg".format(self.mac))
-        element = ElementTree.fromstring(self.bootstrap_cfg(meta))
-        ET = ElementTree.ElementTree(element)
-        ET.write(target_file, encoding="us-ascii", method="xml")
-        self.log("Bootstrap file for {} written to: {}".format(self.mac, target_file), 1)
-
-    def write_configs(self, meta: ModelMeta, tftproot):
-        target_directory = os.path.join(tftproot, self.template)
-        if not os.path.exists(target_directory):
-            os.makedirs(target_directory)
-
-        target_file = os.path.join(target_directory, self.mac)
-        element = ElementTree.fromstring(self.basic_cfg(meta))
-        ET = ElementTree.ElementTree(element)
-        ET.write(target_file, encoding="us-ascii", method="xml")
-        self.log("Config file for {} written to: {}".format(self.mac, target_file),1)
 
     def render(self):
         buffer = []
@@ -342,3 +265,18 @@ class Endpoint(SipResource):
         buffer.append("")
 
         return "\n".join(buffer)
+
+    def get_label(self):
+        """
+        For now, we are only returning the label for the first authorization.
+        :return:
+        """
+
+        auth = self.authorizations[0]
+        return auth.label
+
+    def get_auth(self):
+        return self.authorizations[0]
+
+    def get_aor(self):
+        return self.addresses[0]

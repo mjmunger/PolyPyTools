@@ -11,6 +11,7 @@ class PolycomRegistration:
     password = None
     label = None
     userId = None
+    order = None
 
     def __init__(self):
         self.aor = None
@@ -20,6 +21,7 @@ class PolycomRegistration:
         self.password = None
         self.label = ""
         self.userId = None
+        self.order = None
 
     def set_label(self, label):
         if label is None:
@@ -27,20 +29,22 @@ class PolycomRegistration:
         else:
             self.label = label
 
-    def set_aor(self, aor:Aor):
+    def set_aor(self, aor: Aor):
         self.aor = aor
 
     def set_auth(self, auth:Auth):
         self.auth = auth
+        if auth.label is not None:
+            self.label = auth.label
 
     def set_sip_server(self, server):
         self.sip_server = server
 
     def hydrate(self):
-        self.registration_address = "{}@{}".format(self.aor.section_name, self.sip_server)
+        self.registration_address = "{}@{}".format(self.auth.username, self.sip_server)
         self.userId = self.auth.username
         self.password = self.auth.password
-        self.label = self.aor.label
+        self.label = self.auth.label
 
     def __str__(self):
         buffer = []

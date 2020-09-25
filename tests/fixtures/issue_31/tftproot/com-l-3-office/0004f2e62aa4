@@ -1,0 +1,6 @@
+<polycomConfig xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:noNamespaceSchemaLocation="polycomConfig.xsd">
+  <call call.callsPerLineKey="24">
+  </call>
+  <reg reg.1.address="0004f2e62aa4111@pbx.example.org" reg.1.auth.password="CiX8fg8CFuwqPn8X" reg.1.auth.userId="0004f2e62aa4111" reg.1.label="">
+  </reg>
+</polycomConfig>

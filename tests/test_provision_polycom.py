@@ -2,7 +2,9 @@ import unittest
 import os
 import json
 import shutil
+import sys
 from unittest.mock import patch, mock_open, MagicMock
+from docopt import docopt
 
 from poly_py_tools.pjsip.resource_factory import SipResourceFactory
 from poly_py_tools.pjsip.section_parser import PjSipSectionParser
@@ -13,7 +15,7 @@ from poly_py_tools.provision.provision_polycom import ProvisionPolycom
 
 class TestProvisionPolycom(unittest.TestCase):
 
-    def get_args(self):
+    def get_container(self):
         pconf = PolypyConfig()
 
         f = open(os.path.join(os.path.dirname(__file__), 'fixtures/base_config.json'))
@@ -25,34 +27,27 @@ class TestProvisionPolycom(unittest.TestCase):
 
         pconf.json = configs
 
-        args = {'--force': False,
-                '-d': True,
-                '-v': 0,
-                '<csvfile>': [],
-                '<macaddress>': '0004f23a43bf',
-                'directory': False,
-                'endpoints': False,
-                'for': False,
-                'list': False,
-                'polycom': True,
-                'provision': True,
-                'using': False}
+        argv = "polypy provision polycom 0004f23a43bf".split(" ")
+        sys.argv = argv
+        from poly_py_tools.provision import provision
+        args = docopt(provision.__doc__)
+        container = {}
+        container['pconf'] = pconf
+        container['<args>'] = args
 
-        args['pconf'] = pconf
-
-        return args
+        return container
 
     def test_init(self):
 
-        args = self.get_args()
+        container = self.get_container()
         meta = ModelMeta()
-        meta.get_firmware_base_dir = MagicMock(return_value=os.path.join(os.path.dirname(__file__), "fixtures/fs/firmware"))
-        args['meta'] = meta
-        args['sip_factory'] = SipResourceFactory()
+        meta.get_firmware_base_dir = MagicMock(return_value=os.path.join(os.path.dirname(__file__), "fixtures/fs"))
+        container['meta'] = meta
+        container['sip_factory'] = SipResourceFactory()
 
-        PP = ProvisionPolycom(args)
-        self.assertEqual(args, PP.args)
-        self.assertEqual(args['pconf'].configs(), PP.configs)
+        provision_polycom = ProvisionPolycom(container)
+        self.assertEqual(container, provision_polycom.container)
+        self.assertEqual(container['pconf'].configs(), provision_polycom.configs)
 
 
     def test_run(self):
@@ -66,24 +61,22 @@ class TestProvisionPolycom(unittest.TestCase):
         :return:
         """
 
-        args = self.get_args()
+        container = self.get_container()
+
         meta = ModelMeta()
         meta.get_firmware_base_dir = MagicMock(return_value=os.path.join(os.path.dirname(__file__), "fixtures/fs/firmware"))
-        args['meta'] = meta
-        args['sip_factory'] = SipResourceFactory()
+        container['meta'] = meta
+        container['sip_factory'] = SipResourceFactory()
 
         sip_factory = SipResourceFactory()
-        if args['-d']:
-            sip_factory.set_debug()
 
         parser = PjSipSectionParser()
-        parser.use_config(args['pconf'])
+        parser.use_config(container['pconf'])
         parser.use_factory(sip_factory)
 
-        args['pjsipsectionparser'] = parser
+        container['pjsipsectionparser'] = parser
 
-
-        PP = ProvisionPolycom(args)
+        provision_polycom = ProvisionPolycom(container)
 
         target_files = ["/tmp/some-site-template/0004f23a43bf", "/tmp/0004f23a43bf.cfg"]
         for target_file in target_files:
@@ -115,7 +108,7 @@ class TestProvisionPolycom(unittest.TestCase):
         config = f.read()
         f.close()
 
-        PP.run()
+        provision_polycom.run()
 
         self.assertTrue(os.path.exists("/tmp/some-site-template/"), "/tmp/some-site-template/ should exist, but does not.")
         for target_file in target_files:

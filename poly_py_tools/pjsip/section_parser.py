@@ -106,8 +106,20 @@ class PjSipSectionParser(Loggable):
         buffer = list(filter(len, buffer))
         return buffer
 
+    def get_resource(self, tag, type):
+        for resource in self.resources:
+
+            if resource is None:
+                continue
+
+            if resource.type != type:
+                continue
+
+            if resource.section_name == tag:
+                return resource
+
     def get_endpoint(self, mac) -> Endpoint:
-        target_mac = str(mac).lower().replace(":","").replace("-","")
+        target_mac = self.sanitize_mac(mac)
 
         self.log("Target endpoint with mac address: {}".format(target_mac), 3)
         
@@ -136,3 +148,27 @@ class PjSipSectionParser(Loggable):
                 templates.append(resource)
 
         return templates
+
+    def get_endpoints_for_mac(self, mac):
+        target_mac = self.sanitize_mac(mac)
+        endpoints = []
+
+        self.log("Looking for endpoints with a target mac address of: {}".format(target_mac), 3)
+
+        for resource in self.resources:
+            if resource is None:
+                self.log("Skipping a 'None' resource", 5)
+                continue
+
+            if not resource.type == 'endpoint':
+                self.log("Skipping a non-endpoint resource: {}".format(resource.type), 5)
+                continue
+
+            if resource.type == 'endpoint' and resource.mac == target_mac:
+                self.log("Found endpoint with mac: {}".format(resource.mac), 1)
+                endpoints.append(resource)
+
+        return endpoints
+
+    def sanitize_mac(self, mac):
+        return str(mac).lower().replace(":", "").replace("-", "")

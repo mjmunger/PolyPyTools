@@ -9,10 +9,18 @@ class Auth(SipResource):
     realm = None
     type = None
     username = None
+    label = None
+    order = None
 
     def render(self):
         section = []
         section.append(self.section)
+        if not self.label is None:
+            section.append(";label={}".format(self.label))
+
+        if not self.order is None:
+            section.append(";order={}".format(self.order))
+
         section.append("type=auth")
         section.append("auth_type={}".format(self.auth_type))
         section.append("password={}".format(self.password))

@@ -75,6 +75,8 @@ class ModelMeta(object):
         return os.path.join(self.pconf.tftproot_path(), "firmware")
 
     def get_firmware_dir(self, requested_model):
-        return os.path.join(self.get_firmware_base_dir(), self.get_firmware_version(requested_model))
+        dir = os.path.join(self.get_firmware_base_dir(), self.get_firmware_version(requested_model))
+        print(dir)
+        return dir
 
 

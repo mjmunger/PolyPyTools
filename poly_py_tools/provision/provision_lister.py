@@ -7,11 +7,11 @@ from poly_py_tools.pjsip.section_parser import PjSipSectionParser
 class ProvisionLister:
 
     args = None
-    config = None
+    pconf = None
 
     def __init__(self, args):
         self.args = args
-        self.config = args['config']
+        self.pconf = args['pconf']
 
     def run(self):
 
