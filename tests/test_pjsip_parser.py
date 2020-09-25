@@ -72,9 +72,9 @@ class TestPjSipSectionParser(unittest.TestCase):
         (1, 10, "[6002]"),
         (2, 4, "[simpletrans]"),
         (3, 9, "[tlstrans]"),
-        (4, 5, "[auth6001]"),
+        (4, 7, "[auth6001]"),
         (5, 5, "[auth6002]"),
-        (6, 5, "[6001]"),
+        (6, 3, "[6001]"),
         (7, 3, "[6002]"),
         (8, 12, "[bandwidth_cloud]"),
         (9, 5, "[bandwidth_cloud]"),
@@ -86,8 +86,8 @@ class TestPjSipSectionParser(unittest.TestCase):
         (15, 5, "[contactacl]"),
         (16, 4, "[6001]"),
         (17, 4, "[6002]"),
-        (18, 5, "[auth6003]"),
-        (19, 5, "[6003]"),
+        (18, 7, "[auth6003]"),
+        (19, 3, "[6003]"),
     )
 
     @data_provider(provider_section_meta)
@@ -148,6 +148,23 @@ class TestPjSipSectionParser(unittest.TestCase):
         section_parser.parse()
 
         self.assertEqual(3, len(section_parser.get_templates()))
+
+    def test_get_endpoints_for_mac(self):
+        factory = SipResourceFactory()
+        pconf = self.get_pconf()
+        pconf.update_paths("asterisk", os.path.join(os.path.dirname(__file__), "fixtures/issue_36/asterisk"))
+        section_parser = PjSipSectionParser()
+        section_parser.use_config(pconf)
+        section_parser.use_factory(factory)
+        section_parser.parse()
+
+        endpoints = section_parser.get_endpoints_for_mac('0004f2e62aa4')
+        self.assertEqual(2, len(endpoints))
+
+        ep111 = endpoints.pop(0)
+        ep104 = endpoints.pop(0)
+        self.assertEqual('0004f2e62aa4111', ep111.section_name)
+        self.assertEqual('0004f2e62aa4104', ep104.section_name)
 
 if __name__ == '__main__':
     unittest.main()

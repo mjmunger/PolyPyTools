@@ -36,7 +36,9 @@ class Polypy():
 
         elif self.args['<command>'] == 'provision':
             from poly_py_tools.provision import provision
-            docopt(provision.__doc__, argv=argv)
+            container['<args>'] = docopt(provision.__doc__, argv=argv)
+            provision = Provision(container)
+            provision.run()
 
         elif self.args['<command>'] == 'site':
             from poly_py_tools.site import site

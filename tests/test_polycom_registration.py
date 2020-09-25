@@ -24,8 +24,11 @@ class TestPolycomRegistration(unittest.TestCase):
         auth.auth_type = "userpass"
         auth.username = "0004f23a626f102"
         auth.password = "mHQFrPS"
-
+        auth.label = "Label asdf"
+        self.order = auth.order
         pr.set_auth(auth)
+
+        self.assertEqual(pr.label, auth.label)
         self.assertEqual(auth, pr.auth)
 
     def test_set_proxy(self):
@@ -45,13 +48,14 @@ class TestPolycomRegistration(unittest.TestCase):
         aor = Aor("0004f23a626f102")
         aor.max_contacts = 1
         aor.type = "aor"
-        aor.label = "Line 1"
 
         auth = Auth("auth0004f23a626f102")
         auth.type = "auth"
         auth.auth_type = "userpass"
         auth.username = "0004f23a626f102"
         auth.password = "mHQFrPS"
+        auth.label = "Line 1"
+        auth.order = 1
 
         sip_server = "a63d31a6-0b4a-49e8-9c67-02934706568c"
 
@@ -60,12 +64,12 @@ class TestPolycomRegistration(unittest.TestCase):
         pr.set_sip_server(sip_server)
         pr.hydrate()
 
-        expected_address = "{}@{}".format(aor.section_name, sip_server)
+        expected_address = "{}@{}".format(auth.username, sip_server)
 
         self.assertEqual(expected_address, pr.registration_address)
         self.assertEqual(auth.username, pr.userId)
         self.assertEqual(auth.password, pr.password)
-        self.assertEqual(aor.label, pr.label)
+        self.assertEqual(auth.label, pr.label)
 
 
 if __name__ == '__main__':

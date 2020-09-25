@@ -1,80 +1,47 @@
 import unittest
 import os
+import sys
 from shutil import copy
 from shutil import rmtree
 from unittest.mock import MagicMock
-
-from unittest_data_provider import data_provider
+from docopt import docopt
 
 from poly_py_tools.pjsip.resource_factory import SipResourceFactory
 from poly_py_tools.pjsip.section_parser import PjSipSectionParser
-from poly_py_tools.polypy import Polypy
 from poly_py_tools.polypy_config import PolypyConfig
 from poly_py_tools.provision.model_meta import ModelMeta
-from poly_py_tools.provision_factory import ProvisionFactory
+from poly_py_tools.provision.provision_factory import ProvisionFactory
 from xml.etree import ElementTree as ET
-
 
 
 class TestIssue31(unittest.TestCase):
 
     def setUp(self) -> None:
 
-        # self.clean_files()
-        prep_directories = self.get_prep_directories()
-        if not os.path.exists(self.issue_base()):
-            os.mkdir(self.issue_base())
+        if not os.path.exists(self.issue_asterisk()):
+            os.mkdir(self.issue_asterisk())
 
-        asterisk = os.path.join(self.issue_base(), "asterisk")
-        if not os.path.exists(asterisk):
-            os.mkdir(asterisk)
-
-        tftproot = os.path.join(self.issue_base(), 'tftproot')
-        if not os.path.exists(tftproot):
-            os.mkdir(tftproot)
+        if not os.path.exists(self.issue_tftproot()):
+            os.mkdir(self.issue_tftproot())
 
         pjsip_src = os.path.join(self.issue_base(), "pjsip.conf")
-        pjsip_dst = os.path.join(prep_directories['asterisk'], "pjsip.conf")
+        pjsip_dst = os.path.join(self.issue_asterisk(), "pjsip.conf")
         copy(pjsip_src, pjsip_dst)
 
-    def clean_files(self):
-        prep_directories = self.get_prep_directories()
 
-        for dir in prep_directories:
-            target_directory = os.path.join(self.issue_base(), dir)
-            # print("Target directory: {}".format(target_directory))
-            for f in os.listdir(target_directory):
-                target_file = os.path.join(target_directory, f)
-                if not os.path.isdir(target_file):
-                    os.remove(target_file)
-
-        rmtree(os.path.join(prep_directories['tftproot'], "com-l-3-office"))
-
-    def get_prep_directories(self):
-        prep_directories = {}
-        asterisk_dir = os.path.join(self.issue_base(), "asterisk")
-        tftproot_dir = os.path.join(self.issue_base(), "tftproot")
-        prep_directories['asterisk'] = asterisk_dir
-        prep_directories['tftproot'] = tftproot_dir
-
-        return prep_directories
-
-    def tearDown(self) -> None:
-        self.clean_files()
+    # def tearDown(self) -> None:
+    #     if os.path.exists(self.issue_asterisk()):
+    #         rmtree(self.issue_asterisk())
+    #
+    #     if os.path.exists(self.issue_tftproot()):
+    #         rmtree(self.issue_tftproot())
 
     def test_issue_31(self):
-        args = {'--force': False,
-                 '-d': False,
-                 '-v': 0,
-                 '<csvfile>': [],
-                 '<macaddress>': '0004F2E62AA4',
-                 'directory': False,
-                 'endpoints': False,
-                 'for': False,
-                 'list': False,
-                 'polycom': True,
-                 'provision': True,
-                 'using': False}
+        argv = "polypy provision polycom 0004F2E62AA4".split(" ")
+        sys.argv = argv
+
+        from poly_py_tools.provision import provision
+        args = docopt(provision.__doc__)
 
         issue_base = self.issue_base()
 
@@ -84,8 +51,8 @@ class TestIssue31(unittest.TestCase):
         pconf.load()
 
         # Redirect output, etc... to issue_31 tmp directory
-        pconf.update_paths("asterisk", os.path.join(issue_base, "asterisk"))
-        pconf.update_paths("tftproot", os.path.join(issue_base, "tftproot"))
+        pconf.set_path("asterisk", self.issue_asterisk())
+        pconf.set_path('tftproot', self.issue_tftproot())
 
         self.assertTrue(os.path.exists(pconf.pjsip_path()))
 
@@ -105,9 +72,10 @@ class TestIssue31(unittest.TestCase):
 
         args['pjsipsectionparser'] = parser
         runner = factory.get_runner(args)
+        print(runner)
         runner.run()
 
-        tree = ET.parse(os.path.join(pconf.tftproot_path(), "com-l-3-office/0004f2e62aa4"))
+        tree = ET.parse(os.path.join(self.issue_tftproot(), "com-l-3-office/0004f2e62aa4"))
         root = tree.getroot()
 
         self.assertEqual("polycomConfig", root.tag)
@@ -119,3 +87,9 @@ class TestIssue31(unittest.TestCase):
 
     def issue_base(self):
         return os.path.join(os.path.dirname(__file__), "fixtures/issue_31")
+
+    def issue_asterisk(self):
+        return os.path.join(self.issue_base(), "asterisk")
+
+    def issue_tftproot(self):
+        return os.path.join(self.issue_base(), "tftproot")

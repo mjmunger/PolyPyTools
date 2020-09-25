@@ -4,7 +4,7 @@ import os
 import io
 from unittest_data_provider import data_provider
 from poly_py_tools.provision.provision_polycom import ProvisionPolycom
-from poly_py_tools.provision_factory import ProvisionFactory
+from poly_py_tools.provision.provision_factory import ProvisionFactory
 from poly_py_tools.provision.provision_lister import ProvisionLister
 from poly_py_tools.provision.provision_directory import ProvisionDirectory
 

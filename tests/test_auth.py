@@ -32,6 +32,8 @@ class TestAuth(unittest.TestCase):
         auth.auth_type = "userpass"
         auth.password = "2034c37e"
         auth.username = "dd341d078cfd"
+        auth.label = "Line 1"
+        auth.order = 2
 
         f = open(os.path.join(os.path.dirname(__file__), "fixtures/pjsip/expected_rendered_auth_6001.conf"), 'r')
         buffer = f.read()
