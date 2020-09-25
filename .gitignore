@@ -13,3 +13,4 @@ pip-update/
 /tests/fixtures/etc/asterisk/
 poly_py_tools/deprecated/__pycache__/*
 poly_py_tools/provision/__pycache__/*
+poly_py_tools/site/__pycache__/*

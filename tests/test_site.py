@@ -37,10 +37,10 @@ class TestSite(unittest.TestCase):
             dst = os.path.join(siteroot, file)
             shutil.copy(src, dst)
 
-    # def tearDown(self) -> None:
-    #     tftproot = os.path.join(TestSite.issue_root(), 'tftproot')
-    #     if os.path.exists(tftproot):
-    #         shutil.rmtree(tftproot)
+    def tearDown(self) -> None:
+        tftproot = os.path.join(TestSite.issue_root(), 'tftproot')
+        if os.path.exists(tftproot):
+            shutil.rmtree(tftproot)
 
     @staticmethod
     def issue_root():

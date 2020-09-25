@@ -1,0 +1,21 @@
+Last name,First Name,Title,Extension ,Voicemail ,Direct Phone,Simul-ring,Device,MAC,Email,site,callerid,label,priority
+John,Levine,,101,101@pbxvm,,,SPIP670,0004f23a626f,john@example.org,office.example.org,101,101,1
+Rich,Lussier,,102,102@pbxvm,,,SPIP670,0004f23a3f53,rich@example.org,eastern.example.org,102,102,1
+Ava,Maguire,,103,103@pbxvm,,,SPIP670,0004f23a5515,ava@example.org,eastern.example.org,103,103,1
+Craig,McLean,,104,104@pbxvm,,,SPIP670,0004f23a3801,craig@example.org,office.example.org,104,104,1
+Doris,Sherill,,105,105@pbxvm,,,SPIP670,0004f23a43bf,doris@example.org,office.example.org,105,105,1
+Fax,,,106,106@pbxvm,,,SPIP670,0004f265ee1c,,office.example.org,106,106,1
+Conference Alt,,,108,108@pbxvm,,,SPIP670,0004f243f141,,central.example.org,108,108,1
+Kitchen,,,109,109@pbxvm,,,SPIP670,0004f265ec84,,office.example.org,109,109,1
+Training Room,,,110,110@pbxvm,,,SPIP670,0004f23a380e,,office.example.org,110,110,1
+Conference Phone,,,111,111@pbxvm,,,SSIP7000,0004F2E62AA4,,office.example.org,111,111,1
+Michael,McClellan,,114,114@pbxvm,,,SPIP670,0004f2687c95,mcclellan@example.org,office.example.org,114,114,1
+Melody,Davis,,115,115@pbxvm,,,SPIP670,0004f24dc8ed,melody@example.org,eastern.example.org,115,115,1
+Carlin,Boswell,,116,116@pbxvm,,,SPIP670,0004f2327f13,carlin@example.org,eastern.example.org,116,116,1
+Michael,Kahn,,117,117@pbxvm,,,SPIP670,0004f262f600,kahn@example.org,office.example.org,117,117,1
+Adam,Norrell,,118,118@pbxvm,,,SPIP670,0004f25fb5c3,adam@example.org,central.example.org,118,118,1
+Billy,Sanders,,107,107@pbxvm,,,SPIP670,0004f23a611f,billy@example.org,central.example.org,107,107,1
+John,Levine,,121,101@pbxvm,,,SPIP670,0004f24dc88f,john@example.org,eastern.example.org,121,121,1
+Rich,Lussier,,152,152@ppc,,,SPIP670,0004f23a3f53,rich@example.org,office.example.org,152,152,2
+Ava,Maguire,,153,153@ppc,,,SPIP670,0004f23a5515,ava@example.org,office.example.org,153,153,2
+Doris,Sherill,,155,155@ppc,,,SPIP670,0004f23a43bf,doris@example.org,office.example.org,155,155,2

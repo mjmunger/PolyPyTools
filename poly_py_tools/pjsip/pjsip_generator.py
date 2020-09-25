@@ -10,21 +10,23 @@ from pwgen_secure.rpg import Rpg
 
 class PJSipGenerator(object):
 
+    container = None
     source_csv = None
     config = None
     rpg = None
+    pconf = None
 
-    def __init__(self, args):
-        self.args = args
+    def __init__(self, container):
+        self.use(container)
 
-        if 'rpg' in args:
-            self.rpg = args['rpg']
+    def use(self, container):
+        self.container = container
 
-        if 'config' in args:
-            self.config = args['config']
+        if 'rpg' in container:
+            self.rpg = container['rpg']
 
-    def use(self, config):
-        self.config = config
+        if 'pconf' in container:
+            self.pconf = container['pconf']
 
     def with_rpg(self, rpg):
         self.rpg = rpg
@@ -36,30 +38,36 @@ class PJSipGenerator(object):
         self.source_csv = csv
 
     def conf(self):
-        if self.config is None:
+        if self.pconf is None:
             raise ValueError("Polypy config (self.config) must be set before attempting to generate conf files. Try: generator.use('someconfig')")
 
         dialplan = Dialplan(self.source_csv)
-        dialplan.with_config(self.config)
+        dialplan.with_config(self.pconf)
         dialplan.parse()
 
         endpoints = []
         templates = {}
 
+        extension = self.container['args']['<extension>']
+
         for entry in dialplan.entries:
+
+            if not entry.exten == extension:
+                continue
+
             template = Template()
             template.from_entry(entry)
             if not template.section in templates:
                 templates[template.section] = template
 
-            endpoint = Endpoint("[{}]({})".format(entry.mac, template.name))
+            endpoint = Endpoint("[{}{}]({})".format(entry.mac, entry.exten, template.name))
             endpoint.mac = entry.mac
             endpoint.model = entry.endpoint
             endpoint.extension = entry.exten
             endpoint.callerid = "{} {}<{}>".format(entry.first, entry.last, entry.cid_number)
 
-            aor = Aor("[{}]".format(endpoint.mac))
-            aor.section_name = "{}".format(endpoint.mac)
+            aor = Aor("[{}{}]".format(endpoint.mac, entry.exten))
+            aor.section_name = "{}{}".format(endpoint.mac, entry.exten)
             aor.max_contacts = "1"
             aor.mailboxes = entry.vm
 
@@ -96,9 +104,10 @@ class PJSipGenerator(object):
         return "\n".join(buffer)
 
     def run(self):
-        self.generate_from(self.args['<file>'])
 
-        target_file = os.path.join(self.config.configs()['paths']['asterisk'], 'pjsip.conf')
+        self.generate_from(self.container['args']['<file>'])
+
+        target_file = os.path.join(self.pconf.pjsip_path())
         f = open(target_file, 'w')
         f.write(self.conf())
         f.close()
