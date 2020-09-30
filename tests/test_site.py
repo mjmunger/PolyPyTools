@@ -254,6 +254,9 @@ class TestSite(unittest.TestCase):
         self.assertEqual(node.attrib['device.sntp.gmtOffset'], expected_offset)
         self.assertEqual(node.attrib['device.sntp.serverName'], expected_server)
 
+        set_node = node.find("device.sntp.gmtOffset")
+        self.assertEqual(set_node.attrib['device.sntp.gmtOffset.set'], "1")
+
     provider_test_site_syslog = lambda : (
         ("polypy site setup syslog for example.org", "pbx.hph.io", "Syslog server set to pbx.hph.io for example.org.\n"),
         ("polypy site setup syslog for example.org --server=some.other.ntp.server", "some.other.ntp.server", "Syslog server set to some.other.ntp.server for example.org.\n"),

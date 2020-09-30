@@ -27,6 +27,9 @@ class SntpSetup(SiteRunner):
         node = node.find("device.sntp")
         node.attrib['device.sntp.gmtOffset'] = self.container['<args>']['--offset']
         node.attrib['device.sntp.serverName'] = self.container['<args>']['--server']
+
+        set_node = node.find("device.sntp.gmtOffset")
+        set_node.attrib['device.sntp.gmtOffset.set'] = "1"
         tree.write(self.site_cfg())
 
     def run(self):
