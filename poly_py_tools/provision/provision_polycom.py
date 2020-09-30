@@ -51,6 +51,7 @@ class ProvisionPolycom(Loggable):
             ep.use_proxy(self.container['pconf'].sip_proxy())
             ep.load_aors(parser.resources)
             ep.load_auths(parser.resources)
+            phone.is_model(ep.model)
             phone.add_endpoint(ep)
 
         phone.hydrate_registrations(parser.resources)
