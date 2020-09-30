@@ -7,7 +7,6 @@ class PjSipColumnMapper:
     # TODO: This class needs tests!
     container = None
     source_csv = None
-    config = None
     pconf = None
 
     def __init__(self, container):
@@ -23,11 +22,11 @@ class PjSipColumnMapper:
             csv_reader = csv.reader(csvfile, delimiter=",", quotechar='"')
             column_headers = next(csv_reader)
 
-        mapper = ColumnMapper(self.config)
+        mapper = ColumnMapper(self.pconf)
         mapper.match_columns(column_headers)
         self.pconf.json['csvmap'] = mapper.map
 
-        buffer = json.dumps(self.config.json)
+        buffer = json.dumps(self.pconf.json)
 
         fp = open('polypy.conf', 'w')
         fp.write(buffer)

@@ -44,6 +44,10 @@ class Polypy():
         container['pjsipsectionparser'] = parser
 
         if self.args['<command>'] == 'pjsip':
+            parser = PjSipSectionParser()
+            parser.use_config(pconf)
+            parser.use_factory(sip_factory)
+            container['pjsipparser'] = parser
             from poly_py_tools.pjsip import pjsip
             container['args'] = docopt(pjsip.__doc__, argv=argv)
             pjsip = PJSip(container)
