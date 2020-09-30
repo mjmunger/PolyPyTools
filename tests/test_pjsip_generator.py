@@ -52,12 +52,12 @@ class TestPJSipGenerator(unittest.TestCase):
         if not os.path.exists(self.issue_tftproot()):
             os.mkdir(self.issue_tftproot())
 
-    # def tearDown(self) -> None:
-    #     if os.path.exists(self.issue_tftproot()):
-    #         rmtree(self.issue_tftproot())
-    #
-    #     if os.path.exists(self.issue_asterisk()):
-    #         rmtree(self.issue_asterisk())
+    def tearDown(self) -> None:
+        if os.path.exists(self.issue_tftproot()):
+            rmtree(self.issue_tftproot())
+
+        if os.path.exists(self.issue_asterisk()):
+            rmtree(self.issue_asterisk())
 
     def test_init(self):
         container = {}

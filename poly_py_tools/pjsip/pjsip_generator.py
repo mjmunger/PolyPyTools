@@ -73,6 +73,8 @@ class PJSipGenerator(object):
             auth.auth_type = "userpass"
             auth.username = "{}{}".format(endpoint.mac, endpoint.extension)
             auth.password = self.rpg.generate_password()
+            auth.label = entry.label
+            auth.order = entry.priority
 
             endpoint.add_aor(aor)
             endpoint.add_auth(auth)

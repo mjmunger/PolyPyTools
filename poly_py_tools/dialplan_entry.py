@@ -25,7 +25,6 @@ class Entry:
     group_dial = None
     site = None
     configs = None
-    order = None
 
     def __init__(self, configs : PolypyConfig):
 
@@ -59,5 +58,5 @@ class Entry:
     def __str__(self):
         buffer = []
         for attr, value in self.__dict__.items():
-            buffer.append("{}: {}".format(attr,value))
+            buffer.append("{}: {}".format(attr, value))
         return "\n".join(buffer)
