@@ -250,6 +250,7 @@ class TestSite(unittest.TestCase):
         tree = ET.parse(site_cfg)
         root = tree.getroot()
         node = root.find("device")
+        self.assertEqual("1", node.attrib['device.set'])
         node = node.find("device.sntp")
         self.assertEqual(node.attrib['device.sntp.gmtOffset'], expected_offset)
         self.assertEqual(node.attrib['device.sntp.serverName'], expected_server)
