@@ -258,6 +258,15 @@ class TestSite(unittest.TestCase):
         set_node = node.find("device.sntp.gmtOffset")
         self.assertEqual(set_node.attrib['device.sntp.gmtOffset.set'], "1")
 
+        # For VVX
+        tcpipapp_node = root.find("tcpIpApp")
+        sntp_node = tcpipapp_node.find("tcpIpApp.sntp")
+        sntp_address_node = sntp_node.find("tcpIpApp.sntp.address")
+
+        self.assertEqual("1", sntp_address_node.attrib['tcpIpApp.sntp.address.overrideDHCP'])
+        self.assertEqual(expected_server, sntp_node.attrib['tcpIpApp.sntp.address'])
+        self.assertEqual(expected_offset, sntp_node.attrib['tcpIpApp.sntp.gmtOffset'])
+
     provider_test_site_syslog = lambda : (
         ("polypy site setup syslog for example.org", "pbx.hph.io", "Syslog server set to pbx.hph.io for example.org.\n"),
         ("polypy site setup syslog for example.org --server=some.other.ntp.server", "some.other.ntp.server", "Syslog server set to some.other.ntp.server for example.org.\n"),

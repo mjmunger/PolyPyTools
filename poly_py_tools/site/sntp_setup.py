@@ -32,6 +32,15 @@ class SntpSetup(SiteRunner):
 
         set_node = node.find("device.sntp.gmtOffset")
         set_node.attrib['device.sntp.gmtOffset.set'] = "1"
+
+        # Stuff for VVX
+        tcpipapp_node = root.find("tcpIpApp")
+        sntp_node = tcpipapp_node.find("tcpIpApp.sntp")
+        sntp_node.attrib['tcpIpApp.sntp.address'] = self.container['<args>']['--server']
+        sntp_node.attrib['tcpIpApp.sntp.gmtOffset'] = self.container['<args>']['--offset']
+        sntp_address_node = sntp_node.find("tcpIpApp.sntp.address")
+        sntp_address_node.attrib['tcpIpApp.sntp.address.overrideDHCP'] = "1"
+
         tree.write(self.site_cfg())
 
     def run(self):
