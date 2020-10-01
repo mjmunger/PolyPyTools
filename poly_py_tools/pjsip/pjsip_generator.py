@@ -49,7 +49,7 @@ class PJSipGenerator(object):
 
         for entry in dialplan.entries:
 
-            if not entry.exten == extension:
+            if not entry.exten == extension and not extension.lower() == 'all':
                 continue
 
             template = Template()
