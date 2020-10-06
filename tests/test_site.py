@@ -831,7 +831,7 @@ class TestSite(unittest.TestCase):
         self.assertEqual(expected_mode_value, ptt_pagemode.attrib["ptt.pageMode.enable"])
 
         if expected_mode_value == 1:
-            self.assertEqual(args['<args>']['--name'], ptt_pagemode.attrib["ptt.pageMode.displayName"])
+            self.assertEqual(expected_name, ptt_pagemode.attrib["ptt.pageMode.displayName"])
 
 
         self.assertEqual(expected_output, output)
