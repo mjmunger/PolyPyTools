@@ -17,6 +17,8 @@ Usage: polypy [ options ] site init <site> [<model>]
        polypy [ options ] site disable ptt for <site>
        polypy [ options ] site enable paging for <site> --name=<display_name>
        polypy [ options ] site disable paging for <site>
+       polypy [ options ] site enable intercom for <site>
+       polypy [ options ] site disable intercom for <site>
 
 
   Commands:

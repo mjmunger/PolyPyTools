@@ -835,5 +835,51 @@ class TestSite(unittest.TestCase):
 
 
         self.assertEqual(expected_output, output)
+
+    provider_configure_intercom = lambda: (
+        ("polypy site enable intercom for example.org", "example.org", "Intercom enabled for example.org.\n\nYou must add SIPAddHeader(Alert-Info: Auto Answer) in your dialplan to use it.\n", "Auto Answer"),
+        ("polypy site disable intercom for example.org", "example.org", "Intercom disabled for example.org.\n", ""),
+    )
+
+    @data_provider(provider_configure_intercom)
+    def test_configure_intercom(self, command: str,
+                        site: str,
+                        expected_output: str,
+                        expected_mode_value):
+
+        argv = command.split(" ")
+        sys.argv = argv
+
+        container, out, pconf, siteroot = self.setup_setup()
+
+        # Should match site.py's script. Mocking should go before here.
+        import poly_py_tools.site.site
+        args = docopt(poly_py_tools.site.site.__doc__)
+        container['<args>'] = args
+        container['meta'] = ModelMeta()
+        container['meta'].get_firmware_base_dir = MagicMock(
+            return_value=os.path.join(os.path.dirname(__file__), "fixtures/issue_35"))
+        container['meta'].use_configs(pconf)
+
+        site = Site(container)
+
+        # Do assertions for setup prior to run here
+        self.assertTrue(isinstance(site.pconf(), PolypyConfig))
+        #  End pre-run assertions
+
+        site.run()
+
+        # Post run assertions
+        output = out.getvalue()
+        cfg_file = os.path.join(TestSite.issue_tftproot(), "org-example/sip-interop.cfg")
+        tree = ET.parse(cfg_file)
+        root = tree.getroot()
+        protocol_node = root.find("voIpProt")
+        sip_node = protocol_node.find("voIpProt.SIP")
+        alert_node = sip_node.find("voIpProt.SIP.alertInfo")
+
+        self.assertEqual(expected_mode_value, sip_node.attrib["voIpProt.SIP.alertInfo.1.value"])
+
+        self.assertEqual(expected_output, output)
 if __name__ == '__main__':
     unittest.main()

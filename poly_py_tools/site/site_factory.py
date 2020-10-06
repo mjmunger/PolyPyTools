@@ -26,6 +26,8 @@ class SiteFactory(object):
         self.cmd_callbacks['site enable ptt'] = ["poly_py_tools.site.enable_ptt", "EnablePtt"]
         self.cmd_callbacks['site enable paging'] = ["poly_py_tools.site.enable_paging", "EnablePaging"]
         self.cmd_callbacks['site disable paging'] = ["poly_py_tools.site.disable_paging", "DisablePaging"]
+        self.cmd_callbacks['site enable intercom'] = ["poly_py_tools.site.enable_intercom", "EnableIntercom"]
+        self.cmd_callbacks['site disable intercom'] = ["poly_py_tools.site.disable_intercom", "DisableIntercom"]
 
     def create(self, container : Dict):
         args = container['<args>']
