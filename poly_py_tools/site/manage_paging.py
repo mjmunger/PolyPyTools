@@ -17,7 +17,7 @@ class ManagePaging(SiteRunner):
         ptt_pagemode = ptt_node.find("ptt.pageMode")
         ptt_pagemode.attrib["ptt.pageMode.enable"] = value
 
-        if value ==1:
+        if value == "1":
             ptt_pagemode.attrib["ptt.pageMode.displayName"] = self.container['<args>']['--name']
         else:
             ptt_pagemode.attrib["ptt.pageMode.displayName"] = ""
