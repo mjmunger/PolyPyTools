@@ -691,5 +691,101 @@ class TestSite(unittest.TestCase):
 
         self.assertEqual(expected_output, output)
 
+    provider_configure_presence = lambda: (
+        ("polypy site enable presence for example.org", "example.org", "Presence enabled for example.org.\n", "1"),
+        ("polypy site disable presence for example.org", "example.org", "Presence disabled for example.org.\n", "0"),
+    )
+
+    @data_provider(provider_configure_presence)
+    def test_configure_presence(self, command: str,
+                        site: str,
+                        expected_output: str,
+                        expected_presence_value):
+
+        argv = command.split(" ")
+        sys.argv = argv
+
+        container, out, pconf, siteroot = self.setup_setup()
+
+        # Should match site.py's script. Mocking should go before here.
+        import poly_py_tools.site.site
+        args = docopt(poly_py_tools.site.site.__doc__)
+        container['<args>'] = args
+        container['meta'] = ModelMeta()
+        container['meta'].get_firmware_base_dir = MagicMock(
+            return_value=os.path.join(os.path.dirname(__file__), "fixtures/issue_35"))
+        container['meta'].use_configs(pconf)
+
+        site = Site(container)
+
+        # Do assertions for setup prior to run here
+        self.assertTrue(isinstance(site.pconf(), PolypyConfig))
+        #  End pre-run assertions
+
+        site.run()
+
+        # Post run assertions
+        output = out.getvalue()
+        sip_features_cfg = os.path.join(TestSite.issue_tftproot(), "org-example/features.cfg")
+        tree = ET.parse(sip_features_cfg)
+        root = tree.getroot()
+        feature_node = root.find("feature")
+        presence_node = feature_node.find("feature.presence")
+
+        self.assertEqual(expected_presence_value, presence_node.attrib['feature.presence.enabled'])
+
+        self.assertEqual(expected_output, output)
+
+
+    provider_configure_ptt = lambda: (
+        ("polypy site enable ptt for example.org", "example.org", "Presence enabled for example.org.\n", "0", "1"),
+        ("polypy site disable ptt for example.org", "example.org", "Presence disabled for example.org.\n", "0", "0"),
+    )
+
+    @data_provider(provider_configure_ptt)
+    def test_configure_ptt(self, command: str,
+                        site: str,
+                        expected_output: str,
+                        expected_callwaiting_value,
+                        expected_mode_value):
+
+        argv = command.split(" ")
+        sys.argv = argv
+
+        container, out, pconf, siteroot = self.setup_setup()
+
+        # Should match site.py's script. Mocking should go before here.
+        import poly_py_tools.site.site
+        args = docopt(poly_py_tools.site.site.__doc__)
+        container['<args>'] = args
+        container['meta'] = ModelMeta()
+        container['meta'].get_firmware_base_dir = MagicMock(
+            return_value=os.path.join(os.path.dirname(__file__), "fixtures/issue_35"))
+        container['meta'].use_configs(pconf)
+
+        site = Site(container)
+
+        # Do assertions for setup prior to run here
+        self.assertTrue(isinstance(site.pconf(), PolypyConfig))
+        #  End pre-run assertions
+
+        site.run()
+
+        # Post run assertions
+        output = out.getvalue()
+        cfg_file = os.path.join(TestSite.issue_tftproot(), "org-example/site.cfg")
+        tree = ET.parse(cfg_file)
+        root = tree.getroot()
+        ptt_node = root.find("ptt")
+
+        ptt_call_waiting_node = ptt_node.find("ptt.callWaiting")
+        self.assertEqual(expected_callwaiting_value, ptt_call_waiting_node.attrib["ptt.callWaiting.enable"])
+
+        ptt_mode_node = ptt_node.find("ptt.pttMode")
+        self.assertEqual(expected_mode_value, ptt_mode_node.attrib["ptt.pttMode.enable"])
+
+        self.assertEqual(expected_output, output)
+
+
 if __name__ == '__main__':
     unittest.main()

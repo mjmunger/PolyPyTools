@@ -9,6 +9,18 @@ options:
   -f, --force    Force the setting.
   -v             Be verbose
 
+To provision a directory, you need a CSV with the following structure:
+
+  first     last     contact     watch     label     exclude
+
+  Where:
+  -"first" is the first name of the contact
+  -"last" is the last name of the contact
+  -"contact" is the AOR (or extension) of the contact. Can be an extension like '152', or a phone number.
+  -"watch" should be "yes" to enable buddy watch, or "no" / blank otherwise.
+  -"label" will override the button text, and show the line as written in the 'label' field.
+  -"exclude" should be the mac address of a phone that should NOT have this entry. (No reason to have phones watch themselves).
+
 """
 
 from poly_py_tools.provision.provision_factory import ProvisionFactory

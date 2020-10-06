@@ -11,6 +11,10 @@ Usage: polypy [ options ] site init <site> [<model>]
        polypy [ options ] site setup voipprot for <site> --address=<address> [ --port=<port> ]
        polypy [ options ] site setup vlan for <site> [enable | disable ]
        polypy [ options ] site disable nat for <site>
+       polypy [ options ] site enable presence for <site>
+       polypy [ options ] site disable presence for <site>
+       polypy [ options ] site enable ptt for <site>
+       polypy [ options ] site disable ptt for <site>
 
 
   Commands:

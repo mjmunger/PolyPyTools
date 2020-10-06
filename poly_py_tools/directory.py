@@ -53,15 +53,19 @@ class Directory:
             csv_reader = csv.reader(csvfile)
             for row in csv_reader:
                 row = [col.strip() for col in row]
+                exclude = ""
+                if len(row[5]) > 0:
+                    exclude = row[5].replace(":", "").replace("-", "").lower().strip()
+                if exclude == self.mac_addr:
+                    continue
                 item = DirectoryItem("SPIP670", row[1], row[0], row[2], row[4], "", "", "", 0, 0,
                                      1 if row[3] == "Yes" else 0, 0)
 
                 self.items.append(item)
 
-    def save(self, configs):
-        tftp_root = configs['paths']['tftproot']
+    def save(self, tftproot_path):
         target_filename = "{}-directory.xml".format(self.mac_addr)
-        target_file = os.path.join(tftp_root, target_filename)
+        target_file = os.path.join(tftproot_path, target_filename)
 
         f = open(target_file, 'w')
         f.write(self.render())
