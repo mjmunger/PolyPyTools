@@ -133,7 +133,7 @@ class TestDirectory(unittest.TestCase):
                 configs.set_default_config(f.name)
                 configs.json['paths']['tftproot'] = str(tmpdir)
 
-                directory.save(configs.json)
+                directory.save(configs.json['paths']['tftproot'])
 
                 with open(os.path.join(tmpdir, mac_address.replace(":", "").replace("-", "").lower().strip() + "-directory.xml"), 'r') as actual_directory_xml:
                     self.assertEqual(expected_directory_xml, actual_directory_xml.read())

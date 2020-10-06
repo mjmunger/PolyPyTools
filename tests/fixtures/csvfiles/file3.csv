@@ -1,12 +1,12 @@
-First,Last,Number,Watch,Label
-Eddie,Kish,2025558310,No,Eddie Kish
-Earle,Stallman,2025555591,No,Earle Stallman
-Glynda,Balcitis,2025551942,No,Glynda Balcitis
-Fredricka,Roberton,2025556890,No,Fredricka Roberton
-Desire,Wisenbaker,2025557633,No,Desire Wisenbaker
-Mila,Duvall,2025552917,No,Mila Duvall
-Hedy,Goebel,2025556171,No,Hedy Goebel
-Lon,Otteson,2025557557,No,Lon Otteson
-Tracey,Darling,2025559961,No,Tracey Darling
-Diedre,Aikens,2025551533,No,Diedre Aikens
-Edelmira,Hapke,2025551672,No,Edelmira Hapke
+First,Last,Number,Watch,Label,Exclude
+Eddie,Kish,2025558310,No,Eddie Kish,
+Earle,Stallman,2025555591,No,Earle Stallman,
+Glynda,Balcitis,2025551942,No,Glynda Balcitis,
+Fredricka,Roberton,2025556890,No,Fredricka Roberton,
+Desire,Wisenbaker,2025557633,No,Desire Wisenbaker,
+Mila,Duvall,2025552917,No,Mila Duvall,
+Hedy,Goebel,2025556171,No,Hedy Goebel,
+Lon,Otteson,2025557557,No,Lon Otteson,
+Tracey,Darling,2025559961,No,Tracey Darling,
+Diedre,Aikens,2025551533,No,Diedre Aikens,
+Edelmira,Hapke,2025551672,No,Edelmira Hapke,

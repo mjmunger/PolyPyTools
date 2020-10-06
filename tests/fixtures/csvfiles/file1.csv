@@ -1,12 +1,12 @@
-First,Last,Number,Watch,Label
-Hallie,Emerling,101,Yes,Hallie office
-Edward,Crear,102,Yes,Edward office
-Bryanna,Artibee,103,Yes,Bryanna office
-Rolanda,Gilomen,104,Yes,Rolanda office
-Kendall,Colyar,105,Yes,Kendall office
-Shanna,Carnes,107,Yes,Shanna office
-Lisabeth,Easton,114,Yes,Lisabeth office
-Marilynn,Ellifritt,115,Yes,Marilynn office
-Ngoc,Hervig,116,Yes,Ngoc office
-Timmy,Rosine,117,Yes,Timmy office
-Adam,Norrell,118,Yes,Adam office
+First,Last,Number,Watch,Label,Exclude
+Hallie,Emerling,101,Yes,Hallie office,
+Edward,Crear,102,Yes,Edward office,
+Bryanna,Artibee,103,Yes,Bryanna office,
+Rolanda,Gilomen,104,Yes,Rolanda office,
+Kendall,Colyar,105,Yes,Kendall office,
+Shanna,Carnes,107,Yes,Shanna office,
+Lisabeth,Easton,114,Yes,Lisabeth office,
+Marilynn,Ellifritt,115,Yes,Marilynn office,
+Ngoc,Hervig,116,Yes,Ngoc office,
+Timmy,Rosine,117,Yes,Timmy office,
+Adam,Norrell,118,Yes,Adam office,
