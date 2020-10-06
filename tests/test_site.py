@@ -786,6 +786,54 @@ class TestSite(unittest.TestCase):
 
         self.assertEqual(expected_output, output)
 
+    provider_configure_pagemode = lambda: (
+        ("polypy site enable paging for example.org --name=Page", "example.org", "Paging enabled for example.org.\n", "1", "Page"),
+        ("polypy site disable paging for example.org", "example.org", "Paging disabled for example.org.\n", "0", ""),
+    )
 
+    @data_provider(provider_configure_pagemode)
+    def test_configure_pagemode(self, command: str,
+                        site: str,
+                        expected_output: str,
+                        expected_mode_value,
+                        expected_name):
+
+        argv = command.split(" ")
+        sys.argv = argv
+
+        container, out, pconf, siteroot = self.setup_setup()
+
+        # Should match site.py's script. Mocking should go before here.
+        import poly_py_tools.site.site
+        args = docopt(poly_py_tools.site.site.__doc__)
+        container['<args>'] = args
+        container['meta'] = ModelMeta()
+        container['meta'].get_firmware_base_dir = MagicMock(
+            return_value=os.path.join(os.path.dirname(__file__), "fixtures/issue_35"))
+        container['meta'].use_configs(pconf)
+
+        site = Site(container)
+
+        # Do assertions for setup prior to run here
+        self.assertTrue(isinstance(site.pconf(), PolypyConfig))
+        #  End pre-run assertions
+
+        site.run()
+
+        # Post run assertions
+        output = out.getvalue()
+        cfg_file = os.path.join(TestSite.issue_tftproot(), "org-example/site.cfg")
+        tree = ET.parse(cfg_file)
+        root = tree.getroot()
+        ptt_node = root.find("ptt")
+
+        ptt_pagemode = ptt_node.find("ptt.pageMode")
+        self.assertEqual(expected_mode_value, ptt_pagemode.attrib["ptt.pageMode.enable"])
+
+        if expected_mode_value == 1:
+            self.assertEqual(args['<args>']['--name'], ptt_pagemode.attrib["ptt.pageMode.displayName"])
+
+
+        self.assertEqual(expected_output, output)
 if __name__ == '__main__':
     unittest.main()
