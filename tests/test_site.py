@@ -878,7 +878,7 @@ class TestSite(unittest.TestCase):
         sip_node = protocol_node.find("voIpProt.SIP")
         alert_node = sip_node.find("voIpProt.SIP.alertInfo")
 
-        self.assertEqual(expected_mode_value, sip_node.attrib["voIpProt.SIP.alertInfo.1.value"])
+        self.assertEqual(expected_mode_value, alert_node.attrib["voIpProt.SIP.alertInfo.1.value"])
 
         self.assertEqual(expected_output, output)
 if __name__ == '__main__':

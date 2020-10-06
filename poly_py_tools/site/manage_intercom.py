@@ -15,7 +15,7 @@ class ManageIntercom(SiteRunner):
         sip_node = protocol_node.find("voIpProt.SIP")
         alert_node = sip_node.find("voIpProt.SIP.alertInfo")
 
-        sip_node.attrib["voIpProt.SIP.alertInfo.1.value"] = value
+        alert_node.attrib["voIpProt.SIP.alertInfo.1.value"] = value
 
         tree.write(self.sip_cfg())
 
