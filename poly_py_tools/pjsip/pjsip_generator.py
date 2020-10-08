@@ -111,6 +111,8 @@ class PJSipGenerator(object):
         else:
             self.write_clean_conf(dialplan)
 
+        print("Processed {} {}".format(len(self.endpoints), "entry" if len(self.endpoints)==1 else "entries"))
+
     def append_conf(self, dialplan: Dialplan):
 
         # Add in all the stuff that's already there.
