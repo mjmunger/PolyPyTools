@@ -43,8 +43,7 @@ class ProvisionPolycom(Loggable):
         phone = PolycomPhone()
         phone.use_configs(self.pconf)
         phone.use_model_meta(self.meta)
-        phone.is_model("SPIP670")
-        phone.has_mac(self.args['<macaddress>'])
+        # phone.is_model("SPIP670")
 
         for ep in endpoints:
             ep.set_attributes()
@@ -52,6 +51,7 @@ class ProvisionPolycom(Loggable):
             ep.load_aors(parser.resources)
             ep.load_auths(parser.resources)
             phone.is_model(ep.model)
+            phone.has_mac(self.args['<macaddress>'])
             phone.add_endpoint(ep)
 
         phone.hydrate_registrations(parser.resources)

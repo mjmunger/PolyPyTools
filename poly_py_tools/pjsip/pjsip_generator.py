@@ -49,8 +49,9 @@ class PJSipGenerator(object):
 
         for entry in dialplan.entries:
 
-            if not entry.exten == extension:
-                continue
+            if not extension == "all":
+                if not entry.exten == extension:
+                    continue
 
             template = Template()
             template.from_entry(entry)
@@ -73,8 +74,6 @@ class PJSipGenerator(object):
             auth.auth_type = "userpass"
             auth.username = "{}{}".format(endpoint.mac, endpoint.extension)
             auth.password = self.rpg.generate_password()
-            auth.label = entry.label
-            auth.order = entry.priority
 
             endpoint.add_aor(aor)
             endpoint.add_auth(auth)
